@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EcoSnap - User Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="dbstyles.css" />
+</head>
+<body>
+
+  <!-- ── NAVBAR ─────────────────────────────────── -->
+  <nav class="nav-wrapper" role="navigation" aria-label="Main navigation">
+
+    <div class="nav-logo-wrap">
+      <img class="nav-logo-img" src="Logo/EcoSnap_LOGO_4.png" alt="EcoSnap Logo">
+    </div>
+
+    <div class="nav-links">
+      <a href="#" class="nav-item nav-item--active" aria-current="page">
+        <span class="nav-icon">🏠</span>
+        <span>Dashboard</span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="nav-icon">🕐</span>
+        <span>History</span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="nav-icon">📋</span>
+        <span>Tips &amp; Facts</span>
+      </a>
+      <a href="#" class="nav-item">
+        <span class="nav-icon">⚙️</span>
+        <span>Settings</span>
+      </a>
+    </div>
+
+    <div class="nav-user" aria-label="User menu: John Doe">
+      <span>John Doe</span>
+      <div class="nav-avatar" aria-hidden="true">👤</div>
+    </div>
+
+  </nav>
+
+  <main class="page-shell">
+
+    <header class="page-header">
+      <div class="welcome-block">
+        <h1>
+          Welcome, John! 👋
+          <span class="welcome-icon" aria-hidden="true">🌱</span>
+        </h1>
+        <p>You're all set! Start scanning items to track your recycling journey.</p>
+      </div>
+      <button class="btn-scan" type="button" aria-label="Scan a new item">
+        <span class="scan-icon" aria-hidden="true">📷</span>
+        Scan new Item
+      </button>
+    </header>
+
+    <div class="onboarding-banner" role="status" aria-label="Getting started tip">
+      <span class="banner-icon" aria-hidden="true">💡</span>
+      <p><strong>Welcome to EcoSnap!</strong> Hit <em>Scan new Item</em> to scan your first piece of recyclable waste and start building your eco-impact.</p>
+    </div>
+
+    <section class="stats-grid" aria-label="Today's recycling statistics">
+
+      <article class="stat-card stat-card--primary" aria-label="Total Scans">
+        <span class="stat-card-icon" aria-hidden="true">📷</span>
+        <div class="stat-value">0</div>
+        <div class="stat-label">Total Scans</div>
+        <span class="stat-badge stat-badge--on-dark" aria-label="No scans yet">
+          📷 No scans yet
+        </span>
+      </article>
+
+      <article class="stat-card" aria-label="Items Recycled">
+        <span class="stat-card-icon" aria-hidden="true">♻️</span>
+        <div class="stat-value">0</div>
+        <div class="stat-label">Items Recycled</div>
+        <span class="stat-badge stat-badge--light" aria-label="Start recycling">
+          🌿 Get started!
+        </span>
+      </article>
+
+      <article class="stat-card" aria-label="Recycling Rate">
+        <span class="stat-card-icon" aria-hidden="true">📊</span>
+        <div class="stat-value">0%</div>
+        <div class="stat-label">Recycling Rate</div>
+        <span class="stat-badge stat-badge--light" aria-label="Scan items to build your rate">
+          Scan to build your rate
+        </span>
+      </article>
+
+      <article class="stat-card" aria-label="Waste Diverted">
+        <span class="stat-card-icon" aria-hidden="true">🌍</span>
+        <div class="stat-value">0 kg</div>
+        <div class="stat-label">Waste Diverted</div>
+        <span class="stat-badge stat-badge--light" aria-label="Nothing diverted yet">
+          Your impact starts here
+        </span>
+      </article>
+
+    </section>
+
+  </main>
+
+</body>
+</html>
