@@ -54,11 +54,15 @@ export default function Navbar() {
 
       </div>
 
-      <NavLink to="/profile" className="nav-user">
-        <span>John Doe</span>
-        <div className="nav-avatar">👤</div>
-      </NavLink>
-
+      <NavLink
+  to="/profile"
+  className={({ isActive }) =>
+    isActive ? "nav-item nav-item--active" : "nav-item nav-user"
+  }
+>
+  <span>John Doe</span>
+  <div className="nav-avatar">👤</div>
+</NavLink>
     </nav>
   );
 }
