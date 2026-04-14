@@ -16,12 +16,12 @@ export default function Register() {
   return (
     <div className="screen">
 
-     <Link to="/login" className="back-link">
-  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M13 4L7 10L13 16" stroke="#4dd97a" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-  Back to Login
-</Link>
+    <Link to="/login" className="back-link">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M13 4L7 10L13 16" stroke="#4dd97a" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+      Back to Login
+    </Link>
 
       <div className="heading">Create Account</div>
       <p className="sub">Join EcoSnap and start recycling smarter</p>

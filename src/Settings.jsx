@@ -1,7 +1,5 @@
 export default function Settings(){
-    return (
-        <>
-         COming soon;
-        </>
-    );
+    return <div>
+        Settings
+    </div>;
 }

@@ -9,11 +9,12 @@ import TipsandFacts from './TipsandFacts';
 import Settings from './Settings';
 import Profile from './Profile';
 import Scanner from './Scanner';
+import ContactUs from './ContactUs';
+import AboutUs from './AboutUs';
 
 import logo from './Logo/EcoSnap_LOGO_4.png';
 import './splash.css';
 
-// ✅ Module-level flag — survives re-renders, resets only on full page refresh
 let splashAlreadyShown = false;
 
 export default function App() {
@@ -29,25 +30,23 @@ export default function App() {
 }
 
 function AppContent() {
-  // ✅ If splash was already shown this session, start as 'done' immediately
   const [phase, setPhase] = useState(() => splashAlreadyShown ? 'done' : 'splash');
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (phase === 'done') return; // ✅ Already done, skip the timer entirely
+    if (phase === 'done') return; 
 
     const timer = setTimeout(() => {
-      splashAlreadyShown = true; // ✅ Mark as shown before navigating
+      splashAlreadyShown = true; 
       setPhase('done');
       navigate('/login', { replace: true });
-    }, 5000);
+    }, 1500);
 
     return () => clearTimeout(timer);
   }, [navigate, phase]);
 
   return (
     <>
-      {/* ── Splash screen ── */}
       {phase !== 'done' && (
         <>
           <div className={`splash-bg splash-bg--splash`} />
@@ -64,7 +63,6 @@ function AppContent() {
         </>
       )}
 
-      {/* ── App routes ── */}
       {phase === 'done' && (
         <Routes>
           <Route path="/" element={<Navigate to="/login" replace />} />
@@ -76,6 +74,8 @@ function AppContent() {
           <Route path="/settings" element={<Settings />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/scanner" element={<Scanner />} />
+          <Route path="/contactus" element={<ContactUs />} />
+           <Route path="/aboutus" element={<AboutUs />} />
         </Routes>
       )}
     </>
