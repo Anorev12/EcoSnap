@@ -1,0 +1,265 @@
+.about-wrapper {
+  font-family: 'Georgia', serif;
+  background: #f0f4ef;
+  min-height: 100vh;
+  color: #1a2e1a;
+}
+ 
+/* ===== NAV ===== */
+.about-nav {
+  background: #1a3a1a;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  height: 56px;
+}
+ 
+.about-nav-logo {
+  color: #2e7d32;
+  font-weight: 800;
+  font-size: 1.2rem;
+  letter-spacing: 1px;
+}
+ 
+.about-nav-logo span {
+  color: #fff;
+}
+ 
+.about-nav-links {
+  display: flex;
+  gap: 1.5rem;
+}
+ 
+.about-nav-links a {
+  color: #cde8cd;
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+ 
+/* ===== HERO ===== */
+.about-hero {
+  background: linear-gradient(135deg, #1a3a1a 0%, #2d5a2d 60%, #4a8a4a 100%);
+  color: #fff;
+  padding: 5rem 2rem 4rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+ 
+.about-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 50%, rgba(106, 212, 106, 0.12) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(106, 212, 106, 0.08) 0%, transparent 40%);
+}
+ 
+.about-hero-content {
+  position: relative;
+}
+ 
+.about-hero-icon {
+  font-size: 3rem;
+  margin-bottom: 0.75rem;
+}
+ 
+.about-hero h1 {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 800;
+  margin: 0 0 1rem;
+  letter-spacing: -1px;
+  line-height: 1.1;
+}
+ 
+.about-hero h1 .highlight {
+  color: #6fcf6f;
+}
+ 
+.about-hero p {
+  font-size: 1.15rem;
+  max-width: 560px;
+  margin: 0 auto;
+  color: #b8dfb8;
+  line-height: 1.7;
+}
+ 
+/* ===== STATS ===== */
+.about-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  background: #fff;
+  border-bottom: 2px solid #ddeedd;
+}
+ 
+.about-stat-item {
+  padding: 2rem 1.5rem;
+  text-align: center;
+  border-right: 1px solid #eaf4ea;
+}
+ 
+.about-stat-item:last-child {
+  border-right: none;
+}
+ 
+.about-stat-value {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #2d6a2d;
+}
+ 
+.about-stat-label {
+  font-size: 0.8rem;
+  color: #6a8a6a;
+  margin-top: 0.25rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+ 
+/* ===== MISSION ===== */
+.about-mission {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+}
+ 
+.about-mission-inner {
+  display: flex;
+  align-items: flex-start;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+ 
+.about-mission-icon {
+  background: #2d6a2d;
+  border-radius: 16px;
+  padding: 1.25rem;
+  font-size: 2.5rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+ 
+.about-mission-text {
+  flex: 1;
+  min-width: 260px;
+}
+ 
+.about-mission-text h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0 0 1rem;
+  color: #1a3a1a;
+}
+ 
+.about-mission-text p {
+  line-height: 1.8;
+  color: #3a5a3a;
+  margin: 0 0 1rem;
+  font-size: 1.05rem;
+}
+ 
+.about-mission-text p:last-child {
+  margin: 0;
+}
+ 
+/* ===== HOW IT WORKS ===== */
+.about-how {
+  background: #fff;
+  padding: 4rem 2rem;
+}
+ 
+.about-how-inner {
+  max-width: 800px;
+  margin: 0 auto;
+}
+ 
+.about-how h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 2.5rem;
+  color: #1a3a1a;
+}
+ 
+.about-how-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+ 
+.about-how-card {
+  background: #f5fbf5;
+  border: 1px solid #ddeedd;
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+ 
+.about-how-step {
+  width: 36px;
+  height: 36px;
+  background: #2d6a2d;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+}
+ 
+.about-how-card-icon {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+ 
+.about-how-card h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+  color: #1a3a1a;
+}
+ 
+.about-how-card p {
+  font-size: 0.875rem;
+  color: #5a7a5a;
+  margin: 0;
+  line-height: 1.6;
+}
+ 
+/* ===== CTA ===== */
+.about-cta {
+  background: linear-gradient(135deg, #1a3a1a, #2d5a2d);
+  color: #fff;
+  text-align: center;
+  padding: 4rem 2rem;
+}
+ 
+.about-cta-icon {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+ 
+.about-cta h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0 0 0.75rem;
+}
+ 
+.about-cta p {
+  color: #b8dfb8;
+  max-width: 440px;
+  margin: 0 auto 2rem;
+  line-height: 1.7;
+}
+ 
+.about-cta-btn {
+  background: #2e7d32;
+  color: #1a3a1a;
+  border: none;
+  border-radius: 8px;
+  padding: 0.85rem 2rem;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.25px;
+}

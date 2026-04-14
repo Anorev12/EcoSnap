@@ -1,0 +1,110 @@
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* PAGE BACKGROUND (pink patterned feel) */
+.settings-page {
+  height: 100vh;
+  background-color: #f6b3b3;
+}
+
+/* HEADER */
+.settings-header {
+  background-color: #1f6f2f;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 25px;
+}
+
+.logo {
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.nav {
+  display: flex;
+  gap: 25px;
+}
+
+.nav span {
+  cursor: pointer;
+  opacity: 0.9;
+}
+
+.nav .active {
+  font-weight: bold;
+  border-bottom: 2px solid white;
+}
+
+.user {
+  font-size: 14px;
+}
+
+/* BODY LAYOUT */
+.settings-body {
+  display: flex;
+  height: calc(100vh - 60px);
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 240px;
+  background-color: #1f6f2f;
+  color: white;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar h3 {
+  font-size: 13px;
+  margin: 15px 0 5px;
+  opacity: 0.8;
+}
+
+.sidebar ul {
+  list-style: none;
+  margin-bottom: 10px;
+}
+
+.sidebar li {
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.sidebar li:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar li.active {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* LOGOUT BUTTON */
+.logout {
+  margin-top: auto;
+  background-color: #e53935;
+  border: none;
+  padding: 10px;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.logout:hover {
+  background-color: #c62828;
+}
+
+/* CONTENT AREA */
+.content {
+  flex: 1;
+  background-color: #d9d9d9;
+}

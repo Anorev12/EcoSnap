@@ -1,5 +1,4 @@
 import { useNavigate, Link } from 'react-router-dom';
-import logo from './Logo/EcoSnap_LOGO_4.png'
 import './dashboard.css';
 
 export default function Dashboard() {
@@ -7,43 +6,6 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard-container">
-
-      {/* ───────────── NAVBAR ───────────── */}
-      <nav className="nav-wrapper" role="navigation" aria-label="Main navigation">
-
-        <div className="nav-logo-wrap">
-          <img className="nav-logo-img" src={logo} alt="EcoSnap Logo" />
-        </div>
-
-        <div className="nav-links">
-          <Link to="/dashboard" className="nav-item nav-item--active">
-            <span className="nav-icon">🏠</span>
-            <span>Dashboard</span>
-          </Link>
-
-          <Link to="/history" className="nav-item">
-            <span className="nav-icon">🕐</span>
-            <span>History</span>
-          </Link>
-
-          <Link to="/tipsandfacts" className="nav-item">
-            <span className="nav-icon">📋</span>
-            <span>Tips & Facts</span>
-          </Link>
-
-          <Link to="/settings" className="nav-item">
-            <span className="nav-icon">⚙️</span>
-            <span>Settings</span>
-          </Link>
-        </div>
-
-        <Link to="/profile" className="nav-user">
-          <span>John Doe</span>
-          <div className="nav-avatar">👤</div>
-        </Link>
-
-      </nav>
-
 
       {/* ───────────── PAGE CONTENT ───────────── */}
       <div className="page-shell">
@@ -129,41 +91,39 @@ export default function Dashboard() {
       <footer className="site-footer">
 
         <div className="footer-inner">
-
-          <div className="footer-brand">
-            <div className="nav-logo-wrap">
-              <img className="nav-logo-img" src={logo} alt="EcoSnap Logo" />
-            </div>
-            <p className="footer-tagline">
-                Snap it. Know it. Green it.
-              </p>
-          </div>
-
           <div className="footer-links">
 
             <div className="footer-col">
-              <h4>Company</h4>
               <ul>
-                <li><Link to="/about">About Us</Link></li>
-                <li><Link to="/mission">Our Mission</Link></li>
-                <li><Link to="/team">The Team</Link></li>
+                <li>
+                  <Link to="/about">About Us</Link>
+                </li>
               </ul>
             </div>
 
             <div className="footer-col">
-              <h4>Support</h4>
               <ul>
-                <li><Link to="/contact">Contact Us</Link></li>
-                <li><Link to="/faq">FAQ</Link></li>
-                <li><Link to="feedback">Send Feedback</Link></li>
+                <li>
+                  <Link to="/contact">Contact Us</Link>
+                </li>
               </ul>
             </div>
 
             <div className="footer-col">
-              <h4>Legal</h4>
+              {/* <h4>Legal</h4> */}
               <ul>
-                <li><Link to="/privacy">Privacy Policy</Link></li>
-                <li><Link to="/terms">Terms of Use</Link></li>
+                <li>
+                  <Link to="/privacy">Privacy Policy</Link>
+                </li>
+              </ul>
+                
+            </div>
+
+            <div className="footer-col">
+              <ul>
+                <li>
+                  <Link to="/terms">Terms of Use</Link>
+                </li>
               </ul>
             </div>
 

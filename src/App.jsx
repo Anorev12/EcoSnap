@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate , useLocation} from 'react-router-dom';
 import { useState, useEffect } from 'react';
 
 import Login from './Login';
@@ -17,6 +17,7 @@ import Faq from './Faq';
 import SendFeedback from './SendFeedback';
 import PrivacyPolicy from './PrivacyPolicy';
 import TermsofUse from './TermsofUse';
+import Navbar from './Navbar';
 
 import logo from './Logo/EcoSnap_LOGO_4.png';
 import './splash.css';
@@ -36,14 +37,20 @@ export default function App() {
 }
 
 function AppContent() {
-  const [phase, setPhase] = useState(() => splashAlreadyShown ? 'done' : 'splash');
+  const [phase, setPhase] = useState(() =>
+    splashAlreadyShown ? 'done' : 'splash'
+  );
+
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const hideNavbar = location.pathname.startsWith('/login') || location.pathname.startsWith('/register');
 
   useEffect(() => {
-    if (phase === 'done') return; 
+    if (phase === 'done') return;
 
     const timer = setTimeout(() => {
-      splashAlreadyShown = true; 
+      splashAlreadyShown = true;
       setPhase('done');
       navigate('/login', { replace: true });
     }, 1500);
@@ -55,40 +62,39 @@ function AppContent() {
     <>
       {phase !== 'done' && (
         <>
-          <div className={`splash-bg splash-bg--splash`} />
-          <div className={`splash-overlay splash-overlay--splash`}>
+          <div className="splash-bg splash-bg--splash" />
+          <div className="splash-overlay splash-overlay--splash">
             <div className="splash-overlay__logo">
               <img src={logo} alt="EcoSnap Logo" />
-            </div>
-            <div className="splash-overlay__tagline">
-              <span style={{ animationDelay: '0.2s' }}>Snap it.</span>
-              <span style={{ animationDelay: '0.5s' }}>Know it.</span>
-              <span style={{ animationDelay: '0.8s' }}>Green it.</span>
             </div>
           </div>
         </>
       )}
 
       {phase === 'done' && (
-        <Routes>
-          <Route path="/" element={<Navigate to="/login" replace />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/history" element={<History />} />
-          <Route path="/tipsandfacts" element={<TipsandFacts />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/scanner" element={<Scanner />} />
-          <Route path="/contact" element={<ContactUs />} />
-          <Route path="/about" element={<AboutUs />} />
-          <Route path="/mission" element={<OurMission />} />
-          <Route path="/team" element={<TheTeam />} />
-          <Route path="/faq" element={<Faq />} />
-          <Route path="/feedback" element={<SendFeedback />} />
-          <Route path="/privacy" element={<PrivacyPolicy />} />
-          <Route path="/terms" element={<TermsofUse />} />
-        </Routes>
+        <>
+          {!hideNavbar && <Navbar />} {/* ✅ ONLY SHOW IN APP */}
+
+          <Routes>
+            <Route path="/" element={<Navigate to="/login" replace />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/history" element={<History />} />
+            <Route path="/tipsandfacts" element={<TipsandFacts />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/scanner" element={<Scanner />} />
+            <Route path="/contact" element={<ContactUs />} />
+            <Route path="/about" element={<AboutUs />} />
+            <Route path="/mission" element={<OurMission />} />
+            <Route path="/team" element={<TheTeam />} />
+            <Route path="/faq" element={<Faq />} />
+            <Route path="/feedback" element={<SendFeedback />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<TermsofUse />} />
+          </Routes>
+        </>
       )}
     </>
   );
