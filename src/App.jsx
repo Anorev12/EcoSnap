@@ -11,6 +11,12 @@ import Profile from './Profile';
 import Scanner from './Scanner';
 import ContactUs from './ContactUs';
 import AboutUs from './AboutUs';
+import OurMission from './OurMission';
+import TheTeam from './TheTeam';
+import Faq from './Faq';
+import SendFeedback from './SendFeedback';
+import PrivacyPolicy from './PrivacyPolicy';
+import TermsofUse from './TermsofUse';
 
 import logo from './Logo/EcoSnap_LOGO_4.png';
 import './splash.css';
@@ -74,8 +80,14 @@ function AppContent() {
           <Route path="/settings" element={<Settings />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/scanner" element={<Scanner />} />
-          <Route path="/contactus" element={<ContactUs />} />
-           <Route path="/aboutus" element={<AboutUs />} />
+          <Route path="/contact" element={<ContactUs />} />
+          <Route path="/about" element={<AboutUs />} />
+          <Route path="/mission" element={<OurMission />} />
+          <Route path="/team" element={<TheTeam />} />
+          <Route path="/faq" element={<Faq />} />
+          <Route path="/feedback" element={<SendFeedback />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsofUse />} />
         </Routes>
       )}
     </>

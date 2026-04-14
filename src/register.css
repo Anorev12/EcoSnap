@@ -73,17 +73,18 @@ body {
 
 .card {
   background: var(--clr-green-deep);
-  border: 1.5px solid rgba(0,0,0,0.2);
+  padding: 40px 50px;
   border-radius: 18px;
-  padding: 36px 40px 28px;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.3);
   width: 100%;
+  max-width: 550px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+  color: var(--clr-white);
 }
 
 .fields-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px 32px;
+  gap: 20px 40px;
   margin-bottom: 8px;
 }
 

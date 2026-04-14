@@ -144,26 +144,26 @@ export default function Dashboard() {
             <div className="footer-col">
               <h4>Company</h4>
               <ul>
-                <li><Link to="/aboutus">About Us</Link></li>
-                <li><a href="/mission">Our Mission</a></li>
-                <li><a href="/team">The Team</a></li>
+                <li><Link to="/about">About Us</Link></li>
+                <li><Link to="/mission">Our Mission</Link></li>
+                <li><Link to="/team">The Team</Link></li>
               </ul>
             </div>
 
             <div className="footer-col">
               <h4>Support</h4>
               <ul>
-                <li><Link to="/contactus">Contact Us</Link></li>
-                <li><a href="/faq">FAQ</a></li>
-                <li><a href="/feedback">Send Feedback</a></li>
+                <li><Link to="/contact">Contact Us</Link></li>
+                <li><Link to="/faq">FAQ</Link></li>
+                <li><Link to="feedback">Send Feedback</Link></li>
               </ul>
             </div>
 
             <div className="footer-col">
               <h4>Legal</h4>
               <ul>
-                <li><a href="/privacy">Privacy Policy</a></li>
-                <li><a href="/terms">Terms of Use</a></li>
+                <li><Link to="/privacy">Privacy Policy</Link></li>
+                <li><Link to="/terms">Terms of Use</Link></li>
               </ul>
             </div>
 
