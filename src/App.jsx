@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate, useNavigate , useLocation} from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 
 import Login from './Login';
@@ -44,21 +44,32 @@ function AppContent() {
     splashAlreadyShown ? 'done' : 'splash'
   );
 
+  const [flying, setFlying] = useState(false);
+
   const navigate = useNavigate();
   const location = useLocation();
 
-  const hideNavbar = location.pathname.startsWith('/login') || location.pathname.startsWith('/register');
+  const hideNavbar =
+    location.pathname.startsWith('/login') ||
+    location.pathname.startsWith('/register');
 
   useEffect(() => {
     if (phase === 'done') return;
+
+    const flyTimer = setTimeout(() => {
+      setFlying(true);
+    }, 1000);
 
     const timer = setTimeout(() => {
       splashAlreadyShown = true;
       setPhase('done');
       navigate('/login', { replace: true });
-    }, 1500);
+    }, 1550);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(flyTimer);
+    };
   }, [navigate, phase]);
 
   return (
@@ -70,13 +81,23 @@ function AppContent() {
             <div className="splash-overlay__logo">
               <img src={logo} alt="EcoSnap Logo" />
             </div>
+
+            <div
+              className={`splash-overlay__tagline ${
+                flying ? 'splash-overlay__tagline--hide' : ''
+              }`}
+            >
+              <span style={{ animationDelay: '0.3s' }}>Snap it.</span>
+              <span style={{ animationDelay: '0.4s' }}>Know it.</span>
+              <span style={{ animationDelay: '0.5s' }}>Green it.</span>
+            </div>
           </div>
         </>
       )}
 
       {phase === 'done' && (
         <>
-          {!hideNavbar && <Navbar />} 
+          {!hideNavbar && <Navbar />}
 
           <Routes>
             <Route path="/" element={<Navigate to="/login" replace />} />
