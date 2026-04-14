@@ -1,7 +1,5 @@
 export default function Scanner(){
-    return (
-        <>
-         COming soon;
-        </>
-    );
+    return <div>
+        Scanner
+    </div>;
 }

@@ -14,28 +14,28 @@ export default function Dashboard() {
         </div>
 
         <div className="nav-links">
-  <Link to="/dashboard" className="nav-item nav-item--active" aria-current="page">
-    <span className="nav-icon">🏠</span>
-    <span>Dashboard</span>
-  </Link>
-  <Link to="/history" className="nav-item">
-    <span className="nav-icon">🕐</span>
-    <span>History</span>
-  </Link>
-  <Link to="/tipsandfacts" className="nav-item">
-    <span className="nav-icon">📋</span>
-    <span>Tips &amp; Facts</span>
-  </Link>
-  <Link to="/settings" className="nav-item">
-    <span className="nav-icon">⚙️</span>
-    <span>Settings</span>
-  </Link>
-</div>
+            <Link to="/dashboard" className="nav-item nav-item--active" aria-current="page">
+                <span className="nav-icon">🏠</span>
+                <span>Dashboard</span>
+            </Link>
+            <Link to="/history" className="nav-item">
+                <span className="nav-icon">🕐</span>
+                <span>History</span>
+            </Link>
+            <Link to="/tipsandfacts" className="nav-item">
+                <span className="nav-icon">📋</span>
+                <span>Tips &amp; Facts</span>
+            </Link>
+            <Link to="/settings" className="nav-item">
+                <span className="nav-icon">⚙️</span>
+                <span>Settings</span>
+            </Link>
+        </div>
 
         <Link to="/profile" className="nav-user" aria-label="User menu: John Doe">
-  <span>John Doe</span>
-  <div className="nav-avatar" aria-hidden="true">👤</div>
-</Link>
+            <span>John Doe</span>
+            <div className="nav-avatar" aria-hidden="true">👤</div>
+        </Link>
 
       </nav>
 

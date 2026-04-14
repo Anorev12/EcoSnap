@@ -1,0 +1,102 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
+
+body:has(.splash-bg) {
+  background: #001a00 !important;
+}
+
+/* ── Fullscreen background ── */
+.splash-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: linear-gradient(135deg, #001a00 0%, #1b5e20 60%, #2e7d32 100%);
+  transition: opacity 0.8s ease;
+  pointer-events: none;
+}
+.splash-bg--splash     { opacity: 1; }
+.splash-bg--transition { opacity: 0; }
+
+/* ── Logo + tagline overlay ── */
+.splash-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  transition: all 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.splash-overlay--splash {
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.splash-overlay--transition {
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 20vh;
+  transform: translateX(-30%);
+}
+
+/* ── Logo ── */
+.splash-overlay__logo img {
+  height: auto;
+  display: block;
+  /* ✅ Logo animates in on mount */
+  animation: splashLogoIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.splash-overlay--splash     .splash-overlay__logo img { width: 280px; }
+.splash-overlay--transition .splash-overlay__logo img { width: 300px; }
+
+/* ── Tagline: horizontal layout ── */
+.splash-overlay__tagline {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  margin-top: 10px;
+  margin-left: 4px;
+}
+
+.splash-overlay__tagline span {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(1.2rem, 3vw, 2rem);
+  font-weight: 800;
+  line-height: 1.2;
+  color: #76c442;
+  text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.5);
+  opacity: 0; /* ✅ Start hidden — animation fills to opacity: 1 */
+  animation: splashLineIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  /* Delay is set inline in JSX per span: 0.2s, 0.5s, 0.8s */
+}
+
+.splash-overlay__tagline--hide {
+  opacity: 0;
+}
+
+/* ── Keyframes ── */
+@keyframes splashLogoIn {
+  from {
+    opacity: 0;
+    transform: scale(0.85) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes splashLineIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -1,7 +1,5 @@
 export default function History(){
-    return (
-        <>
-         COming soon;
-        </>
-    );
+    return <div>
+        History
+    </div>;
 }

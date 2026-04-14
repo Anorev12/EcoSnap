@@ -1,7 +1,5 @@
 export default function TipsandFacts(){
-    return (
-        <>
-         COming soon;
-        </>
-    );
+    return <div>
+        TipsandFacts
+    </div>;
 }

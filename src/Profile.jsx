@@ -1,7 +1,5 @@
 export default function Profile(){
-    return (
-        <>
-         COming soon;
-        </>
-    );
+    return <div>
+        Profile
+    </div>;
 }

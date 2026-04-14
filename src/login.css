@@ -96,7 +96,8 @@ body {
   background: var(--clr-green-deep);
   padding: 30px;
   border-radius: 18px;
-  width: 640px;
+  width: 100%;
+  max-width: 550px;
   box-shadow: 0 8px 40px rgba(0,0,0,0.3);
   color: var(--clr-white);
 }
