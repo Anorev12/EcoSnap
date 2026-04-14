@@ -1,0 +1,79 @@
+.terms-container {
+  max-width: 800px;
+  margin: 40px auto;
+  background: #ffffff;
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  font-family: 'Inter', sans-serif;
+  color: #333;
+}
+
+.terms-header {
+  border-bottom: 2px solid #e9f5db;
+  padding-bottom: 20px;
+  margin-bottom: 30px;
+}
+
+.terms-header h1 {
+  color: #1a4314; /* Your dark green */
+  font-size: 2rem;
+  margin: 0;
+}
+
+.terms-header p {
+  color: #888;
+  font-size: 0.9rem;
+  margin-top: 5px;
+}
+
+.terms-body {
+  line-height: 1.6;
+}
+
+.terms-section {
+  margin-bottom: 25px;
+}
+
+.terms-section h3 {
+  color: #2d6a4f;
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+}
+
+.terms-section p {
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.terms-section ul {
+  padding-left: 20px;
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.terms-section li {
+  margin-bottom: 8px;
+}
+
+.terms-footer {
+  margin-top: 40px;
+  text-align: center;
+  border-top: 1px solid #eee;
+  padding-top: 30px;
+}
+
+.accept-btn {
+  background-color: #1a4314;
+  color: white;
+  border: none;
+  padding: 12px 40px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.accept-btn:hover {
+  background-color: #71b340; /* Accent green from your logo */
+}
