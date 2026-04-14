@@ -18,6 +18,9 @@ import SendFeedback from './SendFeedback';
 import PrivacyPolicy from './PrivacyPolicy';
 import TermsofUse from './TermsofUse';
 import Navbar from './Navbar';
+import ScanningIssues from './ScanningIssues';
+import AccountSecurity from './AccountSecurity';
+import Resources from './Resources';
 
 import logo from './Logo/EcoSnap_LOGO_4.png';
 import './splash.css';
@@ -73,7 +76,7 @@ function AppContent() {
 
       {phase === 'done' && (
         <>
-          {!hideNavbar && <Navbar />} {/* ✅ ONLY SHOW IN APP */}
+          {!hideNavbar && <Navbar />} 
 
           <Routes>
             <Route path="/" element={<Navigate to="/login" replace />} />
@@ -93,6 +96,10 @@ function AppContent() {
             <Route path="/feedback" element={<SendFeedback />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<TermsofUse />} />
+            <Route path="/scanningissues" element={<ScanningIssues />} />
+            <Route path="/accountsecurity" element={<AccountSecurity />} />
+            <Route path="/privacypolicy" element={<PrivacyPolicy />} />
+            <Route path="/resources" element={<Resources />} />
           </Routes>
         </>
       )}

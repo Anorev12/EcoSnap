@@ -1,0 +1,2 @@
+.security-btn { display: block; width: 200px; padding: 12px; margin: 10px 0; border-radius: 5px; border: none; background: #1a4314; color: white; cursor: pointer; }
+.security-btn.outline { background: transparent; border: 1px solid #1a4314; color: #1a4314; }

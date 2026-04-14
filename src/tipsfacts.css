@@ -1,0 +1,103 @@
+.tips-facts-wrapper {
+  background-color: #ffffff;
+  border-radius: 20px;
+  padding: 30px;
+  border: 1px solid #dcdcdc;
+  margin: 20px;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Header Styling */
+.tips-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.tips-header h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #000;
+}
+
+.more-btn {
+  background: none;
+  border: none;
+  color: #32cd32;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.arrow-circle {
+  background-color: #32cd32;
+  color: white;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+/* Card Container */
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+/* Individual Card Styling */
+.eco-card {
+  background: #f8f9f8;
+  border-radius: 15px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  display: flex;
+}
+
+/* The vertical green bar on the left */
+.card-accent {
+  width: 8px;
+  height: 100%;
+}
+
+.card-content {
+  padding: 25px;
+  flex: 1;
+}
+
+.icon-box {
+  background-color: #c1d9c1; /* Matching the muted green in your image */
+  height: 140px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-box img {
+  width: 60px;
+  height: 60px;
+}
+
+.eco-card h4 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.eco-card p {
+  font-size: 0.9rem;
+  color: #555;
+  line-height: 1.5;
+  text-align: left;
+}

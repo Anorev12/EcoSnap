@@ -1,0 +1,2 @@
+.steps-grid { display: grid; gap: 15px; margin-top: 20px; }
+.step-item { background: #fff; border: 1px solid #ddd; padding: 15px; border-radius: 8px; }

@@ -1,0 +1,140 @@
+/* Color Palette based on EcoSnap UI */
+:root {
+  --eco-dark-green: #1a4314;
+  --eco-mid-green: #2d6a4f;
+  --eco-light-green: #e9f5db;
+  --eco-accent: #71b340;
+  --text-main: #333;
+  --border-color: #e0e0e0;
+}
+
+.contact-container {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--text-main);
+  background-color: #fff;
+  min-height: 100vh;
+}
+
+/* Hero Section */
+.contact-hero {
+  background-color: var(--eco-dark-green);
+  color: white;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.contact-hero h1 {
+  font-size: 2.5rem;
+  margin-bottom: 25px;
+  font-weight: 400;
+}
+
+.search-wrapper {
+  display: flex;
+  max-width: 700px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.search-wrapper input {
+  flex: 1;
+  padding: 15px 20px;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+}
+
+.search-btn {
+  background-color: var(--eco-accent);
+  border: none;
+  color: white;
+  padding: 0 25px;
+  cursor: pointer;
+  font-size: 1.2rem;
+}
+
+/* Main Layout */
+.contact-content {
+  max-width: 1200px;
+  margin: 40px auto;
+  display: flex;
+  gap: 50px;
+  padding: 0 20px;
+}
+
+/* Sidebar */
+.contact-sidebar {
+  width: 250px;
+  flex-shrink: 0;
+}
+
+.contact-sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.contact-sidebar li {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-color);
+  cursor: pointer;
+  color: #666;
+  transition: color 0.2s;
+}
+
+.contact-sidebar li a{
+color: #666;
+text-decoration: none;
+}
+
+.contact-sidebar li:hover, .contact-sidebar li.active {
+  color: var(--eco-mid-green);
+  font-weight: bold;
+}
+
+/* Main Article */
+.contact-main {
+  flex: 1;
+}
+
+.article-header h2 {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  color: #666;
+  margin-bottom: 30px;
+}
+
+.subtitle strong {
+  color: var(--eco-accent);
+}
+
+.highlight {
+  color: var(--eco-mid-green);
+  font-weight: bold;
+}
+
+.note-box {
+  background-color: #fff9e6; /* Keeping the Shopee note color for visibility */
+  border: 1px solid #ffe58f;
+  padding: 15px;
+  display: flex;
+  gap: 15px;
+  margin: 25px 0;
+  border-radius: 4px;
+}
+
+.image-placeholder {
+  margin-top: 20px;
+  width: 300px;
+  height: 400px;
+  background-color: var(--eco-light-green);
+  border: 2px dashed var(--eco-mid-green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+}
