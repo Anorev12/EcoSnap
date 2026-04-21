@@ -133,11 +133,7 @@ function Toggle({ defaultChecked = false }) {
   const [on, setOn] = useState(defaultChecked);
   return (
     <label className="toggle">
-      <input
-        type="checkbox"
-        checked={on}
-        onChange={() => setOn(!on)}
-      />
+      <input type="checkbox" checked={on} onChange={() => setOn(!on)} />
       <span className="slider-t" />
     </label>
   );
@@ -457,13 +453,109 @@ function SessionsPanel() {
   );
 }
 
+// ─── Feedback Panel ───────────────────────────────────────────────
+
+const FEEDBACK_CATEGORIES = [
+  "General", "UI / Design", "Performance", "Scan Accuracy",
+  "Tips & Facts", "Bug Report", "Feature Request", "Other",
+];
+const RATING_LABELS = ["", "Poor", "Fair", "Good", "Very Good", "Excellent"];
+
+function FeedbackPanel() {
+  const [hoverRating, setHoverRating]       = useState(0);
+  const [selectedRating, setSelectedRating] = useState(0);
+  const [selectedCats, setSelectedCats]     = useState([]);
+  const [feedbackText, setFeedbackText]     = useState("");
+  const [submitted, setSubmitted]           = useState(false);
+
+  const toggleCat = (cat) =>
+    setSelectedCats((prev) =>
+      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
+    );
+
+  const handleSubmit = () => {
+    setSubmitted(true);
+    setTimeout(() => setSubmitted(false), 4000);
+  };
+
+  const displayRating = hoverRating || selectedRating;
+
+  return (
+    <div className="panel">
+      <h2 className="panel-title">Feedback</h2>
+
+      {/* Star rating */}
+      <div className="section-card">
+        <h4 className="card-section-title">Overall experience</h4>
+        <div className="feedback-stars">
+          {[1, 2, 3, 4, 5].map((val) => (
+            <span
+              key={val}
+              className={`feedback-star${displayRating >= val ? " active" : ""}`}
+              onMouseEnter={() => setHoverRating(val)}
+              onMouseLeave={() => setHoverRating(0)}
+              onClick={() => setSelectedRating(val)}
+            >
+              ★
+            </span>
+          ))}
+        </div>
+        <p className="feedback-rating-label">
+          {displayRating ? RATING_LABELS[displayRating] : "Tap a star to rate"}
+        </p>
+      </div>
+
+      {/* Category chips */}
+      <div className="section-card">
+        <h4 className="card-section-title">What is your feedback about?</h4>
+        <div className="feedback-chips">
+          {FEEDBACK_CATEGORIES.map((cat) => (
+            <button
+              key={cat}
+              className={`feedback-chip${selectedCats.includes(cat) ? " selected" : ""}`}
+              onClick={() => toggleCat(cat)}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Message */}
+      <div className="section-card">
+        <h4 className="card-section-title">Tell us more (optional)</h4>
+        <div className="field">
+          <textarea
+            className="feedback-textarea"
+            value={feedbackText}
+            onChange={(e) => setFeedbackText(e.target.value)}
+            placeholder="Share your thoughts, suggestions, or report an issue…"
+          />
+        </div>
+      </div>
+
+      {/* Submit */}
+      <div className="feedback-submit-row">
+        <button className="save-btn" onClick={handleSubmit}>
+          Submit feedback
+        </button>
+        {submitted && (
+          <span className="feedback-toast">
+            ✅ Thank you! Your feedback has been submitted.
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─── Sidebar config ───────────────────────────────────────────────
 
 const SIDEBAR = [
   {
     group: "Account",
     items: [
-      { id: "profile", label: "Profile" },
+      { id: "profile",  label: "Profile" },
       { id: "security", label: "Account & Security" },
     ],
   },
@@ -471,16 +563,17 @@ const SIDEBAR = [
     group: "Preferences",
     items: [
       { id: "notifications", label: "Notifications" },
-      { id: "appearance", label: "Appearance" },
-      { id: "language", label: "Language & Region" },
+      { id: "appearance",    label: "Appearance" },
+      { id: "language",      label: "Language & Region" },
     ],
   },
   {
     group: "App",
     items: [
-      { id: "privacy", label: "Privacy & Data" },
-      { id: "storage", label: "Storage & Usage" },
+      { id: "privacy",  label: "Privacy & Data" },
+      { id: "storage",  label: "Storage & Usage" },
       { id: "sessions", label: "Active Sessions" },
+      { id: "feedback", label: "Feedback" },          // ← added
     ],
   },
   {
@@ -490,14 +583,15 @@ const SIDEBAR = [
 ];
 
 const PANELS = {
-  profile: <ProfilePanel />,
-  security: <SecurityPanel />,
+  profile:       <ProfilePanel />,
+  security:      <SecurityPanel />,
   notifications: <NotificationsPanel />,
-  appearance: <AppearancePanel />,
-  language: <LanguagePanel />,
-  privacy: <PrivacyPanel />,
-  storage: <StoragePanel />,
-  sessions: <SessionsPanel />,
+  appearance:    <AppearancePanel />,
+  language:      <LanguagePanel />,
+  privacy:       <PrivacyPanel />,
+  storage:       <StoragePanel />,
+  sessions:      <SessionsPanel />,
+  feedback:      <FeedbackPanel />,                   // ← added
 };
 
 // ─── Main Settings component ──────────────────────────────────────
