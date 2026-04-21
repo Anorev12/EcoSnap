@@ -109,9 +109,13 @@
   background-color: #d9d9d9;
 }
 
-/* ── Paste these into your existing settings.css ── */
+
 
 /* Panel */
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9a5fb1e82debe1cffee305583c772eae24f88fc7
 .panel-title { font-size: 1.25rem; font-weight: 500; margin-bottom: 1.25rem; color: #111; }
 
 /* Section card */
@@ -239,4 +243,104 @@
 .badge {
   font-size: 10px; padding: 2px 8px; border-radius: 10px;
   background: #dcfce7; color: #15803d; font-weight: 500;
+}
+
+/* ── Paste these at the bottom of your existing settings.css ── */
+
+/* Stars */
+.feedback-stars {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.feedback-star {
+  font-size: 28px;
+  cursor: pointer;
+  color: #ddd;
+  transition: color 0.15s, transform 0.1s;
+  user-select: none;
+  line-height: 1;
+}
+.feedback-star.active { color: #f5a623; }
+.feedback-star:hover  { transform: scale(1.15); }
+
+.feedback-rating-label {
+  font-size: 13px;
+  color: #777;
+  min-height: 18px;
+  margin: 0;
+}
+
+/* Chips */
+.feedback-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.feedback-chip {
+  border: 1.5px solid #ddd;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-family: inherit;
+  color: #444;
+  background: transparent;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  user-select: none;
+}
+.feedback-chip:hover   { border-color: #4caf50; color: #4caf50; }
+.feedback-chip.selected {
+  border-color: #4caf50;
+  background: #eaf7e4;
+  color: #2d7a30;
+  font-weight: 500;
+}
+
+/* Textarea */
+.feedback-textarea {
+  width: 100%;
+  border: 1.5px solid #ddd;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  color: #222;
+  resize: vertical;
+  min-height: 110px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.feedback-textarea:focus { border-color: #4caf50; }
+.feedback-textarea::placeholder { color: #aaa; }
+
+/* Submit row */
+.feedback-submit-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+/* Toast */
+.feedback-toast {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #eaf7e4;
+  border: 1px solid #b2dfb0;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  color: #2d7a30;
+  animation: fbFadeIn 0.25s ease;
+}
+
+@keyframes fbFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
