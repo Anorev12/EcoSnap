@@ -1,17 +1,45 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "./settings.css";
 
 // ─── Sub-components ───────────────────────────────────────────────
 
 function ProfilePanel() {
-  const [form, setForm] = useState({
+  const [isEditing, setIsEditing] = useState(false);
+  const [saved, setSaved] = useState({
     firstName: "Juan",
     lastName: "Dela Cruz",
     bio: "",
     username: "@juandc",
+    email: "juan@example.com",
+    photo: null,
   });
+  const [form, setForm] = useState(saved);
+  const [preview, setPreview] = useState(null);
+  const fileInputRef = useRef(null);
+
   const update = (k) => (e) => setForm({ ...form, [k]: e.target.value });
+
+  const handlePhotoChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    setPreview(url);
+    setForm({ ...form, photo: url });
+  };
+
+  const handleSave = () => {
+    setSaved(form);
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
+    setForm(saved);
+    setPreview(saved.photo);
+    setIsEditing(false);
+  };
+
+  const initials = `${saved.firstName[0] ?? ""}${saved.lastName[0] ?? ""}`.toUpperCase();
 
   return (
     <div className="panel">
@@ -19,42 +47,106 @@ function ProfilePanel() {
 
       <div className="section-card">
         <div className="avatar-row">
-          <div className="avatar">JD</div>
+          <div
+            className="avatar"
+            style={
+              preview || saved.photo
+                ? {
+                    backgroundImage: `url(${preview || saved.photo})`,
+                    backgroundSize: "cover",
+                    color: "transparent",
+                  }
+                : {}
+            }
+          >
+            {!preview && !saved.photo && initials}
+          </div>
+
           <div className="avatar-info">
             <p className="avatar-name">
-              {form.firstName} {form.lastName}
+              {saved.firstName} {saved.lastName}
             </p>
-            <span className="avatar-sub">juan@example.com</span>
+            <span className="avatar-sub">{saved.email}</span>
             <br />
-            <button className="btn-sm">Change photo</button>
+            {isEditing && (
+              <>
+                <button className="btn-sm" onClick={() => fileInputRef.current.click()}>
+                  Change photo
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  style={{ display: "none" }}
+                  onChange={handlePhotoChange}
+                />
+              </>
+            )}
           </div>
         </div>
 
         <div className="row2">
           <div className="field">
             <label>First name</label>
-            <input value={form.firstName} onChange={update("firstName")} />
+            <input
+              value={form.firstName}
+              onChange={update("firstName")}
+              disabled={!isEditing}
+            />
           </div>
           <div className="field">
             <label>Last name</label>
-            <input value={form.lastName} onChange={update("lastName")} />
+            <input
+              value={form.lastName}
+              onChange={update("lastName")}
+              disabled={!isEditing}
+            />
           </div>
         </div>
+
         <div className="field">
           <label>Bio</label>
           <input
             value={form.bio}
             onChange={update("bio")}
             placeholder="Tell us a little about yourself…"
+            disabled={!isEditing}
           />
         </div>
+
         <div className="field">
           <label>Username</label>
-          <input value={form.username} onChange={update("username")} />
+          <input
+            value={form.username}
+            onChange={update("username")}
+            disabled={!isEditing}
+          />
+        </div>
+
+        <div className="field">
+          <label>Email</label>
+          <input
+            value={form.email}
+            onChange={update("email")}
+            disabled={!isEditing}
+          />
         </div>
       </div>
 
-      <button className="save-btn">Save changes</button>
+      {!isEditing ? (
+        <button className="save-btn" onClick={() => setIsEditing(true)}>
+          Edit Profile
+        </button>
+      ) : (
+        <div style={{ display: "flex", gap: "12px" }}>
+          <button className="save-btn" onClick={handleSave}>
+            Save changes
+          </button>
+          <button className="btn-sm" onClick={handleCancel} style={{ padding: "10px 20px" }}>
+            Cancel
+          </button>
+        </div>
+      )}
     </div>
   );
 }
