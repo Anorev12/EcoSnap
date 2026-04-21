@@ -1,7 +1,7 @@
 import React from 'react';
 import './tipsfacts.css';
 
-// Reusable Card Component
+
 const EcoCard = ({ title, description, icon, accentColor }) => (
   <div className="eco-card">
     <div className="card-accent" style={{ backgroundColor: accentColor }}></div>
@@ -21,7 +21,7 @@ export default function TipsAndFacts() {
       title: "Plastic Recycling",
       description: "Always check the number inside the recycling symbol. Numbers 1 and 2 are most commonly accepted.",
       icon: "/path-to-plastic-icon.png",
-      accentColor: "#90ee90" // Light green accent
+      accentColor: "#90ee90" 
     },
     {
       title: "Composting Basics",
@@ -39,7 +39,6 @@ export default function TipsAndFacts() {
 
   return (
     <div className="tips-facts-wrapper">
-      {/* Header section from your screenshot */}
       <div className="tips-header">
         <h3>Today's Eco Tip</h3>
         <button className="more-btn">

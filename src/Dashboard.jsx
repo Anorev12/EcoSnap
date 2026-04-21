@@ -7,10 +7,10 @@ export default function Dashboard() {
   return (
     <div className="dashboard-container">
 
-      {/* ───────────── PAGE CONTENT ───────────── */}
+      
       <div className="page-shell">
 
-        {/* Header */}
+        
         <header className="page-header">
           <div className="welcome-block">
             <h1>
