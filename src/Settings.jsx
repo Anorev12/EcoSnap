@@ -4,17 +4,9 @@ import "./settings.css";
 
 // ─── Sub-components ───────────────────────────────────────────────
 
-function ProfilePanel() {
+function ProfilePanel({ user, setUser }) {
   const [isEditing, setIsEditing] = useState(false);
-  const [saved, setSaved] = useState({
-    firstName: "Juan",
-    lastName: "Dela Cruz",
-    bio: "",
-    username: "@juandc",
-    email: "juan@example.com",
-    photo: null,
-  });
-  const [form, setForm] = useState(saved);
+  const [form, setForm] = useState(user);
   const [preview, setPreview] = useState(null);
   const fileInputRef = useRef(null);
 
@@ -29,17 +21,17 @@ function ProfilePanel() {
   };
 
   const handleSave = () => {
-    setSaved(form);
+    setUser(form);
     setIsEditing(false);
   };
 
   const handleCancel = () => {
-    setForm(saved);
-    setPreview(saved.photo);
+    setForm(user);
+    setPreview(user.photo);
     setIsEditing(false);
   };
 
-  const initials = `${saved.firstName[0] ?? ""}${saved.lastName[0] ?? ""}`.toUpperCase();
+  const initials = `${user.firstName[0] ?? ""}${user.lastName[0] ?? ""}`.toUpperCase();
 
   return (
     <div className="panel">
@@ -50,23 +42,21 @@ function ProfilePanel() {
           <div
             className="avatar"
             style={
-              preview || saved.photo
+              preview || user.photo
                 ? {
-                    backgroundImage: `url(${preview || saved.photo})`,
+                    backgroundImage: `url(${preview || user.photo})`,
                     backgroundSize: "cover",
                     color: "transparent",
                   }
                 : {}
             }
           >
-            {!preview && !saved.photo && initials}
+            {!preview && !user.photo && initials}
           </div>
 
           <div className="avatar-info">
-            <p className="avatar-name">
-              {saved.firstName} {saved.lastName}
-            </p>
-            <span className="avatar-sub">{saved.email}</span>
+            <p className="avatar-name">{user.firstName} {user.lastName}</p>
+            <span className="avatar-sub">{user.email}</span>
             <br />
             {isEditing && (
               <>
@@ -139,9 +129,7 @@ function ProfilePanel() {
         </button>
       ) : (
         <div style={{ display: "flex", gap: "12px" }}>
-          <button className="save-btn" onClick={handleSave}>
-            Save changes
-          </button>
+          <button className="save-btn" onClick={handleSave}>Save changes</button>
           <button className="btn-sm" onClick={handleCancel} style={{ padding: "10px 20px" }}>
             Cancel
           </button>
@@ -491,27 +479,9 @@ function StoragePanel() {
 
 function SessionsPanel() {
   const sessions = [
-    {
-      id: 1,
-      icon: "📱",
-      name: "iPhone 15 · EcoSnap iOS",
-      detail: "Manila, PH · Active now",
-      current: true,
-    },
-    {
-      id: 2,
-      icon: "💻",
-      name: "Chrome on Windows",
-      detail: "Iloilo, PH · 2 days ago",
-      current: false,
-    },
-    {
-      id: 3,
-      icon: "📱",
-      name: "Samsung Galaxy S23",
-      detail: "Cebu, PH · 1 week ago",
-      current: false,
-    },
+    { id: 1, icon: "📱", name: "iPhone 15 · EcoSnap iOS", detail: "Manila, PH · Active now", current: true },
+    { id: 2, icon: "💻", name: "Chrome on Windows", detail: "Iloilo, PH · 2 days ago", current: false },
+    { id: 3, icon: "📱", name: "Samsung Galaxy S23", detail: "Cebu, PH · 1 week ago", current: false },
   ];
 
   const [list, setList] = useState(sessions);
@@ -534,9 +504,7 @@ function SessionsPanel() {
             {s.current ? (
               <span className="badge">Current</span>
             ) : (
-              <button className="danger-link" onClick={() => revoke(s.id)}>
-                Revoke
-              </button>
+              <button className="danger-link" onClick={() => revoke(s.id)}>Revoke</button>
             )}
           </div>
         ))}
@@ -581,24 +549,25 @@ const SIDEBAR = [
   },
 ];
 
-const PANELS = {
-  profile: <ProfilePanel />,
-  security: <SecurityPanel />,
-  notifications: <NotificationsPanel />,
-  appearance: <AppearancePanel />,
-  language: <LanguagePanel />,
-  privacy: <PrivacyPanel />,
-  storage: <StoragePanel />,
-  sessions: <SessionsPanel />,
-};
-
 // ─── Main Settings component ──────────────────────────────────────
 
-export default function Settings() {
+export default function Settings({ user, setUser }) {
   const navigate = useNavigate();
   const [active, setActive] = useState("profile");
 
   const handleLogout = () => navigate("/login");
+
+  // ✅ PANELS defined inside component so it can access user and setUser
+  const PANELS = {
+    profile: <ProfilePanel user={user} setUser={setUser} />,
+    security: <SecurityPanel />,
+    notifications: <NotificationsPanel />,
+    appearance: <AppearancePanel />,
+    language: <LanguagePanel />,
+    privacy: <PrivacyPanel />,
+    storage: <StoragePanel />,
+    sessions: <SessionsPanel />,
+  };
 
   return (
     <div className="settings-page">

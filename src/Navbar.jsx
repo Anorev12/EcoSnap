@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom';
 import logo from './Logo/EcoSnap_LOGO_4.png';
 import './dashboard.css';
 
-export default function Navbar() {
+export default function Navbar({ user }) {
   return (
     <nav className="nav-wrapper">
 
@@ -11,7 +11,6 @@ export default function Navbar() {
       </div>
 
       <div className="nav-links">
-
         <NavLink
           to="/dashboard"
           className={({ isActive }) =>
@@ -51,18 +50,27 @@ export default function Navbar() {
           <span className="nav-icon">⚙️</span>
           <span>Settings</span>
         </NavLink>
-
       </div>
 
       <NavLink
-  to="/profile"
-  className={({ isActive }) =>
-    isActive ? "nav-item nav-item--active" : "nav-item nav-user"
-  }
->
-  <span>John Doe</span>
-  <div className="nav-avatar">👤</div>
-</NavLink>
+        to="/profile"
+        className={({ isActive }) =>
+          isActive ? "nav-item nav-item--active" : "nav-item nav-user"
+        }
+      >
+        <span>{user.firstName} {user.lastName}</span>
+        <div
+          className="nav-avatar"
+          style={
+            user.photo
+              ? { backgroundImage: `url(${user.photo})`, backgroundSize: "cover" }
+              : {}
+          }
+        >
+          {user.photo ? "" : "👤"}
+        </div>
+      </NavLink>
+
     </nav>
   );
 }

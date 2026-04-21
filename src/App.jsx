@@ -21,6 +21,7 @@ import Navbar from './Navbar';
 import ScanningIssues from './ScanningIssues';
 import AccountSecurity from './AccountSecurity';
 import Resources from './Resources';
+import MockData from './MockData';
 
 import logo from './Logo/EcoSnap_LOGO_4.png';
 import './splash.css';
@@ -45,6 +46,15 @@ function AppContent() {
   );
 
   const [flying, setFlying] = useState(false);
+
+  const [user, setUser] = useState({
+    firstName: "Juan",
+    lastName: "Dela Cruz",
+    bio: "",
+    username: "@juandc",
+    email: "juan@example.com",
+    photo: null,
+  });
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -81,7 +91,6 @@ function AppContent() {
             <div className="splash-overlay__logo">
               <img src={logo} alt="EcoSnap Logo" />
             </div>
-
             <div
               className={`splash-overlay__tagline ${
                 flying ? 'splash-overlay__tagline--hide' : ''
@@ -97,17 +106,17 @@ function AppContent() {
 
       {phase === 'done' && (
         <>
-          {!hideNavbar && <Navbar />}
+          {!hideNavbar && <Navbar user={user} />}
 
           <Routes>
             <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard" element={<Dashboard user={user} />} />
             <Route path="/history" element={<History />} />
             <Route path="/tipsandfacts" element={<TipsandFacts />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/profile" element={<Profile />} />
+            <Route path="/settings" element={<Settings user={user} setUser={setUser} />} />
+            <Route path="/profile" element={<Profile user={user} />} />
             <Route path="/scanner" element={<Scanner />} />
             <Route path="/contact" element={<ContactUs />} />
             <Route path="/about" element={<AboutUs />} />

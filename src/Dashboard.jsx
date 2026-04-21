@@ -1,7 +1,7 @@
 import { useNavigate, Link } from 'react-router-dom';
 import './dashboard.css';
 
-export default function Dashboard() {
+export default function Dashboard({ user }) {
   const navigate = useNavigate();
 
   return (
@@ -14,7 +14,7 @@ export default function Dashboard() {
         <header className="page-header">
           <div className="welcome-block">
             <h1>
-              Welcome, John! 👋
+              Welcome, {user.firstName}! 👋  {/* ✅ dynamic first name */}
               <span className="welcome-icon">🌱</span>
             </h1>
 
@@ -32,17 +32,14 @@ export default function Dashboard() {
           </button>
         </header>
 
-
         {/* Banner */}
         <div className="onboarding-banner">
           <span className="banner-icon">💡</span>
-
           <p>
             <strong>Welcome to EcoSnap!</strong> Hit <em>Scan new Item</em> to scan
             your first recyclable waste and start building your eco-impact.
           </p>
         </div>
-
 
         {/* Stats Grid */}
         <section className="stats-grid">
@@ -85,58 +82,29 @@ export default function Dashboard() {
 
         </section>
 
-      </div> 
+      </div>
 
       {/* ───────────── FOOTER ───────────── */}
       <footer className="site-footer">
-
         <div className="footer-inner">
           <div className="footer-links">
-
             <div className="footer-col">
-              <ul>
-                <li>
-                  <Link to="/about">About Us</Link>
-                </li>
-              </ul>
+              <ul><li><Link to="/about">About Us</Link></li></ul>
             </div>
-
             <div className="footer-col">
-              <ul>
-                <li>
-                  <Link to="/contact">Contact Us</Link>
-                </li>
-              </ul>
+              <ul><li><Link to="/contact">Contact Us</Link></li></ul>
             </div>
-
             <div className="footer-col">
-              {/* <h4>Legal</h4> */}
-              <ul>
-                <li>
-                  <Link to="/privacy">Privacy Policy</Link>
-                </li>
-              </ul>
-                
+              <ul><li><Link to="/privacy">Privacy Policy</Link></li></ul>
             </div>
-
             <div className="footer-col">
-              <ul>
-                <li>
-                  <Link to="/terms">Terms of Use</Link>
-                </li>
-              </ul>
+              <ul><li><Link to="/terms">Terms of Use</Link></li></ul>
             </div>
-
           </div>
-
         </div>
-
         <div className="footer-bottom">
-          <p>
-            © {new Date().getFullYear()} EcoSnap. All rights reserved.
-          </p>
+          <p>© {new Date().getFullYear()} EcoSnap. All rights reserved.</p>
         </div>
-
       </footer>
 
     </div>
