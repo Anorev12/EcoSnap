@@ -3,13 +3,43 @@ import { Link, useNavigate } from "react-router-dom";
 import './login.css';
 import logo from "./Logo/EcoSnap_LOGO_4.png";
 
-export default function Login() {
+// API function directly here
+const loginUser = async (email, password) => {
+  const response = await fetch("http://localhost:8080/api/users/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+  if (!response.ok) throw new Error("Invalid email or password");
+  return response.json();
+};
+
+export default function Login({ setUser }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = () => {
-    navigate("/dashboard");
+  const handleLogin = async () => {
+    console.log("Login button clicked!", email, password);
+    if (!email || !password) {
+      setError("Please enter your email and password.");
+      return;
+    }
+    try {
+      setLoading(true);
+      setError("");
+      const userData = await loginUser(email, password);
+      console.log("Login success!", userData);
+      setUser(userData);
+      navigate("/dashboard");
+    } catch (err) {
+      console.log("Error details:", err.message);
+      setError("Invalid email or password. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -47,12 +77,14 @@ export default function Login() {
             onChange={(e) => setPassword(e.target.value)}
           />
 
+          {error && <p style={{ color: "red", fontSize: "13px" }}>{error}</p>}
+
           <p className="register">
             Don't Have an Account? <Link to="/register">Register</Link>
           </p>
 
-          <button className="login-btn" onClick={handleLogin}>
-            LOGIN
+          <button className="login-btn" onClick={handleLogin} disabled={loading}>
+            {loading ? "Logging in..." : "LOGIN"}
           </button>
         </div>
       </div>

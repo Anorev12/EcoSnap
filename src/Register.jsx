@@ -1,27 +1,56 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import './register.css';
+import { registerUser } from "./api";
 
-export default function Register() {
-  const [fullname, setFullname] = useState("");
+export default function Register({ setUser }) {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleRegister = () => {
-        navigate("/dashboard");
+  const handleRegister = async () => {
+    if (!firstName || !lastName || !email || !password || !confirm) {
+      setError("Please fill in all fields.");
+      return;
+    }
+    if (password !== confirm) {
+      setError("Passwords do not match.");
+      return;
+    }
+    try {
+      setLoading(true);
+      setError("");
+      const userData = await registerUser({
+        firstName,
+        lastName,
+        username: "@" + firstName.toLowerCase() + lastName.toLowerCase(),
+        email,
+        password,
+        bio: "",
+      });
+      setUser(userData);           // ← saves real user from MySQL to App.js
+      navigate("/dashboard");
+    } catch (err) {
+      setError("Registration failed. Email may already be in use.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="screen">
 
-    <Link to="/login" className="back-link">
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M13 4L7 10L13 16" stroke="#4dd97a" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-      Back to Login
-    </Link>
+      <Link to="/login" className="back-link">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M13 4L7 10L13 16" stroke="#4dd97a" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+        Back to Login
+      </Link>
 
       <div className="heading">Create Account</div>
       <p className="sub">Join EcoSnap and start recycling smarter</p>
@@ -29,13 +58,23 @@ export default function Register() {
       <div className="card">
         <div className="fields-grid">
           <div className="field">
-            <label htmlFor="fullname">Full Name</label>
+            <label htmlFor="firstName">First Name</label>
             <input
               type="text"
-              id="fullname"
-              autoComplete="name"
-              value={fullname}
-              onChange={(e) => setFullname(e.target.value)}
+              id="firstName"
+              autoComplete="given-name"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="lastName">Last Name</label>
+            <input
+              type="text"
+              id="lastName"
+              autoComplete="family-name"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
             />
           </div>
           <div className="field">
@@ -70,13 +109,17 @@ export default function Register() {
           </div>
         </div>
 
+        {error && <p style={{ color: "red", fontSize: "13px", marginTop: "8px" }}>{error}</p>}
+
         <p className="already-line">
           Already have an Account? <Link to="/login">Log in</Link>
         </p>
       </div>
 
       <div className="btn-wrap">
-        <button className="btn-register" onClick={handleRegister}>Register</button>
+        <button className="btn-register" onClick={handleRegister} disabled={loading}>
+          {loading ? "Registering..." : "Register"}
+        </button>
       </div>
 
     </div>

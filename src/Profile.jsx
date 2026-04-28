@@ -14,12 +14,12 @@ export default function Profile({ user }) {
           <div
             className="avatar-circle"
             style={
-              user.photo
-                ? { backgroundImage: `url(${user.photo})`, backgroundSize: "cover" }
+              user.photoUrl
+                ? { backgroundImage: `url(${user.photoUrl})`, backgroundSize: "cover" }
                 : {}
             }
           >
-            {user.photo ? "" : initials}
+            {user.photoUrl ? "" : initials}
           </div>
         </div>
 

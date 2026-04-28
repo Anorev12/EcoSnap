@@ -62,12 +62,12 @@ export default function Navbar({ user }) {
         <div
           className="nav-avatar"
           style={
-            user.photo
-              ? { backgroundImage: `url(${user.photo})`, backgroundSize: "cover" }
+            user.photoUrl
+              ? { backgroundImage: `url(${user.photoUrl})`, backgroundSize: "cover" }
               : {}
           }
         >
-          {user.photo ? "" : "👤"}
+          {user.photoUrl ? "" : "👤"}
         </div>
       </NavLink>
 

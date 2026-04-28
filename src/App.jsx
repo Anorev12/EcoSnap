@@ -22,7 +22,6 @@ import ScanningIssues from './ScanningIssues';
 import AccountSecurity from './AccountSecurity';
 import Resources from './Resources';
 
-
 import logo from './Logo/EcoSnap_LOGO_4.png';
 import './splash.css';
 
@@ -47,14 +46,8 @@ function AppContent() {
 
   const [flying, setFlying] = useState(false);
 
-  const [user, setUser] = useState({
-    firstName: "Juan",
-    lastName: "Dela Cruz",
-    bio: "",
-    username: "@juandc",
-    email: "juan@example.com",
-    photo: null,
-  });
+  // ← Now starts as null, will be set after login
+  const [user, setUser] = useState(null);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -106,17 +99,17 @@ function AppContent() {
 
       {phase === 'done' && (
         <>
-          {!hideNavbar && <Navbar user={user} />}
+          {!hideNavbar && user && <Navbar user={user} />}
 
           <Routes>
             <Route path="/" element={<Navigate to="/login" replace />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/dashboard" element={<Dashboard user={user} />} />
+            <Route path="/login" element={<Login setUser={setUser} />} />
+            <Route path="/register" element={<Register setUser={setUser} />} />
+            <Route path="/dashboard" element={user ? <Dashboard user={user} /> : <Navigate to="/login" replace />} />
             <Route path="/history" element={<History />} />
             <Route path="/tipsandfacts" element={<TipsandFacts />} />
             <Route path="/settings" element={<Settings user={user} setUser={setUser} />} />
-            <Route path="/profile" element={<Profile user={user} />} />
+            <Route path="/profile" element={<Profile user={user} setUser={setUser} />} />
             <Route path="/scanner" element={<Scanner />} />
             <Route path="/contact" element={<ContactUs />} />
             <Route path="/about" element={<AboutUs />} />
