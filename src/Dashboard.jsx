@@ -2,10 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import './dashboard.css';
 
-
-export default function Dashboard({ user }) {
-
-// ─── Card detail content ──────────────────────────────────────────
+// ─── Static Data ──────────────────────────────────────────────────
 const CARD_DETAILS = {
   scans: {
     icon: '📷',
@@ -15,9 +12,9 @@ const CARD_DETAILS = {
     badgeType: 'on-dark',
     primary: true,
     details: [
-      { label: 'This Week',  value: '0' },
+      { label: 'This Week', value: '0' },
       { label: 'This Month', value: '0' },
-      { label: 'All Time',   value: '0' },
+      { label: 'All Time', value: '0' },
     ],
     tip: 'Start scanning items to track your recycling journey. Every scan counts!',
   },
@@ -29,10 +26,10 @@ const CARD_DETAILS = {
     badgeType: 'light',
     primary: false,
     details: [
-      { label: 'Plastic',  value: '0' },
-      { label: 'Paper',    value: '0' },
-      { label: 'Glass',    value: '0' },
-      { label: 'Metal',    value: '0' },
+      { label: 'Plastic', value: '0' },
+      { label: 'Paper', value: '0' },
+      { label: 'Glass', value: '0' },
+      { label: 'Metal', value: '0' },
     ],
     tip: 'Recycle more items to see a breakdown by material type.',
   },
@@ -44,9 +41,9 @@ const CARD_DETAILS = {
     badgeType: 'light',
     primary: false,
     details: [
-      { label: 'Recyclable',     value: '0%' },
+      { label: 'Recyclable', value: '0%' },
       { label: 'Non-Recyclable', value: '0%' },
-      { label: 'Hazardous',      value: '0%' },
+      { label: 'Hazardous', value: '0%' },
     ],
     tip: 'Your recycling rate improves as you scan and recycle more items.',
   },
@@ -58,30 +55,29 @@ const CARD_DETAILS = {
     badgeType: 'light',
     primary: false,
     details: [
-      { label: 'From Landfill',  value: '0 kg' },
-      { label: 'CO₂ Saved',      value: '0 kg' },
-      { label: 'Water Saved',    value: '0 L'  },
+      { label: 'From Landfill', value: '0 kg' },
+      { label: 'CO₂ Saved', value: '0 kg' },
+      { label: 'Water Saved', value: '0 L' },
     ],
     tip: 'Every kilogram diverted from landfill reduces CO₂ emissions.',
   },
 };
 
-// ─── Single stat card ─────────────────────────────────────────────
-function StatCard({ id, data, isExpanded, isShrunk, onClick }) {
+// ─── StatCard Sub-component ───────────────────────────────────────
+function StatCard({ data, isExpanded, isShrunk, onClick }) {
   return (
     <article
       className={[
         'stat-card',
         data.primary ? 'stat-card--primary' : '',
-        isExpanded  ? 'stat-card--expanded' : '',
-        isShrunk    ? 'stat-card--shrunk'   : '',
+        isExpanded ? 'stat-card--expanded' : '',
+        isShrunk ? 'stat-card--shrunk' : '',
       ].filter(Boolean).join(' ')}
       onClick={onClick}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => e.key === 'Enter' && onClick()}
     >
-      {/* ── Default view ── */}
       <div className="stat-card-default">
         <span className="stat-card-icon">{data.icon}</span>
         <div className="stat-value">{data.value}</div>
@@ -91,7 +87,6 @@ function StatCard({ id, data, isExpanded, isShrunk, onClick }) {
         </span>
       </div>
 
-      {/* ── Expanded view ── */}
       {isExpanded && (
         <div className="stat-card-expanded-content">
           <div className="expanded-header">
@@ -122,9 +117,8 @@ function StatCard({ id, data, isExpanded, isShrunk, onClick }) {
   );
 }
 
-// ─── Dashboard ────────────────────────────────────────────────────//
-export default function Dashboard() {
-
+// ─── Main Dashboard Component ──────────────────────────────────────
+export default function Dashboard({ user }) {
   const navigate = useNavigate();
   const [expanded, setExpanded] = useState(null);
 
@@ -133,12 +127,11 @@ export default function Dashboard() {
   return (
     <div className="dashboard-container">
       <div className="page-shell">
-
-        {/* Header */}
+        
         <header className="page-header">
           <div className="welcome-block">
             <h1>
-              Welcome, {user.firstName}! 👋  {/* ✅ dynamic first name */}
+              Welcome, {user?.firstName || 'Eco-Warrior'}! 👋
               <span className="welcome-icon">🌱</span>
             </h1>
             <p>You're all set! Start scanning items to track your recycling journey.</p>
@@ -149,7 +142,6 @@ export default function Dashboard() {
           </button>
         </header>
 
-        {/* Banner */}
         <div className="onboarding-banner">
           <span className="banner-icon">💡</span>
           <p>
@@ -158,12 +150,10 @@ export default function Dashboard() {
           </p>
         </div>
 
-        {/* Stats Grid */}
-        <section className={`stats-grid${expanded ? ' has-expanded' : ''}`}>
+        <section className={`stats-grid ${expanded ? 'has-expanded' : ''}`}>
           {Object.entries(CARD_DETAILS).map(([id, data]) => (
             <StatCard
               key={id}
-              id={id}
               data={data}
               isExpanded={expanded === id}
               isShrunk={expanded !== null && expanded !== id}
@@ -171,14 +161,11 @@ export default function Dashboard() {
             />
           ))}
         </section>
-
       </div>
 
-      {/* Footer */}
       <footer className="site-footer">
         <div className="footer-inner">
           <div className="footer-links">
-
             <div className="footer-col">
               <ul><li><Link to="/about">About Us</Link></li></ul>
             </div>
@@ -191,11 +178,6 @@ export default function Dashboard() {
             <div className="footer-col">
               <ul><li><Link to="/terms">Terms of Use</Link></li></ul>
             </div>
-
-            <div className="footer-col"><ul><li><Link to="/about">About Us</Link></li></ul></div>
-            <div className="footer-col"><ul><li><Link to="/contact">Contact Us</Link></li></ul></div>
-            <div className="footer-col"><ul><li><Link to="/privacy">Privacy Policy</Link></li></ul></div>
-            <div className="footer-col"><ul><li><Link to="/terms">Terms of Use</Link></li></ul></div>
           </div>
         </div>
         <div className="footer-bottom">
@@ -204,6 +186,4 @@ export default function Dashboard() {
       </footer>
     </div>
   );
-
-}
 }

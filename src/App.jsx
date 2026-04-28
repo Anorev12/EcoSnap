@@ -21,7 +21,7 @@ import Navbar from './Navbar';
 import ScanningIssues from './ScanningIssues';
 import AccountSecurity from './AccountSecurity';
 import Resources from './Resources';
-import MockData from './MockData';
+
 
 import logo from './Logo/EcoSnap_LOGO_4.png';
 import './splash.css';

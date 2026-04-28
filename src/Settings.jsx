@@ -7,7 +7,7 @@ import "./settings.css";
 function ProfilePanel({ user, setUser }) {
   const [isEditing, setIsEditing] = useState(false);
   const [form, setForm] = useState(user);
-  const [preview, setPreview] = useState(null);
+  const [preview, setPreview] = useState(user.photo);
   const fileInputRef = useRef(null);
 
   const update = (k) => (e) => setForm({ ...form, [k]: e.target.value });
@@ -21,12 +21,12 @@ function ProfilePanel({ user, setUser }) {
   };
 
   const handleSave = () => {
-    setUser(form);
+    setUser(form);        // ← updates App.js state → flows to Navbar + Dashboard
     setIsEditing(false);
   };
 
   const handleCancel = () => {
-    setForm(user);
+    setForm(user);        // ← resets to the current App.js user
     setPreview(user.photo);
     setIsEditing(false);
   };
@@ -55,7 +55,9 @@ function ProfilePanel({ user, setUser }) {
           </div>
 
           <div className="avatar-info">
-            <p className="avatar-name">{user.firstName} {user.lastName}</p>
+            <p className="avatar-name">
+              {user.firstName} {user.lastName}
+            </p>
             <span className="avatar-sub">{user.email}</span>
             <br />
             {isEditing && (
@@ -129,7 +131,9 @@ function ProfilePanel({ user, setUser }) {
         </button>
       ) : (
         <div style={{ display: "flex", gap: "12px" }}>
-          <button className="save-btn" onClick={handleSave}>Save changes</button>
+          <button className="save-btn" onClick={handleSave}>
+            Save changes
+          </button>
           <button className="btn-sm" onClick={handleCancel} style={{ padding: "10px 20px" }}>
             Cancel
           </button>
@@ -138,6 +142,7 @@ function ProfilePanel({ user, setUser }) {
     </div>
   );
 }
+
 
 function SecurityPanel() {
   const [email, setEmail] = useState("juan@example.com");
@@ -475,9 +480,27 @@ function StoragePanel() {
 
 function SessionsPanel() {
   const sessions = [
-    { id: 1, icon: "📱", name: "iPhone 15 · EcoSnap iOS", detail: "Manila, PH · Active now", current: true },
-    { id: 2, icon: "💻", name: "Chrome on Windows", detail: "Iloilo, PH · 2 days ago", current: false },
-    { id: 3, icon: "📱", name: "Samsung Galaxy S23", detail: "Cebu, PH · 1 week ago", current: false },
+    {
+      id: 1,
+      icon: "📱",
+      name: "iPhone 15 · EcoSnap iOS",
+      detail: "Manila, PH · Active now",
+      current: true,
+    },
+    {
+      id: 2,
+      icon: "💻",
+      name: "Chrome on Windows",
+      detail: "Iloilo, PH · 2 days ago",
+      current: false,
+    },
+    {
+      id: 3,
+      icon: "📱",
+      name: "Samsung Galaxy S23",
+      detail: "Cebu, PH · 1 week ago",
+      current: false,
+    },
   ];
 
   const [list, setList] = useState(sessions);
@@ -500,7 +523,9 @@ function SessionsPanel() {
             {s.current ? (
               <span className="badge">Current</span>
             ) : (
-              <button className="danger-link" onClick={() => revoke(s.id)}>Revoke</button>
+              <button className="danger-link" onClick={() => revoke(s.id)}>
+                Revoke
+              </button>
             )}
           </div>
         ))}
@@ -544,7 +569,6 @@ function FeedbackPanel() {
     <div className="panel">
       <h2 className="panel-title">Feedback</h2>
 
-      {/* Star rating */}
       <div className="section-card">
         <h4 className="card-section-title">Overall experience</h4>
         <div className="feedback-stars">
@@ -565,7 +589,6 @@ function FeedbackPanel() {
         </p>
       </div>
 
-      {/* Category chips */}
       <div className="section-card">
         <h4 className="card-section-title">What is your feedback about?</h4>
         <div className="feedback-chips">
@@ -581,7 +604,6 @@ function FeedbackPanel() {
         </div>
       </div>
 
-      {/* Message */}
       <div className="section-card">
         <h4 className="card-section-title">Tell us more (optional)</h4>
         <div className="field">
@@ -594,7 +616,6 @@ function FeedbackPanel() {
         </div>
       </div>
 
-      {/* Submit */}
       <div className="feedback-submit-row">
         <button className="save-btn" onClick={handleSubmit}>
           Submit feedback
@@ -633,7 +654,7 @@ const SIDEBAR = [
       { id: "privacy",  label: "Privacy & Data" },
       { id: "storage",  label: "Storage & Usage" },
       { id: "sessions", label: "Active Sessions" },
-      { id: "feedback", label: "Feedback" },          // ← added
+      { id: "feedback", label: "Feedback" },
     ],
   },
   {
@@ -642,21 +663,6 @@ const SIDEBAR = [
   },
 ];
 
-<<<<<<< HEAD
-=======
-const PANELS = {
-  profile:       <ProfilePanel />,
-  security:      <SecurityPanel />,
-  notifications: <NotificationsPanel />,
-  appearance:    <AppearancePanel />,
-  language:      <LanguagePanel />,
-  privacy:       <PrivacyPanel />,
-  storage:       <StoragePanel />,
-  sessions:      <SessionsPanel />,
-  feedback:      <FeedbackPanel />,                   // ← added
-};
-
->>>>>>> 9a5fb1e82debe1cffee305583c772eae24f88fc7
 // ─── Main Settings component ──────────────────────────────────────
 
 export default function Settings({ user, setUser }) {
@@ -665,16 +671,17 @@ export default function Settings({ user, setUser }) {
 
   const handleLogout = () => navigate("/login");
 
-  // ✅ PANELS defined inside component so it can access user and setUser
+  // Build PANELS here so ProfilePanel can receive user + setUser
   const PANELS = {
-    profile: <ProfilePanel user={user} setUser={setUser} />,
-    security: <SecurityPanel />,
+    profile:       <ProfilePanel user={user} setUser={setUser} />,
+    security:      <SecurityPanel />,
     notifications: <NotificationsPanel />,
-    appearance: <AppearancePanel />,
-    language: <LanguagePanel />,
-    privacy: <PrivacyPanel />,
-    storage: <StoragePanel />,
-    sessions: <SessionsPanel />,
+    appearance:    <AppearancePanel />,
+    language:      <LanguagePanel />,
+    privacy:       <PrivacyPanel />,
+    storage:       <StoragePanel />,
+    sessions:      <SessionsPanel />,
+    feedback:      <FeedbackPanel />,
   };
 
   return (
