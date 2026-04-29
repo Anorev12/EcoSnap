@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "./settings.css";
+import { useTheme } from "./ThemeContext"; // ← ADD THIS IMPORT
 
 // ─── Sub-components ───────────────────────────────────────────────
 
@@ -21,12 +22,12 @@ function ProfilePanel({ user, setUser }) {
   };
 
   const handleSave = () => {
-    setUser(form);        // ← updates App.js state → flows to Navbar + Dashboard
+    setUser(form);
     setIsEditing(false);
   };
 
   const handleCancel = () => {
-    setForm(user);        // ← resets to the current App.js user
+    setForm(user);
     setPreview(user.photo);
     setIsEditing(false);
   };
@@ -275,8 +276,9 @@ function NotificationsPanel() {
   );
 }
 
+// ─── AppearancePanel — ONLY THIS FUNCTION WAS CHANGED ────────────────────────
 function AppearancePanel() {
-  const [theme, setTheme] = useState("light");
+  const { theme, setTheme } = useTheme(); // ← REPLACES: const [theme, setTheme] = useState("light");
   const [fontSize, setFontSize] = useState("medium");
   const [accent, setAccent] = useState("#22c55e");
   const accents = ["#22c55e", "#3b82f6", "#a855f7", "#f97316", "#ec4899"];
@@ -334,6 +336,7 @@ function AppearancePanel() {
     </div>
   );
 }
+// ─────────────────────────────────────────────────────────────────────────────
 
 function LanguagePanel() {
   return (
@@ -538,8 +541,6 @@ function SessionsPanel() {
   );
 }
 
-// ─── Feedback Panel ───────────────────────────────────────────────
-
 const FEEDBACK_CATEGORIES = [
   "General", "UI / Design", "Performance", "Scan Accuracy",
   "Tips & Facts", "Bug Report", "Feature Request", "Other",
@@ -671,7 +672,6 @@ export default function Settings({ user, setUser }) {
 
   const handleLogout = () => navigate("/login");
 
-  // Build PANELS here so ProfilePanel can receive user + setUser
   const PANELS = {
     profile:       <ProfilePanel user={user} setUser={setUser} />,
     security:      <SecurityPanel />,

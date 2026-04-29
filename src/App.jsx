@@ -21,6 +21,8 @@ import Navbar from './Navbar';
 import ScanningIssues from './ScanningIssues';
 import AccountSecurity from './AccountSecurity';
 import Resources from './Resources';
+import { useNotifications } from './useNotifications';
+import { NotificationContainer } from './NotificationSystem';
 
 
 import logo from './Logo/EcoSnap_LOGO_4.png';
@@ -55,6 +57,8 @@ function AppContent() {
     email: "juan@example.com",
     photo: null,
   });
+
+  const { notifications, success, error, warning, info, dismiss } = useNotifications();
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -112,7 +116,7 @@ function AppContent() {
             <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/dashboard" element={<Dashboard user={user} />} />
+            <Route path="/dashboard" element={<Dashboard user={user} notify={{ success, error, warning, info }} />} />
             <Route path="/history" element={<History />} />
             <Route path="/tipsandfacts" element={<TipsandFacts />} />
             <Route path="/settings" element={<Settings user={user} setUser={setUser} />} />
@@ -131,6 +135,7 @@ function AppContent() {
             <Route path="/privacypolicy" element={<PrivacyPolicy />} />
             <Route path="/resources" element={<Resources />} />
           </Routes>
+          <NotificationContainer notifications={notifications} onDismiss={dismiss} />
         </>
       )}
     </>
