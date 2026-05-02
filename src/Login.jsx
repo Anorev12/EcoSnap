@@ -1,18 +1,11 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import './login.css';
 import logo from "./Logo/EcoSnap_LOGO_4.png";
+import { loginUser } from "./api.js";
 
-// API function directly here
-const loginUser = async (email, password) => {
-  const response = await fetch("http://localhost:8080/api/users/login", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
-  });
-  if (!response.ok) throw new Error("Invalid email or password");
-  return response.json();
-};
+// ─── Role Helper ──────────────────────────────────────────────────
+const isAdmin = (user) => user?.email?.endsWith('@ecosnapadmin.com');
 
 export default function Login({ setUser }) {
   const [email, setEmail] = useState("");
@@ -22,7 +15,6 @@ export default function Login({ setUser }) {
   const navigate = useNavigate();
 
   const handleLogin = async () => {
-    console.log("Login button clicked!", email, password);
     if (!email || !password) {
       setError("Please enter your email and password.");
       return;
@@ -31,11 +23,12 @@ export default function Login({ setUser }) {
       setLoading(true);
       setError("");
       const userData = await loginUser(email, password);
-      console.log("Login success!", userData);
+      localStorage.setItem("user", JSON.stringify(userData));
       setUser(userData);
-      navigate("/dashboard");
+
+      // Redirect based on email domain
+      navigate(isAdmin(userData) ? "/admin" : "/dashboard");
     } catch (err) {
-      console.log("Error details:", err.message);
       setError("Invalid email or password. Please try again.");
     } finally {
       setLoading(false);

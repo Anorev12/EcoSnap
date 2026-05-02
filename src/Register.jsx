@@ -1,7 +1,10 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import './register.css';
-import { registerUser } from "./api";
+import { registerUser } from "./api.js";
+
+// ─── Role Helper ──────────────────────────────────────────────────
+const isAdmin = (user) => user?.email?.endsWith('@ecosnapadmin.com');
 
 export default function Register({ setUser }) {
   const [firstName, setFirstName] = useState("");
@@ -22,6 +25,7 @@ export default function Register({ setUser }) {
       setError("Passwords do not match.");
       return;
     }
+
     try {
       setLoading(true);
       setError("");
@@ -33,10 +37,11 @@ export default function Register({ setUser }) {
         password,
         bio: "",
       });
-      setUser(userData);           // ← saves real user from MySQL to App.js
-      navigate("/dashboard");
+      setUser(userData);
+      // Redirect to admin dashboard if @ecosnapadmin.com, otherwise user dashboard
+      navigate(isAdmin(userData) ? "/admin" : "/dashboard");
     } catch (err) {
-      setError("Registration failed. Email may already be in use.");
+      setError(err.message || "Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }

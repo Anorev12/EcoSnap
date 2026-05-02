@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Login from './Login';
 import Register from './Register';
 import Dashboard from './Dashboard';
+import AdminDashboard from './admin';
 import History from './History';
 import TipsandFacts from './TipsandFacts';
 import Settings from './Settings';
@@ -27,11 +28,10 @@ import './splash.css';
 
 let splashAlreadyShown = false;
 
-export default function App() {
-  useEffect(() => {
-    window.history.replaceState(null, '', '/');
-  }, []);
+// ─── Role Helper ──────────────────────────────────────────────────
+const isAdmin = (user) => user?.email?.endsWith('@ecosnapadmin.com');
 
+export default function App() {
   return (
     <BrowserRouter>
       <AppContent />
@@ -40,22 +40,27 @@ export default function App() {
 }
 
 function AppContent() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Load user from localStorage
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem('user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
+
   const [phase, setPhase] = useState(() =>
     splashAlreadyShown ? 'done' : 'splash'
   );
 
   const [flying, setFlying] = useState(false);
 
-  // ← Now starts as null, will be set after login
-  const [user, setUser] = useState(null);
-
-  const navigate = useNavigate();
-  const location = useLocation();
-
   const hideNavbar =
     location.pathname.startsWith('/login') ||
-    location.pathname.startsWith('/register');
+    location.pathname.startsWith('/register') ||
+    location.pathname.startsWith('/admin');
 
+  // Splash screen logic
   useEffect(() => {
     if (phase === 'done') return;
 
@@ -66,14 +71,27 @@ function AppContent() {
     const timer = setTimeout(() => {
       splashAlreadyShown = true;
       setPhase('done');
-      navigate('/login', { replace: true });
+
+      if (!user) {
+        navigate('/login', { replace: true });
+      } else if (isAdmin(user)) {
+        navigate('/admin', { replace: true });
+      }
+      // logged-in non-admin stays on their current route
     }, 1550);
 
     return () => {
       clearTimeout(timer);
       clearTimeout(flyTimer);
     };
-  }, [navigate, phase]);
+  }, [navigate, phase, user]);
+
+  // Save user to localStorage whenever it changes
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem('user', JSON.stringify(user));
+    }
+  }, [user]);
 
   return (
     <>
@@ -99,18 +117,46 @@ function AppContent() {
 
       {phase === 'done' && (
         <>
-          {!hideNavbar && user && <Navbar user={user} />}
+          {!hideNavbar && user && <Navbar user={user} setUser={setUser} />}
 
           <Routes>
-            <Route path="/" element={<Navigate to="/login" replace />} />
+            {/* Default route — redirect based on role */}
+            <Route
+              path="/"
+              element={
+                !user
+                  ? <Navigate to="/login" replace />
+                  : isAdmin(user)
+                    ? <Navigate to="/admin" replace />
+                    : <Navigate to="/dashboard" replace />
+              }
+            />
+
+            {/* Auth routes */}
             <Route path="/login" element={<Login setUser={setUser} />} />
             <Route path="/register" element={<Register setUser={setUser} />} />
+
+            {/* Admin-only route */}
+            <Route
+              path="/admin"
+              element={
+                !user
+                  ? <Navigate to="/login" replace />
+                  : isAdmin(user)
+                    ? <AdminDashboard user={user} />
+                    : <Navigate to="/dashboard" replace />
+              }
+            />
+
+            {/* Protected user routes */}
             <Route path="/dashboard" element={user ? <Dashboard user={user} /> : <Navigate to="/login" replace />} />
-            <Route path="/history" element={<History />} />
-            <Route path="/tipsandfacts" element={<TipsandFacts />} />
-            <Route path="/settings" element={<Settings user={user} setUser={setUser} />} />
-            <Route path="/profile" element={<Profile user={user} setUser={setUser} />} />
-            <Route path="/scanner" element={<Scanner />} />
+            <Route path="/history" element={user ? <History /> : <Navigate to="/login" replace />} />
+            <Route path="/tipsandfacts" element={user ? <TipsandFacts /> : <Navigate to="/login" replace />} />
+            <Route path="/settings" element={user ? <Settings user={user} setUser={setUser} /> : <Navigate to="/login" replace />} />
+            <Route path="/profile" element={user ? <Profile user={user} setUser={setUser} /> : <Navigate to="/login" replace />} />
+            <Route path="/scanner" element={user ? <Scanner /> : <Navigate to="/login" replace />} />
+
+            {/* Public routes */}
             <Route path="/contact" element={<ContactUs />} />
             <Route path="/about" element={<AboutUs />} />
             <Route path="/mission" element={<OurMission />} />

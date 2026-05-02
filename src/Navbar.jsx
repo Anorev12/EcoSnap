@@ -1,8 +1,21 @@
 import { NavLink } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import logo from './Logo/EcoSnap_LOGO_4.png';
 import './dashboard.css';
 
-export default function Navbar({ user }) {
+export default function Navbar({ user: propUser }) {
+  const [user, setUser] = useState(propUser || null);
+
+  // Fallback: load from localStorage if prop not passed
+  useEffect(() => {
+    if (!propUser) {
+      const storedUser = JSON.parse(localStorage.getItem("user") || "null");
+      setUser(storedUser);
+    } else {
+      setUser(propUser);
+    }
+  }, [propUser]);
+
   return (
     <nav className="nav-wrapper">
 
@@ -58,16 +71,25 @@ export default function Navbar({ user }) {
           isActive ? "nav-item nav-item--active" : "nav-item nav-user"
         }
       >
-        <span>{user.firstName} {user.lastName}</span>
+        {/* ✅ Safe user display */}
+        <span>
+          {user?.firstName || "Guest"} {user?.lastName || ""}
+        </span>
+
+        {/* ✅ Safe avatar */}
         <div
           className="nav-avatar"
           style={
-            user.photoUrl
-              ? { backgroundImage: `url(${user.photoUrl})`, backgroundSize: "cover" }
+            user?.photoUrl
+              ? {
+                  backgroundImage: `url(${user.photoUrl})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center"
+                }
               : {}
           }
         >
-          {user.photoUrl ? "" : "👤"}
+          {user?.photoUrl ? "" : "👤"}
         </div>
       </NavLink>
 
