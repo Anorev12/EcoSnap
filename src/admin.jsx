@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from './Logo/EcoSnap_LOGO_4.png';
 import './admin.css';
@@ -281,82 +281,193 @@ function WasteCategoriesPanel() {
   );
 }
 
+
 // ─── Panel: User Management ───────────────────────────────────────
-const MOCK_USERS = [
-  { id: 1,  name: "Maria Santos",   email: "maria@gmail.com",              role: "User",  scans: 142, joined: "Jan 2026" },
-  { id: 2,  name: "Juan dela Cruz", email: "juan@gmail.com",               role: "User",  scans: 98,  joined: "Feb 2026" },
-  { id: 3,  name: "Ana Reyes",      email: "ana@gmail.com",                role: "User",  scans: 201, joined: "Dec 2025" },
-  { id: 4,  name: "Admin John",     email: "john@ecosnapadmin.com",        role: "Admin", scans: 0,   joined: "Nov 2025" },
-  { id: 5,  name: "Pedro Bautista", email: "pedro@gmail.com",              role: "User",  scans: 55,  joined: "Mar 2026" },
-  { id: 6,  name: "Liza Gomez",     email: "liza@gmail.com",               role: "User",  scans: 310, joined: "Oct 2025" },
-];
+const EMPTY_FORM = { firstName: "", lastName: "", username: "", email: "", password: "" };
+
+function AddUserModal({ onClose, onAdded }) {
+  const [form, setForm]       = useState(EMPTY_FORM);
+  const [saving, setSaving]   = useState(false);
+  const [err, setErr]         = useState(null);
+
+  const handle = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+
+  const submit = () => {
+    if (!form.firstName || !form.lastName || !form.email || !form.password) {
+      setErr("First name, last name, email and password are required.");
+      return;
+    }
+    setSaving(true);
+    setErr(null);
+    fetch("http://localhost:8080/api/users/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    })
+      .then((res) => res.json().then((data) => ({ ok: res.ok, data })))
+      .then(({ ok, data }) => {
+        if (!ok) throw new Error(data.message || "Registration failed");
+        onAdded(data);
+        onClose();
+      })
+      .catch((e) => { setErr(e.message); setSaving(false); });
+  };
+
+  return (
+    <div className="adm-modal-overlay" onClick={onClose}>
+      <div className="adm-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="adm-modal-header">
+          <h3 className="adm-modal-title">Add New User</h3>
+          <button className="adm-modal-close" onClick={onClose}>✕</button>
+        </div>
+
+        <div className="adm-modal-body">
+          <div className="adm-modal-row">
+            <div className="adm-modal-field">
+              <label className="adm-modal-label">First Name *</label>
+              <input className="adm-modal-input" name="firstName" value={form.firstName} onChange={handle} placeholder="Juan" />
+            </div>
+            <div className="adm-modal-field">
+              <label className="adm-modal-label">Last Name *</label>
+              <input className="adm-modal-input" name="lastName" value={form.lastName} onChange={handle} placeholder="dela Cruz" />
+            </div>
+          </div>
+
+          <div className="adm-modal-field">
+            <label className="adm-modal-label">Username</label>
+            <input className="adm-modal-input" name="username" value={form.username} onChange={handle} placeholder="juandc (optional)" />
+          </div>
+
+          <div className="adm-modal-field">
+            <label className="adm-modal-label">Email * <span className="adm-modal-hint">(use @ecosnapadmin.com for Admin role)</span></label>
+            <input className="adm-modal-input" name="email" type="email" value={form.email} onChange={handle} placeholder="juan@gmail.com" />
+          </div>
+
+          <div className="adm-modal-field">
+            <label className="adm-modal-label">Password *</label>
+            <input className="adm-modal-input" name="password" type="password" value={form.password} onChange={handle} placeholder="••••••••" />
+          </div>
+
+          {err && <p className="adm-modal-error">{err}</p>}
+        </div>
+
+        <div className="adm-modal-footer">
+          <button className="adm-btn-sm" onClick={onClose} disabled={saving}>Cancel</button>
+          <button className="adm-btn-primary" onClick={submit} disabled={saving}>
+            {saving ? "Adding…" : "Add User"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function UserManagementPanel() {
-  const [users, setUsers] = useState(MOCK_USERS);
-  const [search, setSearch] = useState("");
+  const [users, setUsers]     = useState([]);
+  const [search, setSearch]   = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError]     = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
-  const filtered = users.filter(
-    (u) => u.name.toLowerCase().includes(search.toLowerCase()) ||
-           u.email.toLowerCase().includes(search.toLowerCase())
-  );
+  useEffect(() => {
+    fetch("http://localhost:8080/api/users/all")
+      .then((res) => {
+        if (!res.ok) throw new Error(`Server error: ${res.status}`);
+        return res.json();
+      })
+      .then((data) => { setUsers(data); setLoading(false); })
+      .catch((err) => { setError(err.message); setLoading(false); });
+  }, []);
+
+  const handleRemove = (id) => {
+    fetch(`http://localhost:8080/api/users/delete/${id}`, { method: "DELETE" })
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to delete user");
+        setUsers((prev) => prev.filter((u) => u.id !== id));
+      })
+      .catch((err) => alert(err.message));
+  };
+
+  const handleAdded = (newUser) => {
+    setUsers((prev) => [...prev, newUser]);
+  };
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "—";
+    return new Date(dateStr).toLocaleString("default", { month: "short", year: "numeric" });
+  };
+
+  const filtered = users.filter((u) => {
+    const fullName = `${u.firstName ?? ""} ${u.lastName ?? ""}`.toLowerCase();
+    const email    = (u.email ?? "").toLowerCase();
+    const q        = search.toLowerCase();
+    return fullName.includes(q) || email.includes(q);
+  });
 
   return (
     <div className="adm-panel">
+      {showModal && <AddUserModal onClose={() => setShowModal(false)} onAdded={handleAdded} />}
+
       <div className="adm-panel-header">
         <h2 className="adm-panel-title">User Management</h2>
-        <div className="adm-search-wrap">
-          <input
-            className="adm-search"
-            placeholder="Search users…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+          <div className="adm-search-wrap">
+            <input
+              className="adm-search"
+              placeholder="Search users…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+          <button className="adm-btn-primary" onClick={() => setShowModal(true)}>+ Add User</button>
         </div>
       </div>
 
       <div className="adm-section-card">
-        <table className="adm-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Scans</th>
-              <th>Joined</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((u) => (
-              <tr key={u.id}>
-                <td><strong>{u.name}</strong></td>
-                <td className="adm-muted">{u.email}</td>
-                <td>
-                  <span className={`adm-role-badge adm-role-badge--${u.role.toLowerCase()}`}>
-                    {u.role}
-                  </span>
-                </td>
-                <td><span className="adm-count">{u.scans}</span></td>
-                <td className="adm-muted">{u.joined}</td>
-                <td>
-                  <div className="adm-action-row">
-                    <button className="adm-btn-sm adm-btn-danger"
-                      onClick={() => setUsers(users.filter((x) => x.id !== u.id))}>
-                      Remove
-                    </button>
-                  </div>
-                </td>
+        {loading && <p className="adm-empty">Loading users…</p>}
+        {error   && <p className="adm-empty" style={{ color: "#ef4444" }}>Error: {error}</p>}
+        {!loading && !error && (
+          <table className="adm-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Joined</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-        {filtered.length === 0 && (
+            </thead>
+            <tbody>
+              {filtered.map((u) => (
+                <tr key={u.id}>
+                  <td><strong>{u.firstName} {u.lastName}</strong></td>
+                  <td className="adm-muted">{u.email}</td>
+                  <td>
+                    <span className={`adm-role-badge adm-role-badge--${(u.role ?? "user").toLowerCase()}`}>
+                      {u.role ?? "User"}
+                    </span>
+                  </td>
+                  <td className="adm-muted">{formatDate(u.createdAt)}</td>
+                  <td>
+                    <div className="adm-action-row">
+                      <button className="adm-btn-sm adm-btn-danger" onClick={() => handleRemove(u.id)}>
+                        Remove
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+        {!loading && !error && filtered.length === 0 && (
           <p className="adm-empty">No users found.</p>
         )}
       </div>
     </div>
   );
 }
+
 
 // ─── Panel: AI Training Logs ──────────────────────────────────────
 const AI_LOGS = [
@@ -516,6 +627,9 @@ function APILogsPanel() {
     </div>
   );
 }
+
+// ─── Styles ───────────────────────────────────────────────────────
+// (moved to EcoSnapDashboard.css)
 
 // ─── Main Component ───────────────────────────────────────────────
 export default function EcoSnapDashboard({ user }) {
