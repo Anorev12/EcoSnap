@@ -1,15 +1,38 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import './login.css';
 import logo from "./Logo/EcoSnap_LOGO_4.png";
+import { loginUser } from "./api.js";
 
-export default function Login() {
+// ─── Role Helper ──────────────────────────────────────────────────
+const isAdmin = (user) => user?.email?.endsWith('@ecosnapadmin.com');
+
+export default function Login({ setUser }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = () => {
-    navigate("/dashboard");
+  const handleLogin = async () => {
+    if (!email || !password) {
+      setError("Please enter your email and password.");
+      return;
+    }
+    try {
+      setLoading(true);
+      setError("");
+      const userData = await loginUser(email, password);
+      localStorage.setItem("user", JSON.stringify(userData));
+      setUser(userData);
+
+      // Redirect based on email domain
+      navigate(isAdmin(userData) ? "/admin" : "/dashboard");
+    } catch (err) {
+      setError("Invalid email or password. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -47,12 +70,14 @@ export default function Login() {
             onChange={(e) => setPassword(e.target.value)}
           />
 
+          {error && <p style={{ color: "red", fontSize: "13px" }}>{error}</p>}
+
           <p className="register">
             Don't Have an Account? <Link to="/register">Register</Link>
           </p>
 
-          <button className="login-btn" onClick={handleLogin}>
-            LOGIN
+          <button className="login-btn" onClick={handleLogin} disabled={loading}>
+            {loading ? "Logging in..." : "LOGIN"}
           </button>
         </div>
       </div>

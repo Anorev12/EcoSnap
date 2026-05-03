@@ -1,14 +1,32 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "./settings.css";
+
+// ─── API ──────────────────────────────────────────────────────────
+
+const updateUserProfile = async (id, userData) => {
+  const response = await fetch(`http://localhost:8080/api/users/update/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(userData),
+  });
+  if (!response.ok) throw new Error("Update failed");
+  return response.json();
+};
 
 // ─── Sub-components ───────────────────────────────────────────────
 
 function ProfilePanel({ user, setUser }) {
   const [isEditing, setIsEditing] = useState(false);
-  const [form, setForm] = useState(user);
-  const [preview, setPreview] = useState(user.photo);
+  const [form, setForm] = useState({ ...user, bio: user.bio ?? "" });
+  const [preview, setPreview] = useState(user.photoUrl);
+  const [saving, setSaving] = useState(false);
   const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    setForm({ ...user, bio: user.bio ?? "" });
+    setPreview(user.photoUrl);
+  }, [user]);
 
   const update = (k) => (e) => setForm({ ...form, [k]: e.target.value });
 
@@ -17,17 +35,31 @@ function ProfilePanel({ user, setUser }) {
     if (!file) return;
     const url = URL.createObjectURL(file);
     setPreview(url);
-    setForm({ ...form, photo: url });
+    setForm({ ...form, photoUrl: url });
   };
 
-  const handleSave = () => {
-    setUser(form);        // ← updates App.js state → flows to Navbar + Dashboard
-    setIsEditing(false);
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      const updated = await updateUserProfile(user.id, {
+        firstName: form.firstName,
+        lastName: form.lastName,
+        username: form.username,
+        bio: form.bio,
+        photoUrl: form.photoUrl,
+      });
+      setUser(updated);
+      setIsEditing(false);
+    } catch (err) {
+      alert("Failed to save profile. Please try again.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleCancel = () => {
-    setForm(user);        // ← resets to the current App.js user
-    setPreview(user.photo);
+    setForm({ ...user, bio: user.bio ?? "" });
+    setPreview(user.photoUrl);
     setIsEditing(false);
   };
 
@@ -42,16 +74,16 @@ function ProfilePanel({ user, setUser }) {
           <div
             className="avatar"
             style={
-              preview || user.photo
+              preview || user.photoUrl
                 ? {
-                    backgroundImage: `url(${preview || user.photo})`,
+                    backgroundImage: `url(${preview || user.photoUrl})`,
                     backgroundSize: "cover",
                     color: "transparent",
                   }
                 : {}
             }
           >
-            {!preview && !user.photo && initials}
+            {!preview && !user.photoUrl && initials}
           </div>
 
           <div className="avatar-info">
@@ -117,11 +149,7 @@ function ProfilePanel({ user, setUser }) {
 
         <div className="field">
           <label>Email</label>
-          <input
-            value={form.email}
-            onChange={update("email")}
-            disabled={!isEditing}
-          />
+          <input value={form.email} disabled={true} />
         </div>
       </div>
 
@@ -131,8 +159,8 @@ function ProfilePanel({ user, setUser }) {
         </button>
       ) : (
         <div style={{ display: "flex", gap: "12px" }}>
-          <button className="save-btn" onClick={handleSave}>
-            Save changes
+          <button className="save-btn" onClick={handleSave} disabled={saving}>
+            {saving ? "Saving..." : "Save changes"}
           </button>
           <button className="btn-sm" onClick={handleCancel} style={{ padding: "10px 20px" }}>
             Cancel
@@ -671,19 +699,6 @@ export default function Settings({ user, setUser }) {
 
   const handleLogout = () => navigate("/login");
 
-  // Build PANELS here so ProfilePanel can receive user + setUser
-  const PANELS = {
-    profile:       <ProfilePanel user={user} setUser={setUser} />,
-    security:      <SecurityPanel />,
-    notifications: <NotificationsPanel />,
-    appearance:    <AppearancePanel />,
-    language:      <LanguagePanel />,
-    privacy:       <PrivacyPanel />,
-    storage:       <StoragePanel />,
-    sessions:      <SessionsPanel />,
-    feedback:      <FeedbackPanel />,
-  };
-
   return (
     <div className="settings-page">
       <div className="settings-body">
@@ -713,7 +728,15 @@ export default function Settings({ user, setUser }) {
 
         {/* CONTENT */}
         <div className="content">
-          {PANELS[active] ?? null}
+          {active === "profile"       && <ProfilePanel user={user} setUser={setUser} />}
+          {active === "security"      && <SecurityPanel />}
+          {active === "notifications" && <NotificationsPanel />}
+          {active === "appearance"    && <AppearancePanel />}
+          {active === "language"      && <LanguagePanel />}
+          {active === "privacy"       && <PrivacyPanel />}
+          {active === "storage"       && <StoragePanel />}
+          {active === "sessions"      && <SessionsPanel />}
+          {active === "feedback"      && <FeedbackPanel />}
         </div>
 
       </div>
