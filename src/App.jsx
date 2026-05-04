@@ -22,6 +22,8 @@ import Navbar from './Navbar';
 import ScanningIssues from './ScanningIssues';
 import AccountSecurity from './AccountSecurity';
 import Resources from './Resources';
+import { useNotifications } from './useNotifications';
+import { NotificationContainer } from './NotificationSystem';
 
 import logo from './Logo/EcoSnap_LOGO_4.png';
 import './splash.css';
@@ -54,6 +56,9 @@ function AppContent() {
   );
 
   const [flying, setFlying] = useState(false);
+
+  // ✅ Kept from Franza — notifications are used in Dashboard and elsewhere
+  const { notifications, success, error, warning, info, dismiss } = useNotifications();
 
   const hideNavbar =
     location.pathname.startsWith('/login') ||
@@ -149,7 +154,8 @@ function AppContent() {
             />
 
             {/* Protected user routes */}
-            <Route path="/dashboard" element={user ? <Dashboard user={user} /> : <Navigate to="/login" replace />} />
+            {/* ✅ notify prop kept from Franza for Dashboard */}
+            <Route path="/dashboard" element={user ? <Dashboard user={user} notify={{ success, error, warning, info }} /> : <Navigate to="/login" replace />} />
             <Route path="/history" element={user ? <History /> : <Navigate to="/login" replace />} />
             <Route path="/tipsandfacts" element={user ? <TipsandFacts /> : <Navigate to="/login" replace />} />
             <Route path="/settings" element={user ? <Settings user={user} setUser={setUser} /> : <Navigate to="/login" replace />} />
@@ -170,6 +176,8 @@ function AppContent() {
             <Route path="/privacypolicy" element={<PrivacyPolicy />} />
             <Route path="/resources" element={<Resources />} />
           </Routes>
+
+          <NotificationContainer notifications={notifications} onDismiss={dismiss} />
         </>
       )}
     </>

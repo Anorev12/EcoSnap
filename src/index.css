@@ -1,13 +1,232 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* ── GLOBAL DARK MODE ───────────────────────────────────────────────────────
+   This is your ONLY dark mode file. Add it to index.css.
+   DELETE all the old dark mode blocks from every other CSS file.
+   ThemeContext.js adds .dark-theme to <html> when user toggles Dark/System.
+──────────────────────────────────────────────────────────────────────────── */
+
+/* ── Smooth color transitions everywhere ── */
+*, *::before, *::after {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+/* ════════════════════════════════════════
+   PAGE BACKGROUNDS
+════════════════════════════════════════ */
+html.dark-theme body,
+html.dark-theme .dashboard-container,
+html.dark-theme .history-page,
+html.dark-theme .settings-page,
+html.dark-theme .contact-container,
+html.dark-theme .tips-facts-wrapper,
+html.dark-theme .profile-wrapper,
+html.dark-theme .ecosnap-root,
+html.dark-theme .page-shell {
+  background-color: #1a1a1a !important;
+  color: #f0f0f0 !important;
 }
+
+/* Settings content area is slightly lighter than sidebar */
+html.dark-theme .content { background-color: #242424 !important; }
+
+/* Scanner page keeps its dark green bg — no override needed */
+
+/* ════════════════════════════════════════
+   WHITE / LIGHT CARDS → DARK GRAY
+   (Green cards like .stat-card--primary and
+    .history-summary__card--dark are untouched)
+════════════════════════════════════════ */
+html.dark-theme .stat-card:not(.stat-card--primary),
+html.dark-theme .history-summary__card:not(.history-summary__card--dark),
+html.dark-theme .history-table-wrapper,
+html.dark-theme .history-empty,
+html.dark-theme .section-card,
+html.dark-theme .profile-card,
+html.dark-theme .scanner-card,
+html.dark-theme .terms-container,
+html.dark-theme .eco-card,
+html.dark-theme .card,
+html.dark-theme .scan-item,
+html.dark-theme .step-item,
+html.dark-theme .metric-card,
+html.dark-theme .onboarding-banner {
+  background: #2c2c2c !important;
+  border-color: #3a3a3a !important;
+}
+
+/* note box in contact page */
+html.dark-theme .note-box {
+  background: #2c2c2c !important;
+  border-color: #3a3a3a !important;
+}
+
+/* fact box in tips page */
+html.dark-theme .fact-box {
+  background: #1a3a1a !important;
+  border-color: #2d6a2d !important;
+}
+
+/* detail pills inside light expanded cards */
+html.dark-theme .stat-card:not(.stat-card--primary) .detail-pill {
+  background: #333 !important;
+  border-color: #444 !important;
+}
+html.dark-theme .stat-card:not(.stat-card--primary) .expanded-tip {
+  background: #1a3a1a !important;
+}
+
+/* icon box in tips cards */
+html.dark-theme .icon-box { background: #333 !important; }
+
+/* ════════════════════════════════════════
+   ALL TEXT — DARK MODE READABLE
+════════════════════════════════════════ */
+
+/* Primary text — bright white */
+html.dark-theme h1, html.dark-theme h2,
+html.dark-theme h3, html.dark-theme h4,
+html.dark-theme h5, html.dark-theme h6 { color: #f0f0f0 !important; }
+
+html.dark-theme p,
+html.dark-theme span,
+html.dark-theme label,
+html.dark-theme td,
+html.dark-theme .panel-title,
+html.dark-theme .scan-item__name,
+html.dark-theme .history-summary__value,
+html.dark-theme .section-label,
+html.dark-theme .toggle-label,
+html.dark-theme .avatar-name,
+html.dark-theme .session-name,
+html.dark-theme .info-item,
+html.dark-theme .metric-value,
+html.dark-theme .page-title { color: #f0f0f0 !important; }
+
+/* Muted text — dimmer but still readable */
+html.dark-theme .stat-label,
+html.dark-theme .history-summary__label,
+html.dark-theme .scan-item__meta,
+html.dark-theme .toggle-sub,
+html.dark-theme .avatar-sub,
+html.dark-theme .session-detail,
+html.dark-theme .card-section-title,
+html.dark-theme .storage-sub,
+html.dark-theme .metric-label,
+html.dark-theme .history-header__sub,
+html.dark-theme .subtitle,
+html.dark-theme .active-filter-label,
+html.dark-theme .contact-sidebar li,
+html.dark-theme .terms-header p,
+html.dark-theme .rating-label,
+html.dark-theme .feedback-rating-label { color: #aaa !important; }
+
+/* li items inside sidebar (contact page) keep their link color */
+html.dark-theme .contact-sidebar li a { color: #aaa !important; }
+
+/* ════════════════════════════════════════
+   INPUTS / SELECTS / TEXTAREAS
+════════════════════════════════════════ */
+html.dark-theme input,
+html.dark-theme select,
+html.dark-theme textarea {
+  background: #333 !important;
+  color: #f0f0f0 !important;
+  border-color: #4a4a4a !important;
+}
+html.dark-theme input::placeholder,
+html.dark-theme textarea::placeholder { color: #666 !important; }
+html.dark-theme input:focus,
+html.dark-theme select:focus,
+html.dark-theme textarea:focus        { border-color: #888 !important; }
+
+/* search wrapper background (contact hero) */
+html.dark-theme .search-wrapper       { background: #333 !important; }
+
+/* history filter search box */
+html.dark-theme .history-filters__search {
+  background: #2c2c2c !important;
+  border-color: #3a3a3a !important;
+}
+html.dark-theme .history-filters__select {
+  background: #2c2c2c !important;
+  border-color: #3a3a3a !important;
+  color: #f0f0f0 !important;
+}
+
+/* ════════════════════════════════════════
+   HISTORY PAGE SPECIFICS
+════════════════════════════════════════ */
+html.dark-theme .history-table__row     { border-bottom-color: #3a3a3a !important; }
+html.dark-theme .history-table__row:hover { background: #333 !important; }
+html.dark-theme .history-table td       { color: #f0f0f0 !important; }
+html.dark-theme .history-table__date    { color: #ccc !important; }
+html.dark-theme .history-table__time    { color: #888 !important; }
+
+html.dark-theme .history-filters__group { background: #2a3a2a !important; }
+html.dark-theme .history-filters__btn   { color: #a5d6a7 !important; }
+html.dark-theme .history-filters__btn--active {
+  background: #2e7d32 !important;
+  color: #fff !important;
+}
+
+html.dark-theme .filter-chip {
+  background: #2c2c2c !important;
+  border-color: #444 !important;
+  color: #ccc !important;
+}
+html.dark-theme .filter-chip.active {
+  background: #2d6a2d !important;
+  border-color: #2d6a2d !important;
+  color: #fff !important;
+}
+
+/* ════════════════════════════════════════
+   SETTINGS PAGE SPECIFICS
+════════════════════════════════════════ */
+html.dark-theme .theme-opt {
+  background: #333 !important;
+  border-color: #444 !important;
+  color: #aaa !important;
+}
+html.dark-theme .theme-opt.sel         { border-color: #aaa !important; color: #f0f0f0 !important; }
+html.dark-theme .toggle-row            { border-bottom-color: #3a3a3a !important; }
+html.dark-theme .storage-bar           { background: #3a3a3a !important; }
+html.dark-theme .session-icon          { background: #333 !important; }
+html.dark-theme .session-row           { border-bottom-color: #3a3a3a !important; }
+html.dark-theme .btn-sm                { border-color: #555 !important; color: #ccc !important; }
+html.dark-theme .btn-sm:hover          { background: #3a3a3a !important; }
+html.dark-theme .save-btn              { background: #f0f0f0 !important; color: #111 !important; }
+html.dark-theme .feedback-chip         { border-color: #4a4a4a !important; color: #ccc !important; }
+html.dark-theme .feedback-chip.selected {
+  background: #1a3a1a !important;
+  border-color: #4caf50 !important;
+  color: #4caf50 !important;
+}
+html.dark-theme .feedback-star         { color: #555 !important; }
+html.dark-theme .feedback-star.active  { color: #f5a623 !important; }
+
+/* ════════════════════════════════════════
+   TIPS & FACTS PAGE SPECIFICS
+════════════════════════════════════════ */
+html.dark-theme .tips-facts-wrapper    { background: #1a1a1a !important; border-color: #3a3a3a !important; }
+html.dark-theme .cat-chip              { border-color: #444 !important; color: #ccc !important; background: transparent !important; }
+html.dark-theme .cat-chip.active       { background: #32cd32 !important; border-color: #32cd32 !important; color: #fff !important; }
+html.dark-theme .tab-btn               { border-color: #444 !important; color: #ccc !important; }
+html.dark-theme .tab-btn.active        { background: #32cd32 !important; border-color: #32cd32 !important; color: #fff !important; }
+html.dark-theme .flip-btn              { border-color: #32cd32 !important; color: #32cd32 !important; }
+html.dark-theme .flip-btn:hover        { background: #32cd32 !important; color: #fff !important; }
+
+/* ════════════════════════════════════════
+   TERMS & CONTACT PAGE SPECIFICS
+════════════════════════════════════════ */
+html.dark-theme .terms-header          { border-bottom-color: #3a3a3a !important; }
+html.dark-theme .terms-footer          { border-top-color: #3a3a3a !important; }
+html.dark-theme .contact-sidebar li    { border-bottom-color: #3a3a3a !important; }
+
+/* ════════════════════════════════════════
+   DIVIDERS & SCROLLBAR
+════════════════════════════════════════ */
+html.dark-theme hr                          { border-color: #3a3a3a !important; }
+html.dark-theme ::-webkit-scrollbar         { width: 8px; }
+html.dark-theme ::-webkit-scrollbar-track  { background: #1a1a1a; }
+html.dark-theme ::-webkit-scrollbar-thumb  { background: #444; border-radius: 4px; }
+html.dark-theme ::-webkit-scrollbar-thumb:hover { background: #555; }

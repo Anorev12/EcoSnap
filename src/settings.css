@@ -73,6 +73,7 @@
 }
 
 /* Panel */
+/* ✅ Verona: constrains panel width so it doesn't stretch on wide screens */
 .panel { max-width: 720px; }
 .panel-title { font-size: 1.25rem; font-weight: 500; margin-bottom: 1.25rem; color: #111; }
 

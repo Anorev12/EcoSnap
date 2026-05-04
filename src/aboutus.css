@@ -1,265 +1,310 @@
+/* ── About Us — EcoSnap style ─────────────────────────────────────────────── */
+
 .about-wrapper {
-  font-family: 'Georgia', serif;
-  background: #f0f4ef;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f0f4f0;
   min-height: 100vh;
-  color: #1a2e1a;
+  color: #1a3a1a;
 }
- 
-/* ===== NAV ===== */
-.about-nav {
-  background: #1a3a1a;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 2rem;
-  height: 56px;
-}
- 
-.about-nav-logo {
-  color: #2e7d32;
-  font-weight: 800;
-  font-size: 1.2rem;
-  letter-spacing: 1px;
-}
- 
-.about-nav-logo span {
-  color: #fff;
-}
- 
-.about-nav-links {
-  display: flex;
-  gap: 1.5rem;
-}
- 
-.about-nav-links a {
-  color: #cde8cd;
-  font-size: 0.85rem;
-  text-decoration: none;
-}
- 
-/* ===== HERO ===== */
+
+/* ════════════════════════════════════════
+   HERO
+════════════════════════════════════════ */
 .about-hero {
-  background: linear-gradient(135deg, #1a3a1a 0%, #2d5a2d 60%, #4a8a4a 100%);
-  color: #fff;
-  padding: 5rem 2rem 4rem;
-  text-align: center;
   position: relative;
+  background: linear-gradient(135deg, #1b4d1e 0%, #2e7d32 60%, #4caf50 100%);
+  padding: 90px 24px 80px;
+  text-align: center;
   overflow: hidden;
 }
- 
+
 .about-hero-overlay {
   position: absolute;
   inset: 0;
-  background-image:
-    radial-gradient(circle at 20% 50%, rgba(106, 212, 106, 0.12) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(106, 212, 106, 0.08) 0%, transparent 40%);
+  background: radial-gradient(ellipse at center, rgba(255,255,255,0.06) 0%, transparent 70%);
+  pointer-events: none;
 }
- 
+
 .about-hero-content {
   position: relative;
+  max-width: 720px;
+  margin: 0 auto;
 }
- 
+
 .about-hero-icon {
-  font-size: 3rem;
-  margin-bottom: 0.75rem;
+  font-size: 3.5rem;
+  margin-bottom: 18px;
+  display: block;
 }
- 
+
 .about-hero h1 {
-  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-size: 2.8rem;
   font-weight: 800;
-  margin: 0 0 1rem;
-  letter-spacing: -1px;
-  line-height: 1.1;
+  color: #ffffff;
+  line-height: 1.2;
+  margin-bottom: 18px;
 }
- 
+
 .about-hero h1 .highlight {
-  color: #6fcf6f;
+  color: #76c442;
 }
- 
+
 .about-hero p {
-  font-size: 1.15rem;
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.7;
   max-width: 560px;
   margin: 0 auto;
-  color: #b8dfb8;
-  line-height: 1.7;
 }
- 
-/* ===== STATS ===== */
+
+/* ════════════════════════════════════════
+   STATS BAR
+════════════════════════════════════════ */
 .about-stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  background: #fff;
-  border-bottom: 2px solid #ddeedd;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0;
+  background: #1b4d1e;
+  padding: 0;
 }
- 
+
 .about-stat-item {
-  padding: 2rem 1.5rem;
+  flex: 1;
+  min-width: 150px;
   text-align: center;
-  border-right: 1px solid #eaf4ea;
+  padding: 28px 20px;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
- 
+
 .about-stat-item:last-child {
   border-right: none;
 }
- 
+
 .about-stat-value {
-  font-size: 2rem;
+  font-size: 2.2rem;
   font-weight: 800;
-  color: #2d6a2d;
+  color: #76c442;
+  line-height: 1;
+  margin-bottom: 6px;
 }
- 
+
 .about-stat-label {
-  font-size: 0.8rem;
-  color: #6a8a6a;
-  margin-top: 0.25rem;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.75);
+  font-weight: 500;
 }
- 
-/* ===== MISSION ===== */
+
+/* ════════════════════════════════════════
+   MISSION
+════════════════════════════════════════ */
 .about-mission {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 4rem 2rem;
+  background: #ffffff;
+  padding: 70px 24px;
 }
- 
+
 .about-mission-inner {
+  max-width: 860px;
+  margin: 0 auto;
   display: flex;
   align-items: flex-start;
-  gap: 2rem;
-  flex-wrap: wrap;
+  gap: 36px;
 }
- 
+
 .about-mission-icon {
-  background: #2d6a2d;
-  border-radius: 16px;
-  padding: 1.25rem;
-  font-size: 2.5rem;
-  line-height: 1;
+  font-size: 3rem;
   flex-shrink: 0;
+  margin-top: 4px;
 }
- 
-.about-mission-text {
-  flex: 1;
-  min-width: 260px;
-}
- 
+
 .about-mission-text h2 {
-  font-size: 1.75rem;
+  font-size: 1.9rem;
   font-weight: 700;
-  margin: 0 0 1rem;
-  color: #1a3a1a;
+  color: #1b4d1e;
+  margin-bottom: 16px;
 }
- 
+
 .about-mission-text p {
+  font-size: 1rem;
+  color: #555;
   line-height: 1.8;
-  color: #3a5a3a;
-  margin: 0 0 1rem;
-  font-size: 1.05rem;
+  margin-bottom: 14px;
 }
- 
+
 .about-mission-text p:last-child {
-  margin: 0;
+  margin-bottom: 0;
 }
- 
-/* ===== HOW IT WORKS ===== */
+
+/* ════════════════════════════════════════
+   HOW IT WORKS
+════════════════════════════════════════ */
 .about-how {
-  background: #fff;
-  padding: 4rem 2rem;
+  background: #f0f4f0;
+  padding: 70px 24px;
 }
- 
+
 .about-how-inner {
-  max-width: 800px;
+  max-width: 1000px;
   margin: 0 auto;
 }
- 
-.about-how h2 {
-  font-size: 1.75rem;
+
+.about-how-inner h2 {
+  font-size: 1.9rem;
   font-weight: 700;
-  margin-bottom: 2.5rem;
-  color: #1a3a1a;
+  color: #1b4d1e;
+  text-align: center;
+  margin-bottom: 40px;
 }
- 
+
 .about-how-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
 }
- 
+
 .about-how-card {
-  background: #f5fbf5;
-  border: 1px solid #ddeedd;
-  border-radius: 12px;
-  padding: 1.5rem;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 28px 22px;
+  text-align: center;
+  box-shadow: 0 2px 12px rgba(30, 77, 30, 0.08);
+  border: 1px solid #d8ead8;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
- 
+
+.about-how-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(30, 77, 30, 0.14);
+}
+
 .about-how-step {
-  width: 36px;
-  height: 36px;
-  background: #2d6a2d;
-  border-radius: 50%;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
-  font-weight: 700;
-  font-size: 0.9rem;
-  margin-bottom: 0.75rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #1b4d1e;
+  color: #76c442;
+  font-size: 0.85rem;
+  font-weight: 800;
+  margin-bottom: 14px;
 }
- 
+
 .about-how-card-icon {
-  font-size: 1.5rem;
-  margin-bottom: 0.5rem;
+  font-size: 2.2rem;
+  margin-bottom: 14px;
 }
- 
+
 .about-how-card h3 {
   font-size: 1rem;
   font-weight: 700;
-  margin: 0 0 0.5rem;
-  color: #1a3a1a;
+  color: #1b4d1e;
+  margin-bottom: 10px;
 }
- 
+
 .about-how-card p {
-  font-size: 0.875rem;
-  color: #5a7a5a;
-  margin: 0;
+  font-size: 0.88rem;
+  color: #666;
   line-height: 1.6;
 }
- 
-/* ===== CTA ===== */
+
+/* ════════════════════════════════════════
+   CTA
+════════════════════════════════════════ */
 .about-cta {
-  background: linear-gradient(135deg, #1a3a1a, #2d5a2d);
-  color: #fff;
+  background: linear-gradient(135deg, #1b4d1e, #2e7d32);
+  padding: 80px 24px;
   text-align: center;
-  padding: 4rem 2rem;
 }
- 
+
 .about-cta-icon {
-  font-size: 2rem;
-  margin-bottom: 1rem;
+  font-size: 3rem;
+  margin-bottom: 16px;
 }
- 
+
 .about-cta h2 {
-  font-size: 1.75rem;
-  font-weight: 700;
-  margin: 0 0 0.75rem;
+  font-size: 2rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 12px;
 }
- 
+
 .about-cta p {
-  color: #b8dfb8;
-  max-width: 440px;
-  margin: 0 auto 2rem;
-  line-height: 1.7;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 30px;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
 }
- 
+
 .about-cta-btn {
-  background: #2e7d32;
-  color: #1a3a1a;
+  background: #76c442;
+  color: #ffffff;
   border: none;
-  border-radius: 8px;
-  padding: 0.85rem 2rem;
+  padding: 14px 32px;
+  border-radius: 30px;
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
-  letter-spacing: 0.25px;
+  transition: background 0.2s, transform 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
+
+.about-cta-btn:hover {
+  background: #5ea832;
+  transform: translateY(-2px);
+}
+
+/* ════════════════════════════════════════
+   RESPONSIVE
+════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .about-how-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .about-hero h1        { font-size: 2rem; }
+  .about-how-grid       { grid-template-columns: 1fr; }
+  .about-mission-inner  { flex-direction: column; gap: 16px; }
+  .about-stats          { flex-direction: column; }
+  .about-stat-item      { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); }
+  .about-stat-item:last-child { border-bottom: none; }
+}
+
+/* ════════════════════════════════════════
+   DARK MODE
+════════════════════════════════════════ */
+html.dark-theme .about-wrapper {
+  background-color: #1a1a1a;
+  color: #f0f0f0;
+}
+
+/* Mission section — white bg goes dark */
+html.dark-theme .about-mission {
+  background: #2c2c2c;
+}
+
+html.dark-theme .about-mission-text h2 { color: #76c442; }
+html.dark-theme .about-mission-text p  { color: #ccc; }
+
+/* How it works section */
+html.dark-theme .about-how            { background: #1a1a1a; }
+html.dark-theme .about-how-inner h2   { color: #76c442; }
+
+html.dark-theme .about-how-card {
+  background: #2c2c2c;
+  border-color: #3a3a3a;
+}
+html.dark-theme .about-how-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+html.dark-theme .about-how-card h3    { color: #f0f0f0; }
+html.dark-theme .about-how-card p     { color: #aaa; }
+
+/* Stats bar — already dark green, stays the same */
+/* Hero — already dark green, stays the same */
+/* CTA — already dark green, stays the same */

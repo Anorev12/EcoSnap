@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "./settings.css";
+import { useTheme } from "./ThemeContext";
 
 // ─── API ──────────────────────────────────────────────────────────
 
@@ -38,6 +39,7 @@ function ProfilePanel({ user, setUser }) {
     setForm({ ...form, photoUrl: url });
   };
 
+  // ✅ Verona: async save with real API call + saving state
   const handleSave = async () => {
     try {
       setSaving(true);
@@ -57,6 +59,7 @@ function ProfilePanel({ user, setUser }) {
     }
   };
 
+  // ✅ Verona: uses photoUrl (not photo), consistent with the rest of the component
   const handleCancel = () => {
     setForm({ ...user, bio: user.bio ?? "" });
     setPreview(user.photoUrl);
@@ -304,7 +307,7 @@ function NotificationsPanel() {
 }
 
 function AppearancePanel() {
-  const [theme, setTheme] = useState("light");
+  const { theme, setTheme } = useTheme();
   const [fontSize, setFontSize] = useState("medium");
   const [accent, setAccent] = useState("#22c55e");
   const accents = ["#22c55e", "#3b82f6", "#a855f7", "#f97316", "#ec4899"];
@@ -566,8 +569,6 @@ function SessionsPanel() {
   );
 }
 
-// ─── Feedback Panel ───────────────────────────────────────────────
-
 const FEEDBACK_CATEGORIES = [
   "General", "UI / Design", "Performance", "Scan Accuracy",
   "Tips & Facts", "Bug Report", "Feature Request", "Other",
@@ -699,6 +700,7 @@ export default function Settings({ user, setUser }) {
 
   const handleLogout = () => navigate("/login");
 
+  // ✅ Verona: inline panel rendering (no PANELS object needed)
   return (
     <div className="settings-page">
       <div className="settings-body">
