@@ -115,6 +115,7 @@
 }
 .btn-capture:hover { opacity: 0.9; }
 
+/* ✅ Kept from HEAD — proper styling with hover state */
 .btn-close {
   background: #fee2e2;
   color: #dc2626;
@@ -146,7 +147,6 @@
   background: #000;
 }
 
-<<<<<<< HEAD
 /* ── Analyzing State ── */
 .analyzing-state {
   display: flex;
@@ -284,10 +284,3 @@
 .result-actions {
   width: 100%;
 }
-=======
-.btn-close {
-  margin-top: 10px;
-  background: #e74c3c;
-  color: white;
-}
->>>>>>> c714f59934fada8831aae1c13d94d9a36cf5cb13
