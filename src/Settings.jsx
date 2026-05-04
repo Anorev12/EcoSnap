@@ -1,15 +1,33 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "./settings.css";
-import { useTheme } from "./ThemeContext"; // ← ADD THIS IMPORT
+import { useTheme } from "./ThemeContext";
+
+// ─── API ──────────────────────────────────────────────────────────
+
+const updateUserProfile = async (id, userData) => {
+  const response = await fetch(`http://localhost:8080/api/users/update/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(userData),
+  });
+  if (!response.ok) throw new Error("Update failed");
+  return response.json();
+};
 
 // ─── Sub-components ───────────────────────────────────────────────
 
 function ProfilePanel({ user, setUser }) {
   const [isEditing, setIsEditing] = useState(false);
-  const [form, setForm] = useState(user);
-  const [preview, setPreview] = useState(user.photo);
+  const [form, setForm] = useState({ ...user, bio: user.bio ?? "" });
+  const [preview, setPreview] = useState(user.photoUrl);
+  const [saving, setSaving] = useState(false);
   const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    setForm({ ...user, bio: user.bio ?? "" });
+    setPreview(user.photoUrl);
+  }, [user]);
 
   const update = (k) => (e) => setForm({ ...form, [k]: e.target.value });
 
@@ -18,17 +36,33 @@ function ProfilePanel({ user, setUser }) {
     if (!file) return;
     const url = URL.createObjectURL(file);
     setPreview(url);
-    setForm({ ...form, photo: url });
+    setForm({ ...form, photoUrl: url });
   };
 
-  const handleSave = () => {
-    setUser(form);
-    setIsEditing(false);
+  // ✅ Verona: async save with real API call + saving state
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      const updated = await updateUserProfile(user.id, {
+        firstName: form.firstName,
+        lastName: form.lastName,
+        username: form.username,
+        bio: form.bio,
+        photoUrl: form.photoUrl,
+      });
+      setUser(updated);
+      setIsEditing(false);
+    } catch (err) {
+      alert("Failed to save profile. Please try again.");
+    } finally {
+      setSaving(false);
+    }
   };
 
+  // ✅ Verona: uses photoUrl (not photo), consistent with the rest of the component
   const handleCancel = () => {
-    setForm(user);
-    setPreview(user.photo);
+    setForm({ ...user, bio: user.bio ?? "" });
+    setPreview(user.photoUrl);
     setIsEditing(false);
   };
 
@@ -43,16 +77,16 @@ function ProfilePanel({ user, setUser }) {
           <div
             className="avatar"
             style={
-              preview || user.photo
+              preview || user.photoUrl
                 ? {
-                    backgroundImage: `url(${preview || user.photo})`,
+                    backgroundImage: `url(${preview || user.photoUrl})`,
                     backgroundSize: "cover",
                     color: "transparent",
                   }
                 : {}
             }
           >
-            {!preview && !user.photo && initials}
+            {!preview && !user.photoUrl && initials}
           </div>
 
           <div className="avatar-info">
@@ -118,11 +152,7 @@ function ProfilePanel({ user, setUser }) {
 
         <div className="field">
           <label>Email</label>
-          <input
-            value={form.email}
-            onChange={update("email")}
-            disabled={!isEditing}
-          />
+          <input value={form.email} disabled={true} />
         </div>
       </div>
 
@@ -132,8 +162,8 @@ function ProfilePanel({ user, setUser }) {
         </button>
       ) : (
         <div style={{ display: "flex", gap: "12px" }}>
-          <button className="save-btn" onClick={handleSave}>
-            Save changes
+          <button className="save-btn" onClick={handleSave} disabled={saving}>
+            {saving ? "Saving..." : "Save changes"}
           </button>
           <button className="btn-sm" onClick={handleCancel} style={{ padding: "10px 20px" }}>
             Cancel
@@ -276,9 +306,8 @@ function NotificationsPanel() {
   );
 }
 
-// ─── AppearancePanel — ONLY THIS FUNCTION WAS CHANGED ────────────────────────
 function AppearancePanel() {
-  const { theme, setTheme } = useTheme(); // ← REPLACES: const [theme, setTheme] = useState("light");
+  const { theme, setTheme } = useTheme();
   const [fontSize, setFontSize] = useState("medium");
   const [accent, setAccent] = useState("#22c55e");
   const accents = ["#22c55e", "#3b82f6", "#a855f7", "#f97316", "#ec4899"];
@@ -336,7 +365,6 @@ function AppearancePanel() {
     </div>
   );
 }
-// ─────────────────────────────────────────────────────────────────────────────
 
 function LanguagePanel() {
   return (
@@ -672,18 +700,7 @@ export default function Settings({ user, setUser }) {
 
   const handleLogout = () => navigate("/login");
 
-  const PANELS = {
-    profile:       <ProfilePanel user={user} setUser={setUser} />,
-    security:      <SecurityPanel />,
-    notifications: <NotificationsPanel />,
-    appearance:    <AppearancePanel />,
-    language:      <LanguagePanel />,
-    privacy:       <PrivacyPanel />,
-    storage:       <StoragePanel />,
-    sessions:      <SessionsPanel />,
-    feedback:      <FeedbackPanel />,
-  };
-
+  // ✅ Verona: inline panel rendering (no PANELS object needed)
   return (
     <div className="settings-page">
       <div className="settings-body">
@@ -713,7 +730,15 @@ export default function Settings({ user, setUser }) {
 
         {/* CONTENT */}
         <div className="content">
-          {PANELS[active] ?? null}
+          {active === "profile"       && <ProfilePanel user={user} setUser={setUser} />}
+          {active === "security"      && <SecurityPanel />}
+          {active === "notifications" && <NotificationsPanel />}
+          {active === "appearance"    && <AppearancePanel />}
+          {active === "language"      && <LanguagePanel />}
+          {active === "privacy"       && <PrivacyPanel />}
+          {active === "storage"       && <StoragePanel />}
+          {active === "sessions"      && <SessionsPanel />}
+          {active === "feedback"      && <FeedbackPanel />}
         </div>
 
       </div>

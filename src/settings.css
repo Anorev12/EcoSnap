@@ -6,53 +6,21 @@
   font-family: 'Segoe UI', sans-serif;
 }
 
-/* PAGE BACKGROUND (pink patterned feel) */
+/* PAGE — no background color, fills viewport, no overflow */
 .settings-page {
   height: 100vh;
-  background-color: #f6b3b3;
-}
-
-/* HEADER */
-.settings-header {
-  background-color: #1f6f2f;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 15px 25px;
-}
-
-.logo {
-  font-weight: bold;
-  font-size: 20px;
-}
-
-.nav {
-  display: flex;
-  gap: 25px;
-}
-
-.nav span {
-  cursor: pointer;
-  opacity: 0.9;
-}
-
-.nav .active {
-  font-weight: bold;
-  border-bottom: 2px solid white;
-}
-
-.user {
-  font-size: 14px;
+  overflow: hidden;
+  background-color: #d9d9d9;
 }
 
 /* BODY LAYOUT */
 .settings-body {
   display: flex;
-  height: calc(100vh - 60px);
+  height: 100vh;
+  overflow: hidden;
 }
 
-/* SIDEBAR */
+/* SIDEBAR — fixed height, no scroll */
 .sidebar {
   width: 240px;
   background-color: #1f6f2f;
@@ -60,35 +28,29 @@
   padding: 20px;
   display: flex;
   flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  flex-shrink: 0;
 }
-
 .sidebar h3 {
   font-size: 13px;
   margin: 15px 0 5px;
   opacity: 0.8;
 }
-
 .sidebar ul {
   list-style: none;
   margin-bottom: 10px;
 }
-
 .sidebar li {
   padding: 8px 10px;
   border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
 }
+.sidebar li:hover { background-color: rgba(255,255,255,0.1); }
+.sidebar li.active { background-color: rgba(255,255,255,0.2); }
 
-.sidebar li:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-.sidebar li.active {
-  background-color: rgba(255, 255, 255, 0.2);
-}
-
-/* LOGOUT BUTTON */
+/* LOGOUT */
 .logout {
   margin-top: auto;
   background-color: #e53935;
@@ -98,18 +60,21 @@
   border-radius: 6px;
   cursor: pointer;
 }
+.logout:hover { background-color: #c62828; }
 
-.logout:hover {
-  background-color: #c62828;
-}
-
-/* CONTENT AREA */
+/* CONTENT AREA — ONLY this scrolls */
 .content {
   flex: 1;
   background-color: #d9d9d9;
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 100vh;
+  padding: 24px 28px;
 }
 
 /* Panel */
+/* ✅ Verona: constrains panel width so it doesn't stretch on wide screens */
+.panel { max-width: 720px; }
 .panel-title { font-size: 1.25rem; font-weight: 500; margin-bottom: 1.25rem; color: #111; }
 
 /* Section card */
@@ -240,98 +205,52 @@
 }
 
 /* Stars */
-.feedback-stars {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 6px;
-}
-
+.feedback-stars { display: flex; gap: 8px; margin-bottom: 6px; }
 .feedback-star {
-  font-size: 28px;
-  cursor: pointer;
-  color: #ddd;
+  font-size: 28px; cursor: pointer; color: #ddd;
   transition: color 0.15s, transform 0.1s;
-  user-select: none;
-  line-height: 1;
+  user-select: none; line-height: 1;
 }
 .feedback-star.active { color: #f5a623; }
 .feedback-star:hover  { transform: scale(1.15); }
-
-.feedback-rating-label {
-  font-size: 13px;
-  color: #777;
-  min-height: 18px;
-  margin: 0;
-}
+.feedback-rating-label { font-size: 13px; color: #777; min-height: 18px; margin: 0; }
 
 /* Chips */
-.feedback-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 4px;
-}
-
+.feedback-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
 .feedback-chip {
-  border: 1.5px solid #ddd;
-  border-radius: 20px;
-  padding: 6px 14px;
-  font-size: 13px;
-  font-family: inherit;
-  color: #444;
-  background: transparent;
-  cursor: pointer;
+  border: 1.5px solid #ddd; border-radius: 20px;
+  padding: 6px 14px; font-size: 13px; font-family: inherit;
+  color: #444; background: transparent; cursor: pointer;
   transition: border-color 0.15s, color 0.15s, background 0.15s;
   user-select: none;
 }
-.feedback-chip:hover   { border-color: #4caf50; color: #4caf50; }
+.feedback-chip:hover { border-color: #4caf50; color: #4caf50; }
 .feedback-chip.selected {
-  border-color: #4caf50;
-  background: #eaf7e4;
-  color: #2d7a30;
-  font-weight: 500;
+  border-color: #4caf50; background: #eaf7e4;
+  color: #2d7a30; font-weight: 500;
 }
 
 /* Textarea */
 .feedback-textarea {
-  width: 100%;
-  border: 1.5px solid #ddd;
-  border-radius: 8px;
-  padding: 10px 12px;
-  font-size: 14px;
-  font-family: inherit;
-  color: #222;
-  resize: vertical;
-  min-height: 110px;
-  outline: none;
-  transition: border-color 0.15s;
+  width: 100%; border: 1.5px solid #ddd; border-radius: 8px;
+  padding: 10px 12px; font-size: 14px; font-family: inherit;
+  color: #222; resize: vertical; min-height: 110px;
+  outline: none; transition: border-color 0.15s;
 }
 .feedback-textarea:focus { border-color: #4caf50; }
 .feedback-textarea::placeholder { color: #aaa; }
 
 /* Submit row */
-.feedback-submit-row {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-top: 8px;
-  flex-wrap: wrap;
-}
+.feedback-submit-row { display: flex; align-items: center; gap: 16px; margin-top: 8px; flex-wrap: wrap; }
 
 /* Toast */
 .feedback-toast {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: #eaf7e4;
-  border: 1px solid #b2dfb0;
-  border-radius: 8px;
-  padding: 8px 14px;
-  font-size: 13px;
-  color: #2d7a30;
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #eaf7e4; border: 1px solid #b2dfb0;
+  border-radius: 8px; padding: 8px 14px;
+  font-size: 13px; color: #2d7a30;
   animation: fbFadeIn 0.25s ease;
 }
-
 @keyframes fbFadeIn {
   from { opacity: 0; transform: translateY(4px); }
   to   { opacity: 1; transform: translateY(0); }
