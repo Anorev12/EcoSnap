@@ -2,11 +2,115 @@ import { Link } from "react-router-dom";
 import { useRef, useState, useCallback } from "react";
 import "./scanner.css";
 
-export default function Scanner() {
+// ─── Trash categories config ──────────────────────────────────────
+const CATEGORY_CONFIG = {
+  Recyclable: {
+    emoji: "♻️",
+    color: "#22c55e",
+    bg: "#dcfce7",
+    border: "#86efac",
+    tip: "Place in the blue/yellow recycling bin.",
+  },
+  Biodegradable: {
+    emoji: "🌿",
+    color: "#84cc16",
+    bg: "#f7fee7",
+    border: "#bef264",
+    tip: "Place in the green compost bin or compost at home.",
+  },
+  "Residual / Non-Recyclable": {
+    emoji: "🗑️",
+    color: "#f97316",
+    bg: "#fff7ed",
+    border: "#fdba74",
+    tip: "Place in the general waste / black bin.",
+  },
+  Hazardous: {
+    emoji: "⚠️",
+    color: "#ef4444",
+    bg: "#fef2f2",
+    border: "#fca5a5",
+    tip: "Bring to a designated hazardous waste facility.",
+  },
+  "E-Waste": {
+    emoji: "🔋",
+    color: "#8b5cf6",
+    bg: "#f5f3ff",
+    border: "#c4b5fd",
+    tip: "Drop off at an electronics recycling center.",
+  },
+  Unknown: {
+    emoji: "❓",
+    color: "#6b7280",
+    bg: "#f9fafb",
+    border: "#d1d5db",
+    tip: "Could not determine category. Try a clearer photo.",
+  },
+};
+
+// ─── API call to your Spring Boot backend ─────────────────────────
+async function classifyImage(base64Image, userId) {
+  const response = await fetch("http://localhost:8080/api/scanner/analyze", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      image: base64Image,
+      userId: userId ?? null,
+    }),
+  });
+
+  if (!response.ok) throw new Error("Analysis failed. Please try again.");
+  return response.json(); // returns ScanHistory object from DB
+}
+
+// ─── Result Card ──────────────────────────────────────────────────
+function ResultCard({ result, image, onRescan }) {
+  const cfg = CATEGORY_CONFIG[result.category] ?? CATEGORY_CONFIG["Unknown"];
+
+  return (
+    <div className="result-wrapper">
+      <div className="result-image-thumb">
+        <img src={image} alt="Scanned item" />
+      </div>
+
+      <div className="result-card" style={{ borderColor: cfg.border, background: cfg.bg }}>
+        <div className="result-category-badge" style={{ background: cfg.color }}>
+          <span className="result-emoji">{cfg.emoji}</span>
+          <span>{result.category}</span>
+        </div>
+
+        <div className="result-item-name">{result.item}</div>
+
+        <div className="result-confidence" style={{ color: cfg.color }}>
+          {result.confidence} Confidence
+        </div>
+
+        <p className="result-reason">{result.reason}</p>
+
+        <div className="result-tip" style={{ borderLeft: `3px solid ${cfg.color}` }}>
+          <span className="result-tip-label">How to dispose:</span>
+          <span>{result.disposal || cfg.tip}</span>
+        </div>
+      </div>
+
+      <div className="result-actions">
+        <button className="scanner-btn btn-camera" onClick={onRescan}>
+          🔄 Scan Another
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Scanner ─────────────────────────────────────────────────
+export default function Scanner({ user }) {
   const videoRef = useRef(null);
   const streamRef = useRef(null);
   const [cameraOpen, setCameraOpen] = useState(false);
-  const [capturedImage, setCapturedImage] = useState(null); // ✅ store captured photo
+  const [capturedImage, setCapturedImage] = useState(null);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
 
   const videoCallbackRef = useCallback((node) => {
     if (node && streamRef.current) {
@@ -17,22 +121,20 @@ export default function Scanner() {
 
   const handleOpenCamera = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: false
-      });
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
       streamRef.current = stream;
-      setCapturedImage(null); // clear previous photo
+      setCapturedImage(null);
+      setResult(null);
+      setError(null);
       setCameraOpen(true);
-    } catch (error) {
-      console.error("Camera error:", error.name, error.message);
-      alert(`Camera error: ${error.name} - ${error.message}`);
+    } catch (err) {
+      alert(`Camera error: ${err.name} - ${err.message}`);
     }
   };
 
   const handleCloseCamera = () => {
     if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current.getTracks().forEach((t) => t.stop());
       streamRef.current = null;
     }
     setCameraOpen(false);
@@ -41,119 +143,137 @@ export default function Scanner() {
   const handleCapturePhoto = () => {
     const video = videoRef.current;
     if (!video) return;
-
-    // Draw video frame onto a canvas
     const canvas = document.createElement("canvas");
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     canvas.getContext("2d").drawImage(video, 0, 0);
-
-    // Convert to image URL
     const imageDataUrl = canvas.toDataURL("image/png");
     setCapturedImage(imageDataUrl);
-
-    // Stop camera after capture
     handleCloseCamera();
-  };
-
-  const handleRetake = () => {
-    setCapturedImage(null);
-    handleOpenCamera();
   };
 
   const handleChooseImage = () => {
     const input = document.createElement("input");
     input.type = "file";
     input.accept = "image/*";
-    input.onchange = (e) => console.log("Chosen file:", e.target.files[0]);
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        setCapturedImage(ev.target.result);
+        setResult(null);
+        setError(null);
+      };
+      reader.readAsDataURL(file);
+    };
     input.click();
   };
+
+  const handleAnalyze = async () => {
+    if (!capturedImage) return;
+    setAnalyzing(true);
+    setError(null);
+    try {
+      const base64 = capturedImage.split(",")[1];
+      const classification = await classifyImage(base64, user?.id);
+      setResult(classification);
+    } catch (err) {
+      setError(err.message || "Could not analyze the image. Please try again.");
+    } finally {
+      setAnalyzing(false);
+    }
+  };
+
+  const handleRescan = () => {
+    setCapturedImage(null);
+    setResult(null);
+    setError(null);
+  };
+
+  const showDefault = !cameraOpen && !capturedImage && !result;
 
   return (
     <div className="scanner-page">
       <div className="scanner-card">
-      {!cameraOpen && !capturedImage &&(
-        <Link to="/dashboard" className="scanner-back-btn">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path 
-              d="M15 18l-6-6 6-6" 
-              stroke="currentColor" 
-              strokeWidth="2.5" 
-              strokeLinecap="round" 
-              strokeLinejoin="round"
-            />
-          </svg>
-        </Link>
-      )}
-        {/* Live Camera */}
+
+        {/* Back button */}
+        {showDefault && (
+          <Link to="/dashboard" className="scanner-back-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2.5"
+                strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </Link>
+        )}
+
+        {/* ── Live Camera ── */}
         {cameraOpen && (
           <div className="camera-container">
-            <video
-              ref={videoCallbackRef}
-              autoPlay
-              playsInline
-              className="camera-video"
-            />
-            <button 
-              className="scanner-btn btn-capture"
-              onClick={handleCapturePhoto}
-            >
+            <video ref={videoCallbackRef} autoPlay playsInline className="camera-video" />
+            <button className="scanner-btn btn-capture" onClick={handleCapturePhoto}>
               📸 Capture Photo
             </button>
-            <button 
-              className="scanner-btn btn-close"
-              onClick={handleCloseCamera}
-            >
+            <button className="scanner-btn btn-close" onClick={handleCloseCamera}>
               Close Camera
             </button>
           </div>
         )}
 
-        {/* Captured Photo Preview */}
-        {capturedImage && !cameraOpen && (
+        {/* ── Preview + Analyze ── */}
+        {capturedImage && !cameraOpen && !result && (
           <div className="camera-container">
             <img src={capturedImage} alt="Captured" className="camera-video" />
-            <button 
-              className="scanner-btn btn-camera"
-              onClick={handleRetake}
-            >
-              🔄 Retake
-            </button>
-            <button
-              className="scanner-btn btn-choose"
-              onClick={() => console.log("Submit photo:", capturedImage)}
-            >
-              ✅ Use This Photo
-            </button>
+
+            {analyzing ? (
+              <div className="analyzing-state">
+                <div className="analyzing-spinner" />
+                <p className="analyzing-text">Analyzing item with AI…</p>
+              </div>
+            ) : (
+              <>
+                {error && <p className="scan-error">{error}</p>}
+                <button className="scanner-btn btn-analyze" onClick={handleAnalyze}>
+                  🔍 Analyze Item
+                </button>
+                <button className="scanner-btn btn-camera" onClick={handleOpenCamera}>
+                  🔄 Retake
+                </button>
+                <button className="scanner-btn btn-choose" onClick={handleChooseImage}>
+                  📁 Choose Different
+                </button>
+              </>
+            )}
           </div>
         )}
 
-        {/* Default Upload UI */}
-        {!cameraOpen && !capturedImage && (
+        {/* ── AI Result ── */}
+        {result && capturedImage && (
+          <ResultCard result={result} image={capturedImage} onRescan={handleRescan} />
+        )}
+
+        {/* ── Default Upload UI ── */}
+        {showDefault && (
           <>
             <div className="scanner-upload-area">
               <svg className="upload-icon" width="56" height="56" viewBox="0 0 24 24" fill="none">
-                <path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="#888" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-                <polyline points="16 8 12 4 8 8" stroke="#888" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-                <line x1="12" y1="4" x2="12" y2="16" stroke="#888" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="#888"
+                  strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                <polyline points="16 8 12 4 8 8" stroke="#888" strokeWidth="1.8"
+                  strokeLinecap="round" strokeLinejoin="round" />
+                <line x1="12" y1="4" x2="12" y2="16" stroke="#888"
+                  strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-              <p className="upload-label">Image upload</p>
+              <p className="upload-label">Scan an item to classify it</p>
+              <p className="upload-sub">Take a photo or upload an image — AI will identify the trash category</p>
             </div>
 
-            <button 
-              className="scanner-btn btn-camera" 
-              onClick={handleOpenCamera}
-            >
-              Open Camera
+            <button className="scanner-btn btn-camera" onClick={handleOpenCamera}>
+              📷 Open Camera
             </button>
-
             <span className="scanner-or">or</span>
-
-            <button 
-              className="scanner-btn btn-choose" 
-              onClick={handleChooseImage}
-            >
-              Upload Image
+            <button className="scanner-btn btn-choose" onClick={handleChooseImage}>
+              📁 Upload Image
             </button>
           </>
         )}
