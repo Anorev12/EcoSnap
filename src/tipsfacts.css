@@ -1,8 +1,8 @@
 .tips-facts-wrapper {
-  background-color: #ffffff;
+  background-color: var(--color-background-primary, #ffffff);
   border-radius: 20px;
   padding: 30px;
-  border: 1px solid #dcdcdc;
+  border: 1px solid var(--color-border-tertiary, #dcdcdc);
   margin: 20px;
   font-family: 'Inter', sans-serif;
 }
@@ -18,7 +18,7 @@
 .tips-header h3 {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #000;
+  color: var(--color-text-primary, #000);
 }
 
 .header-right {
@@ -29,12 +29,12 @@
 
 .tab-btn {
   background: none;
-  border: 1.5px solid #ddd;
+  border: 1.5px solid var(--color-border-tertiary, #ddd);
   border-radius: 20px;
   padding: 6px 16px;
   font-size: 0.85rem;
   font-weight: 500;
-  color: #555;
+  color: var(--color-text-secondary, #555);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -73,12 +73,13 @@
 
 .search-input {
   width: 100%;
-  border: 1.5px solid #ddd;
+  border: 1.5px solid var(--color-border-tertiary, #ddd);
   border-radius: 10px;
   padding: 10px 14px;
   font-size: 0.9rem;
   font-family: inherit;
-  color: #333;
+  color: var(--color-text-primary, #333);
+  background: var(--color-background-secondary, #fff);
   outline: none;
   transition: border-color 0.15s;
 }
@@ -86,7 +87,7 @@
   border-color: #32cd32;
 }
 .search-input::placeholder {
-  color: #aaa;
+  color: var(--color-text-tertiary, #aaa);
 }
 
 /* ── Category chips ── */
@@ -98,12 +99,12 @@
 }
 
 .cat-chip {
-  border: 1.5px solid #ddd;
+  border: 1.5px solid var(--color-border-tertiary, #ddd);
   border-radius: 20px;
   padding: 5px 14px;
   font-size: 0.82rem;
   font-family: inherit;
-  color: #555;
+  color: var(--color-text-secondary, #555);
   background: transparent;
   cursor: pointer;
   transition: all 0.15s;
@@ -128,7 +129,7 @@
 
 /* ── Individual card ── */
 .eco-card {
-  background: #f8f9f8;
+  background: var(--color-background-secondary, #f8f9f8);
   border-radius: 15px;
   position: relative;
   overflow: hidden;
@@ -137,7 +138,7 @@
   transition: box-shadow 0.2s;
 }
 .eco-card:hover {
-  box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
 }
 
 .card-accent {
@@ -160,15 +161,24 @@
   margin-bottom: 12px;
 }
 
+/* ✅ Fix: was hardcoded #eaf7e4 bg + #2d7a30 text — invisible in dark mode */
 .card-category {
   font-size: 0.72rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: #2d7a30;
-  background: #eaf7e4;
+  background: rgba(50, 205, 50, 0.15);
   border-radius: 10px;
   padding: 3px 10px;
+}
+
+/* dark mode: boost contrast for the badge text */
+@media (prefers-color-scheme: dark) {
+  .card-category {
+    color: #6ee06e;
+    background: rgba(50, 205, 50, 0.2);
+  }
 }
 
 .bookmark-btn {
@@ -189,8 +199,9 @@
 }
 
 /* ── Icon box ── */
+/* ✅ Fix: was hardcoded #c1d9c1 — too dark/muddy in dark mode */
 .icon-box {
-  background-color: #c1d9c1;
+  background-color: rgba(50, 205, 50, 0.12);
   height: 120px;
   border-radius: 10px;
   margin-bottom: 16px;
@@ -204,24 +215,26 @@
 }
 
 /* ── Card text ── */
+/* ✅ Fix: was hardcoded #1a1a1a — invisible in dark mode */
 .eco-card h4 {
   font-size: 1rem;
   font-weight: 700;
-  color: #1a1a1a;
+  color: var(--color-text-primary, #1a1a1a);
   margin-bottom: 10px;
   text-align: center;
 }
 
 .eco-card p {
   font-size: 0.88rem;
-  color: #555;
+  color: var(--color-text-secondary, #555);
   line-height: 1.5;
   flex: 1;
 }
 
 /* ── Fact box ── */
+/* ✅ Fix: was hardcoded #eaf7e4 bg — blends into dark backgrounds */
 .fact-box {
-  background: #eaf7e4;
+  background: rgba(50, 205, 50, 0.1);
   border-left: 3px solid #32cd32;
   border-radius: 8px;
   padding: 10px 12px;
@@ -232,14 +245,14 @@
   display: block;
   font-size: 0.75rem;
   font-weight: 700;
-  color: #2d7a30;
+  color: #32cd32;
   margin-bottom: 6px;
   text-transform: uppercase;
   letter-spacing: 0.4px;
 }
 
 .fact-box p {
-  color: #2d5a30;
+  color: var(--color-text-secondary, #2d5a30);
   font-size: 0.85rem;
 }
 
@@ -267,7 +280,7 @@
 .empty-state {
   text-align: center;
   padding: 60px 20px;
-  color: #888;
+  color: var(--color-text-secondary, #888);
   font-size: 0.95rem;
   line-height: 1.6;
 }

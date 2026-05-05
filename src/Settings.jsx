@@ -1,9 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "./settings.css";
-import { useTheme } from "./ThemeContext";
 
-// ─── API ──────────────────────────────────────────────────────────
+// ─── API helpers ──────────────────────────────────────────────────
 
 const updateUserProfile = async (id, userData) => {
   const response = await fetch(`http://localhost:8080/api/users/update/${id}`, {
@@ -11,11 +10,25 @@ const updateUserProfile = async (id, userData) => {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(userData),
   });
-  if (!response.ok) throw new Error("Update failed");
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err.message || "Update failed");
+  }
   return response.json();
 };
 
-// ─── Sub-components ───────────────────────────────────────────────
+const deleteUserAccount = async (id) => {
+  const response = await fetch(`http://localhost:8080/api/users/delete/${id}`, {
+    method: "DELETE",
+  });
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err.message || "Delete failed");
+  }
+  return response.json();
+};
+
+// ─── Profile Panel ────────────────────────────────────────────────
 
 function ProfilePanel({ user, setUser }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -39,7 +52,6 @@ function ProfilePanel({ user, setUser }) {
     setForm({ ...form, photoUrl: url });
   };
 
-  // ✅ Verona: async save with real API call + saving state
   const handleSave = async () => {
     try {
       setSaving(true);
@@ -50,7 +62,9 @@ function ProfilePanel({ user, setUser }) {
         bio: form.bio,
         photoUrl: form.photoUrl,
       });
-      setUser(updated);
+      const merged = { ...user, ...updated };
+      setUser(merged);
+      localStorage.setItem("user", JSON.stringify(merged));
       setIsEditing(false);
     } catch (err) {
       alert("Failed to save profile. Please try again.");
@@ -59,131 +73,153 @@ function ProfilePanel({ user, setUser }) {
     }
   };
 
-  // ✅ Verona: uses photoUrl (not photo), consistent with the rest of the component
   const handleCancel = () => {
     setForm({ ...user, bio: user.bio ?? "" });
     setPreview(user.photoUrl);
     setIsEditing(false);
   };
 
-  const initials = `${user.firstName[0] ?? ""}${user.lastName[0] ?? ""}`.toUpperCase();
+  const initials = `${user.firstName?.[0] ?? ""}${user.lastName?.[0] ?? ""}`.toUpperCase();
 
   return (
     <div className="panel">
       <h2 className="panel-title">Profile</h2>
-
       <div className="section-card">
         <div className="avatar-row">
           <div
             className="avatar"
             style={
               preview || user.photoUrl
-                ? {
-                    backgroundImage: `url(${preview || user.photoUrl})`,
-                    backgroundSize: "cover",
-                    color: "transparent",
-                  }
+                ? { backgroundImage: `url(${preview || user.photoUrl})`, backgroundSize: "cover", color: "transparent" }
                 : {}
             }
           >
             {!preview && !user.photoUrl && initials}
           </div>
-
           <div className="avatar-info">
-            <p className="avatar-name">
-              {user.firstName} {user.lastName}
-            </p>
+            <p className="avatar-name">{user.firstName} {user.lastName}</p>
             <span className="avatar-sub">{user.email}</span>
             <br />
             {isEditing && (
               <>
-                <button className="btn-sm" onClick={() => fileInputRef.current.click()}>
-                  Change photo
-                </button>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  style={{ display: "none" }}
-                  onChange={handlePhotoChange}
-                />
+                <button className="btn-sm" onClick={() => fileInputRef.current.click()}>Change photo</button>
+                <input ref={fileInputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handlePhotoChange} />
               </>
             )}
           </div>
         </div>
-
         <div className="row2">
           <div className="field">
             <label>First name</label>
-            <input
-              value={form.firstName}
-              onChange={update("firstName")}
-              disabled={!isEditing}
-            />
+            <input value={form.firstName} onChange={update("firstName")} disabled={!isEditing} />
           </div>
           <div className="field">
             <label>Last name</label>
-            <input
-              value={form.lastName}
-              onChange={update("lastName")}
-              disabled={!isEditing}
-            />
+            <input value={form.lastName} onChange={update("lastName")} disabled={!isEditing} />
           </div>
         </div>
-
         <div className="field">
           <label>Bio</label>
-          <input
-            value={form.bio}
-            onChange={update("bio")}
-            placeholder="Tell us a little about yourself…"
-            disabled={!isEditing}
-          />
+          <input value={form.bio} onChange={update("bio")} placeholder="Tell us a little about yourself…" disabled={!isEditing} />
         </div>
-
         <div className="field">
           <label>Username</label>
-          <input
-            value={form.username}
-            onChange={update("username")}
-            disabled={!isEditing}
-          />
+          <input value={form.username} onChange={update("username")} disabled={!isEditing} />
         </div>
-
         <div className="field">
           <label>Email</label>
           <input value={form.email} disabled={true} />
         </div>
       </div>
-
       {!isEditing ? (
-        <button className="save-btn" onClick={() => setIsEditing(true)}>
-          Edit Profile
-        </button>
+        <button className="save-btn" onClick={() => setIsEditing(true)}>Edit Profile</button>
       ) : (
         <div style={{ display: "flex", gap: "12px" }}>
           <button className="save-btn" onClick={handleSave} disabled={saving}>
             {saving ? "Saving..." : "Save changes"}
           </button>
-          <button className="btn-sm" onClick={handleCancel} style={{ padding: "10px 20px" }}>
-            Cancel
-          </button>
+          <button className="btn-sm" onClick={handleCancel} style={{ padding: "10px 20px" }}>Cancel</button>
         </div>
       )}
     </div>
   );
 }
 
+// ─── Security Panel ───────────────────────────────────────────────
 
-function SecurityPanel() {
-  const [email, setEmail] = useState("juan@example.com");
-  const [pw, setPw] = useState({ current: "", next: "", confirm: "" });
+function SecurityPanel({ user, setUser }) {
+  const navigate = useNavigate();
+
+  // ── Email section ──
+  const [email, setEmail]           = useState(user.email ?? "");
+  const [emailSaving, setEmailSaving] = useState(false);
+  const [emailMsg, setEmailMsg]     = useState(null); // { type: "success"|"error", text }
+
+  const handleUpdateEmail = async () => {
+    if (!email.trim()) { setEmailMsg({ type: "error", text: "Email cannot be empty." }); return; }
+    if (email === user.email) { setEmailMsg({ type: "error", text: "That's already your current email." }); return; }
+    try {
+      setEmailSaving(true);
+      setEmailMsg(null);
+      const updated = await updateUserProfile(user.id, { ...user, email });
+      const merged = { ...user, ...updated };
+      setUser(merged);
+      localStorage.setItem("user", JSON.stringify(merged));
+      setEmailMsg({ type: "success", text: "Email updated successfully." });
+    } catch (err) {
+      setEmailMsg({ type: "error", text: err.message || "Failed to update email." });
+    } finally {
+      setEmailSaving(false);
+    }
+  };
+
+  // ── Password section ──
+  const [pw, setPw]               = useState({ next: "", confirm: "" });
+  const [pwSaving, setPwSaving]   = useState(false);
+  const [pwMsg, setPwMsg]         = useState(null);
   const updatePw = (k) => (e) => setPw({ ...pw, [k]: e.target.value });
+
+  const handleUpdatePassword = async () => {
+    if (!pw.next) { setPwMsg({ type: "error", text: "New password cannot be empty." }); return; }
+    if (pw.next.length < 6) { setPwMsg({ type: "error", text: "Password must be at least 6 characters." }); return; }
+    if (pw.next !== pw.confirm) { setPwMsg({ type: "error", text: "Passwords do not match." }); return; }
+    try {
+      setPwSaving(true);
+      setPwMsg(null);
+      await updateUserProfile(user.id, { ...user, password: pw.next });
+      setPw({ next: "", confirm: "" });
+      setPwMsg({ type: "success", text: "Password updated successfully." });
+    } catch (err) {
+      setPwMsg({ type: "error", text: err.message || "Failed to update password." });
+    } finally {
+      setPwSaving(false);
+    }
+  };
+
+  // ── Delete account ──
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDeleteAccount = async () => {
+    const confirmed = window.confirm(
+      "Are you sure you want to permanently delete your account? This cannot be undone."
+    );
+    if (!confirmed) return;
+    try {
+      setDeleting(true);
+      await deleteUserAccount(user.id);
+      localStorage.removeItem("user");
+      navigate("/login", { replace: true });
+    } catch (err) {
+      alert(err.message || "Failed to delete account. Please try again.");
+      setDeleting(false);
+    }
+  };
 
   return (
     <div className="panel">
       <h2 className="panel-title">Account &amp; Security</h2>
 
+      {/* ── Email ── */}
       <div className="section-card">
         <h4 className="card-section-title">Email</h4>
         <div className="field">
@@ -191,23 +227,22 @@ function SecurityPanel() {
           <input
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => { setEmail(e.target.value); setEmailMsg(null); }}
           />
         </div>
-        <button className="btn-sm">Update email</button>
+        {emailMsg && (
+          <p style={{ fontSize: 13, marginBottom: 8, color: emailMsg.type === "success" ? "#16a34a" : "#dc2626" }}>
+            {emailMsg.type === "success" ? "✅ " : "⚠️ "}{emailMsg.text}
+          </p>
+        )}
+        <button className="btn-sm" onClick={handleUpdateEmail} disabled={emailSaving}>
+          {emailSaving ? "Updating..." : "Update email"}
+        </button>
       </div>
 
+      {/* ── Password ── */}
       <div className="section-card">
         <h4 className="card-section-title">Password</h4>
-        <div className="field">
-          <label>Current password</label>
-          <input
-            type="password"
-            placeholder="••••••••"
-            value={pw.current}
-            onChange={updatePw("current")}
-          />
-        </div>
         <div className="field">
           <label>New password</label>
           <input
@@ -226,24 +261,34 @@ function SecurityPanel() {
             onChange={updatePw("confirm")}
           />
         </div>
-        <button className="save-btn">Update password</button>
+        {pwMsg && (
+          <p style={{ fontSize: 13, marginBottom: 8, color: pwMsg.type === "success" ? "#16a34a" : "#dc2626" }}>
+            {pwMsg.type === "success" ? "✅ " : "⚠️ "}{pwMsg.text}
+          </p>
+        )}
+        <button className="save-btn" onClick={handleUpdatePassword} disabled={pwSaving}>
+          {pwSaving ? "Updating..." : "Update password"}
+        </button>
       </div>
 
+      {/* ── Danger zone ── */}
       <div className="section-card">
         <h4 className="card-section-title">Danger zone</h4>
         <div className="toggle-row">
           <div>
             <div className="toggle-label">Delete account</div>
-            <div className="toggle-sub">
-              Permanently remove your account and all data
-            </div>
+            <div className="toggle-sub">Permanently remove your account and all data</div>
           </div>
-          <button className="danger-link">Delete</button>
+          <button className="danger-link" onClick={handleDeleteAccount} disabled={deleting}>
+            {deleting ? "Deleting..." : "Delete"}
+          </button>
         </div>
       </div>
     </div>
   );
 }
+
+// ─── Toggle ───────────────────────────────────────────────────────
 
 function Toggle({ defaultChecked = false }) {
   const [on, setOn] = useState(defaultChecked);
@@ -255,50 +300,35 @@ function Toggle({ defaultChecked = false }) {
   );
 }
 
+// ─── Notifications Panel ──────────────────────────────────────────
+
 function NotificationsPanel() {
   return (
     <div className="panel">
       <h2 className="panel-title">Notifications</h2>
-
       <div className="section-card">
         <h4 className="card-section-title">Push notifications</h4>
         <div className="toggle-row">
-          <div>
-            <div className="toggle-label">Scan reminders</div>
-            <div className="toggle-sub">Daily nudge to scan items</div>
-          </div>
+          <div><div className="toggle-label">Scan reminders</div><div className="toggle-sub">Daily nudge to scan items</div></div>
           <Toggle defaultChecked />
         </div>
         <div className="toggle-row">
-          <div>
-            <div className="toggle-label">Eco tips</div>
-            <div className="toggle-sub">Weekly sustainability tips</div>
-          </div>
+          <div><div className="toggle-label">Eco tips</div><div className="toggle-sub">Weekly sustainability tips</div></div>
           <Toggle defaultChecked />
         </div>
         <div className="toggle-row">
-          <div>
-            <div className="toggle-label">Community updates</div>
-            <div className="toggle-sub">New posts from people you follow</div>
-          </div>
+          <div><div className="toggle-label">Community updates</div><div className="toggle-sub">New posts from people you follow</div></div>
           <Toggle />
         </div>
       </div>
-
       <div className="section-card">
         <h4 className="card-section-title">Email notifications</h4>
         <div className="toggle-row">
-          <div>
-            <div className="toggle-label">Newsletter</div>
-            <div className="toggle-sub">Monthly EcoSnap digest</div>
-          </div>
+          <div><div className="toggle-label">Newsletter</div><div className="toggle-sub">Monthly EcoSnap digest</div></div>
           <Toggle defaultChecked />
         </div>
         <div className="toggle-row">
-          <div>
-            <div className="toggle-label">Product announcements</div>
-            <div className="toggle-sub">New features and updates</div>
-          </div>
+          <div><div className="toggle-label">Product announcements</div><div className="toggle-sub">New features and updates</div></div>
           <Toggle />
         </div>
       </div>
@@ -306,34 +336,37 @@ function NotificationsPanel() {
   );
 }
 
+// ─── Appearance Panel ─────────────────────────────────────────────
+
 function AppearancePanel() {
-  const { theme, setTheme } = useTheme();
+  const [theme, setTheme] = useState(() => document.body.getAttribute("data-theme") || "light");
   const [fontSize, setFontSize] = useState("medium");
   const [accent, setAccent] = useState("#22c55e");
   const accents = ["#22c55e", "#3b82f6", "#a855f7", "#f97316", "#ec4899"];
 
+  useEffect(() => {
+    if (theme === "system") {
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      document.body.setAttribute("data-theme", prefersDark ? "dark" : "light");
+    } else {
+      document.body.setAttribute("data-theme", theme);
+    }
+  }, [theme]);
+
   return (
     <div className="panel">
       <h2 className="panel-title">Appearance</h2>
-
       <div className="section-card">
         <h4 className="card-section-title">Theme</h4>
         <div className="theme-grid">
           {["light", "dark", "system"].map((t) => (
-            <div
-              key={t}
-              className={`theme-opt${theme === t ? " sel" : ""}`}
-              onClick={() => setTheme(t)}
-            >
-              <span className="theme-icon">
-                {t === "light" ? "☀️" : t === "dark" ? "🌙" : "⚙️"}
-              </span>
+            <div key={t} className={`theme-opt${theme === t ? " sel" : ""}`} onClick={() => setTheme(t)}>
+              <span className="theme-icon">{t === "light" ? "☀️" : t === "dark" ? "🌙" : "⚙️"}</span>
               {t.charAt(0).toUpperCase() + t.slice(1)}
             </div>
           ))}
         </div>
       </div>
-
       <div className="section-card">
         <h4 className="card-section-title">Text size</h4>
         <div className="field">
@@ -345,7 +378,6 @@ function AppearancePanel() {
           </select>
         </div>
       </div>
-
       <div className="section-card">
         <h4 className="card-section-title">Accent color</h4>
         <div className="accent-row">
@@ -353,10 +385,7 @@ function AppearancePanel() {
             <div
               key={c}
               className={`accent-swatch${accent === c ? " sel" : ""}`}
-              style={{
-                background: c,
-                border: accent === c ? `2px solid ${c}` : "2px solid transparent",
-              }}
+              style={{ background: c, border: accent === c ? `2px solid ${c}` : "2px solid transparent" }}
               onClick={() => setAccent(c)}
             />
           ))}
@@ -366,11 +395,12 @@ function AppearancePanel() {
   );
 }
 
+// ─── Language Panel ───────────────────────────────────────────────
+
 function LanguagePanel() {
   return (
     <div className="panel">
       <h2 className="panel-title">Language &amp; Region</h2>
-
       <div className="section-card">
         <div className="field">
           <label>Language</label>
@@ -406,55 +436,44 @@ function LanguagePanel() {
           </select>
         </div>
       </div>
-
       <button className="save-btn">Save preferences</button>
     </div>
   );
 }
 
+// ─── Privacy Panel ────────────────────────────────────────────────
+
 function PrivacyPanel() {
   return (
     <div className="panel">
       <h2 className="panel-title">Privacy &amp; Data</h2>
-
       <div className="section-card">
         <h4 className="card-section-title">Data sharing</h4>
         <div className="toggle-row">
-          <div>
-            <div className="toggle-label">Analytics</div>
-            <div className="toggle-sub">Help improve EcoSnap with usage data</div>
-          </div>
+          <div><div className="toggle-label">Analytics</div><div className="toggle-sub">Help improve EcoSnap with usage data</div></div>
           <Toggle defaultChecked />
         </div>
         <div className="toggle-row">
-          <div>
-            <div className="toggle-label">Personalized suggestions</div>
-            <div className="toggle-sub">Use scan history for recommendations</div>
-          </div>
+          <div><div className="toggle-label">Personalized suggestions</div><div className="toggle-sub">Use scan history for recommendations</div></div>
           <Toggle defaultChecked />
         </div>
         <div className="toggle-row">
-          <div>
-            <div className="toggle-label">Location data</div>
-            <div className="toggle-sub">Used for nearby recycling centers</div>
-          </div>
+          <div><div className="toggle-label">Location data</div><div className="toggle-sub">Used for nearby recycling centers</div></div>
           <Toggle />
         </div>
       </div>
-
       <div className="section-card">
         <h4 className="card-section-title">Your data</h4>
         <div className="toggle-row">
-          <div>
-            <div className="toggle-label">Export my data</div>
-            <div className="toggle-sub">Download a copy of your EcoSnap data</div>
-          </div>
+          <div><div className="toggle-label">Export my data</div><div className="toggle-sub">Download a copy of your EcoSnap data</div></div>
           <button className="btn-sm">Export</button>
         </div>
       </div>
     </div>
   );
 }
+
+// ─── Storage Panel ────────────────────────────────────────────────
 
 function StoragePanel() {
   const used = 68;
@@ -464,44 +483,28 @@ function StoragePanel() {
   return (
     <div className="panel">
       <h2 className="panel-title">Storage &amp; Usage</h2>
-
       <div className="section-card">
         <h4 className="card-section-title">Storage used</h4>
         <div className="storage-label-row">
-          <span className="storage-sub">
-            {used} MB of {total} MB used
-          </span>
+          <span className="storage-sub">{used} MB of {total} MB used</span>
           <span className="storage-pct">{pct}%</span>
         </div>
         <div className="storage-bar">
           <div className="storage-fill" style={{ width: `${pct}%` }} />
         </div>
         <div className="storage-grid">
-          <div className="metric-card">
-            <div className="metric-label">Scan history</div>
-            <div className="metric-value">52 MB</div>
-          </div>
-          <div className="metric-card">
-            <div className="metric-label">Cached images</div>
-            <div className="metric-value">16 MB</div>
-          </div>
+          <div className="metric-card"><div className="metric-label">Scan history</div><div className="metric-value">52 MB</div></div>
+          <div className="metric-card"><div className="metric-label">Cached images</div><div className="metric-value">16 MB</div></div>
         </div>
       </div>
-
       <div className="section-card">
         <h4 className="card-section-title">Clear data</h4>
         <div className="toggle-row">
-          <div>
-            <div className="toggle-label">Clear cached images</div>
-            <div className="toggle-sub">Frees up 16 MB</div>
-          </div>
+          <div><div className="toggle-label">Clear cached images</div><div className="toggle-sub">Frees up 16 MB</div></div>
           <button className="btn-sm">Clear</button>
         </div>
         <div className="toggle-row">
-          <div>
-            <div className="toggle-label">Clear scan history</div>
-            <div className="toggle-sub">Cannot be undone</div>
-          </div>
+          <div><div className="toggle-label">Clear scan history</div><div className="toggle-sub">Cannot be undone</div></div>
           <button className="danger-link">Clear</button>
         </div>
       </div>
@@ -509,29 +512,13 @@ function StoragePanel() {
   );
 }
 
+// ─── Sessions Panel ───────────────────────────────────────────────
+
 function SessionsPanel() {
   const sessions = [
-    {
-      id: 1,
-      icon: "📱",
-      name: "iPhone 15 · EcoSnap iOS",
-      detail: "Manila, PH · Active now",
-      current: true,
-    },
-    {
-      id: 2,
-      icon: "💻",
-      name: "Chrome on Windows",
-      detail: "Iloilo, PH · 2 days ago",
-      current: false,
-    },
-    {
-      id: 3,
-      icon: "📱",
-      name: "Samsung Galaxy S23",
-      detail: "Cebu, PH · 1 week ago",
-      current: false,
-    },
+    { id: 1, icon: "📱", name: "iPhone 15 · EcoSnap iOS", detail: "Manila, PH · Active now", current: true },
+    { id: 2, icon: "💻", name: "Chrome on Windows", detail: "Iloilo, PH · 2 days ago", current: false },
+    { id: 3, icon: "📱", name: "Samsung Galaxy S23", detail: "Cebu, PH · 1 week ago", current: false },
   ];
 
   const [list, setList] = useState(sessions);
@@ -541,7 +528,6 @@ function SessionsPanel() {
   return (
     <div className="panel">
       <h2 className="panel-title">Active Sessions</h2>
-
       <div className="section-card">
         <h4 className="card-section-title">Logged-in devices</h4>
         {list.map((s) => (
@@ -554,20 +540,17 @@ function SessionsPanel() {
             {s.current ? (
               <span className="badge">Current</span>
             ) : (
-              <button className="danger-link" onClick={() => revoke(s.id)}>
-                Revoke
-              </button>
+              <button className="danger-link" onClick={() => revoke(s.id)}>Revoke</button>
             )}
           </div>
         ))}
       </div>
-
-      <button className="btn-sm danger" onClick={revokeAll}>
-        Revoke all other sessions
-      </button>
+      <button className="btn-sm danger" onClick={revokeAll}>Revoke all other sessions</button>
     </div>
   );
 }
+
+// ─── Feedback Panel ───────────────────────────────────────────────
 
 const FEEDBACK_CATEGORIES = [
   "General", "UI / Design", "Performance", "Scan Accuracy",
@@ -597,7 +580,6 @@ function FeedbackPanel() {
   return (
     <div className="panel">
       <h2 className="panel-title">Feedback</h2>
-
       <div className="section-card">
         <h4 className="card-section-title">Overall experience</h4>
         <div className="feedback-stars">
@@ -608,31 +590,21 @@ function FeedbackPanel() {
               onMouseEnter={() => setHoverRating(val)}
               onMouseLeave={() => setHoverRating(0)}
               onClick={() => setSelectedRating(val)}
-            >
-              ★
-            </span>
+            >★</span>
           ))}
         </div>
-        <p className="feedback-rating-label">
-          {displayRating ? RATING_LABELS[displayRating] : "Tap a star to rate"}
-        </p>
+        <p className="feedback-rating-label">{displayRating ? RATING_LABELS[displayRating] : "Tap a star to rate"}</p>
       </div>
-
       <div className="section-card">
         <h4 className="card-section-title">What is your feedback about?</h4>
         <div className="feedback-chips">
           {FEEDBACK_CATEGORIES.map((cat) => (
-            <button
-              key={cat}
-              className={`feedback-chip${selectedCats.includes(cat) ? " selected" : ""}`}
-              onClick={() => toggleCat(cat)}
-            >
+            <button key={cat} className={`feedback-chip${selectedCats.includes(cat) ? " selected" : ""}`} onClick={() => toggleCat(cat)}>
               {cat}
             </button>
           ))}
         </div>
       </div>
-
       <div className="section-card">
         <h4 className="card-section-title">Tell us more (optional)</h4>
         <div className="field">
@@ -644,16 +616,9 @@ function FeedbackPanel() {
           />
         </div>
       </div>
-
       <div className="feedback-submit-row">
-        <button className="save-btn" onClick={handleSubmit}>
-          Submit feedback
-        </button>
-        {submitted && (
-          <span className="feedback-toast">
-            ✅ Thank you! Your feedback has been submitted.
-          </span>
-        )}
+        <button className="save-btn" onClick={handleSubmit}>Submit feedback</button>
+        {submitted && <span className="feedback-toast">✅ Thank you! Your feedback has been submitted.</span>}
       </div>
     </div>
   );
@@ -662,34 +627,16 @@ function FeedbackPanel() {
 // ─── Sidebar config ───────────────────────────────────────────────
 
 const SIDEBAR = [
-  {
-    group: "Account",
-    items: [
-      { id: "profile",  label: "Profile" },
-      { id: "security", label: "Account & Security" },
-    ],
-  },
-  {
-    group: "Preferences",
-    items: [
-      { id: "notifications", label: "Notifications" },
-      { id: "appearance",    label: "Appearance" },
-      { id: "language",      label: "Language & Region" },
-    ],
-  },
-  {
-    group: "App",
-    items: [
-      { id: "privacy",  label: "Privacy & Data" },
-      { id: "storage",  label: "Storage & Usage" },
-      { id: "sessions", label: "Active Sessions" },
-      { id: "feedback", label: "Feedback" },
-    ],
-  },
-  {
-    group: "Support",
-    items: [{ id: "about", label: "About EcoSnap", isLink: true, to: "/about" }],
-  },
+  { group: "Account",      items: [{ id: "profile",       label: "Profile" },
+                                   { id: "security",      label: "Account & Security" }] },
+  { group: "Preferences",  items: [{ id: "notifications", label: "Notifications" },
+                                   { id: "appearance",    label: "Appearance" },
+                                   { id: "language",      label: "Language & Region" }] },
+  { group: "App",          items: [{ id: "privacy",       label: "Privacy & Data" },
+                                   { id: "storage",       label: "Storage & Usage" },
+                                   { id: "sessions",      label: "Active Sessions" },
+                                   { id: "feedback",      label: "Feedback" }] },
+  { group: "Support",      items: [{ id: "about",         label: "About EcoSnap", isLink: true, to: "/about" }] },
 ];
 
 // ─── Main Settings component ──────────────────────────────────────
@@ -698,13 +645,20 @@ export default function Settings({ user, setUser }) {
   const navigate = useNavigate();
   const [active, setActive] = useState("profile");
 
-  const handleLogout = () => navigate("/login");
+  useEffect(() => {
+    if (!document.body.getAttribute("data-theme")) {
+      document.body.setAttribute("data-theme", "light");
+    }
+  }, []);
 
-  // ✅ Verona: inline panel rendering (no PANELS object needed)
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    navigate("/login");
+  };
+
   return (
     <div className="settings-page">
       <div className="settings-body">
-
         {/* SIDEBAR */}
         <div className="sidebar">
           {SIDEBAR.map(({ group, items }) => (
@@ -712,26 +666,20 @@ export default function Settings({ user, setUser }) {
               <h3>{group}</h3>
               <ul>
                 {items.map(({ id, label, isLink, to }) => (
-                  <li
-                    key={id}
-                    className={active === id ? "active" : ""}
-                    onClick={() => !isLink && setActive(id)}
-                  >
+                  <li key={id} className={active === id ? "active" : ""} onClick={() => !isLink && setActive(id)}>
                     {isLink ? <Link to={to}>{label}</Link> : label}
                   </li>
                 ))}
               </ul>
             </div>
           ))}
-          <button className="logout" onClick={handleLogout}>
-            Log Out
-          </button>
+          <button className="logout" onClick={handleLogout}>Log Out</button>
         </div>
 
         {/* CONTENT */}
         <div className="content">
           {active === "profile"       && <ProfilePanel user={user} setUser={setUser} />}
-          {active === "security"      && <SecurityPanel />}
+          {active === "security"      && <SecurityPanel user={user} setUser={setUser} />}
           {active === "notifications" && <NotificationsPanel />}
           {active === "appearance"    && <AppearancePanel />}
           {active === "language"      && <LanguagePanel />}
@@ -740,7 +688,6 @@ export default function Settings({ user, setUser }) {
           {active === "sessions"      && <SessionsPanel />}
           {active === "feedback"      && <FeedbackPanel />}
         </div>
-
       </div>
     </div>
   );
