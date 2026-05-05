@@ -259,7 +259,6 @@ body {
   font-size: .8rem;
 }
 
-/* ✅ Light badge — was #e8f5e9 bg + dark green text, invisible in dark mode */
 .stat-badge--light {
   background: rgba(76, 175, 80, 0.15);
   color: #2e7d32;
@@ -332,7 +331,6 @@ body {
   flex: 1;
 }
 
-/* ✅ Light card pills — was hardcoded #f0f7f0, invisible in dark mode */
 .stat-card:not(.stat-card--primary) .detail-pill {
   background: rgba(76, 175, 80, 0.08);
   border-color: rgba(76, 175, 80, 0.2);
@@ -360,7 +358,6 @@ body {
   padding: 12px 16px;
 }
 
-/* ✅ Light card tip box — was hardcoded #e8f5e9, invisible in dark mode */
 .stat-card:not(.stat-card--primary) .expanded-tip {
   background: rgba(76, 175, 80, 0.1);
 }
@@ -377,7 +374,6 @@ body {
   opacity: .85;
 }
 
-/* ✅ Onboarding banner — was hardcoded #e8f5e9 */
 .onboarding-banner {
   background: rgba(76, 175, 80, 0.1);
   border-radius: 18px;
@@ -388,7 +384,6 @@ body {
   align-items: flex-start;
 }
 
-/* ✅ General text colors for dark mode */
 .welcome-block h1,
 .stat-value,
 .detail-value {
@@ -518,4 +513,74 @@ body {
   .expanded-details {
     flex-direction: column;
   }
+}
+
+
+/* ═══════════════════════════════════════════════════
+   DARK MODE
+═══════════════════════════════════════════════════ */
+
+body[data-theme="dark"] {
+  --clr-bg:                #121212;
+  --clr-dark:              #f0f0f0;
+  --clr-card-border:       #2a2a2a;
+  --clr-text-muted:        #888;
+  --color-text-primary:    #f0f0f0;
+  --color-text-secondary:  #888;
+}
+
+body[data-theme="dark"] .dashboard-container,
+body[data-theme="dark"] .page-shell {
+  background-color: #121212;
+}
+
+body[data-theme="dark"] .stat-card:not(.stat-card--primary) {
+  background-color: #1e1e1e;
+  box-shadow: none;
+}
+
+body[data-theme="dark"] .stat-card:not(.stat-card--primary) .stat-value {
+  color: #f0f0f0;
+}
+
+body[data-theme="dark"] .stat-card:not(.stat-card--primary) .stat-label {
+  color: #888;
+}
+
+body[data-theme="dark"] .stat-card:not(.stat-card--primary) .stat-badge--light {
+  background: rgba(76, 175, 80, 0.15);
+  color: #76c442;
+}
+
+body[data-theme="dark"] .stat-card:not(.stat-card--primary) .detail-pill {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+body[data-theme="dark"] .stat-card:not(.stat-card--primary) .detail-value {
+  color: #f0f0f0;
+}
+
+body[data-theme="dark"] .stat-card:not(.stat-card--primary) .expanded-tip {
+  background: rgba(76, 175, 80, 0.08);
+}
+
+body[data-theme="dark"] .stat-card:not(.stat-card--primary) .expanded-tip p {
+  color: #aaa;
+}
+
+body[data-theme="dark"] .stat-card:not(.stat-card--primary) .expanded-label {
+  color: #888;
+}
+
+body[data-theme="dark"] .onboarding-banner {
+  background: rgba(76, 175, 80, 0.08);
+}
+
+body[data-theme="dark"] .site-footer {
+  background: linear-gradient(to right, #0a1a0a, #0f2e14);
+}
+
+body[data-theme="dark"] .footer-bottom {
+  border-top-color: rgba(255, 255, 255, 0.08);
 }

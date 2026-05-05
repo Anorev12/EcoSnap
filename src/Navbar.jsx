@@ -20,7 +20,9 @@ export default function Navbar({ user: propUser }) {
     <nav className="nav-wrapper">
 
       <div className="nav-logo-wrap">
-        <img className="nav-logo-img" src={logo} alt="EcoSnap Logo" />
+        <NavLink to="/dashboard">
+            <img className="nav-logo-img" src={logo} alt="EcoSnap Logo" />
+        </NavLink>
       </div>
 
       <div className="nav-links">
