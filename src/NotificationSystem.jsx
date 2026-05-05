@@ -39,90 +39,115 @@ const STYLES = {
   },
 };
 
+const notifStyles = `
+  @keyframes notif-in {
+    from { opacity: 0; transform: translateX(40px) scale(0.97); }
+    to   { opacity: 1; transform: translateX(0) scale(1); }
+  }
+  @keyframes notif-out {
+    from { opacity: 1; transform: translateX(0) scale(1); }
+    to   { opacity: 0; transform: translateX(40px) scale(0.95); }
+  }
+
+  .notif-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: #1e1e1e;
+    border: 0.5px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    max-width: 360px;
+    width: 100%;
+  }
+
+  .notif-title {
+    margin: 0;
+    font-weight: 600;
+    font-size: 14px;
+    color: #f0f0f0;
+  }
+
+  .notif-message {
+    margin: 0;
+    font-size: 13px;
+    color: #aaaaaa;
+    line-height: 1.5;
+  }
+
+  .notif-dismiss {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 2px;
+    color: #666;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .notif-dismiss:hover {
+    color: #aaa;
+  }
+
+  .notif-entering {
+    animation: notif-in 0.3s cubic-bezier(.22,.68,0,1.3);
+  }
+
+  .notif-exiting {
+    animation: notif-out 0.35s ease forwards;
+  }
+`;
+
 function NotificationItem({ n, onDismiss }) {
   const style = STYLES[n.type] || STYLES.info;
   return (
     <div
-      style={{
-        display: "flex",
-        alignItems: "flex-start",
-        gap: "12px",
-        background: "#ffffff",
-        border: "0.5px solid #e0e0e0",
-        borderLeft: `3px solid ${style.bar}`,
-        borderRadius: "10px",
-        padding: "12px 14px",
-        marginBottom: "8px",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.07)",
-        animation: n.exiting
-          ? "notif-out 0.35s ease forwards"
-          : "notif-in 0.3s cubic-bezier(.22,.68,0,1.3)",
-        maxWidth: "360px",
-        width: "100%",
-      }}
+      className={`notif-item ${n.exiting ? 'notif-exiting' : 'notif-entering'}`}
+      style={{ borderLeft: `3px solid ${style.bar}` }}
     >
       <span style={{ marginTop: "1px", flexShrink: 0 }}>{style.icon}</span>
       <div style={{ flex: 1, minWidth: 0 }}>
-        {n.title && (
-          <p style={{ margin: 0, fontWeight: 500, fontSize: "14px", color: "#111" }}>
-            {n.title}
-          </p>
-        )}
-        <p style={{ margin: 0, fontSize: "13px", color: "#555", lineHeight: 1.5 }}>
-          {n.message}
-        </p>
+        {n.title && <p className="notif-title">{n.title}</p>}
+        <p className="notif-message">{n.message}</p>
       </div>
       <button
+        className="notif-dismiss"
         onClick={() => onDismiss(n.id)}
-        style={{
-          background: "none",
-          border: "none",
-          cursor: "pointer",
-          padding: "2px",
-          color: "#aaa",
-          display: "flex",
-          alignItems: "center",
-          flexShrink: 0,
-        }}
         aria-label="Dismiss"
       >
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
           <path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
         </svg>
       </button>
-      <style>{`
-        @keyframes notif-in {
-          from { opacity: 0; transform: translateX(40px) scale(0.97); }
-          to { opacity: 1; transform: translateX(0) scale(1); }
-        }
-        @keyframes notif-out {
-          from { opacity: 1; transform: translateX(0) scale(1); }
-          to { opacity: 0; transform: translateX(40px) scale(0.95); }
-        }
-      `}</style>
     </div>
   );
 }
 
 export function NotificationContainer({ notifications, onDismiss }) {
   return (
-    <div
-      style={{
-        position: "fixed",
-        bottom: "24px",
-        right: "24px",
-        zIndex: 9999,
-        display: "flex",
-        flexDirection: "column-reverse",
-        alignItems: "flex-end",
-        pointerEvents: "none",
-      }}
-    >
-      {notifications.map((n) => (
-        <div key={n.id} style={{ pointerEvents: "all" }}>
-          <NotificationItem n={n} onDismiss={onDismiss} />
-        </div>
-      ))}
-    </div>
+    <>
+      <style>{notifStyles}</style>
+      <div
+        style={{
+          position: "fixed",
+          bottom: "24px",
+          right: "24px",
+          zIndex: 9999,
+          display: "flex",
+          flexDirection: "column-reverse",
+          alignItems: "flex-end",
+          pointerEvents: "none",
+        }}
+      >
+        {notifications.map((n) => (
+          <div key={n.id} style={{ pointerEvents: "all" }}>
+            <NotificationItem n={n} onDismiss={onDismiss} />
+          </div>
+        ))}
+      </div>
+    </>
   );
 }

@@ -1,8 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import './dashboard.css';
 
-// ─── Static Data ──────────────────────────────────────────────────
 const CARD_DETAILS = {
   scans: {
     icon: '📷',
@@ -63,7 +62,6 @@ const CARD_DETAILS = {
   },
 };
 
-// ─── StatCard Sub-component ───────────────────────────────────────
 function StatCard({ data, isExpanded, isShrunk, onClick }) {
   return (
     <article
@@ -117,17 +115,31 @@ function StatCard({ data, isExpanded, isShrunk, onClick }) {
   );
 }
 
-// ─── Main Dashboard Component ──────────────────────────────────────
-export default function Dashboard({ user }) {
+export default function Dashboard({ user, notify }) {
   const navigate = useNavigate();
   const [expanded, setExpanded] = useState(null);
+  const welcomeShown = useRef(false);
+
+  useEffect(() => {
+    if (welcomeShown.current) return;
+    welcomeShown.current = true;
+    notify?.info(
+      "Start scanning items to track your recycling journey.",
+      { title: `Welcome back, ${user?.firstName || 'Eco-Warrior'}! 👋` }
+    );
+  }, []);
 
   const toggle = (id) => setExpanded((prev) => (prev === id ? null : id));
+
+  const handleScanClick = () => {
+    notify?.success("Opening scanner…", { title: "Let's go! 📷" });
+    navigate('/scanner');
+  };
 
   return (
     <div className="dashboard-container">
       <div className="page-shell">
-        
+
         <header className="page-header">
           <div className="welcome-block">
             <h1>
@@ -136,7 +148,7 @@ export default function Dashboard({ user }) {
             </h1>
             <p>You're all set! Start scanning items to track your recycling journey.</p>
           </div>
-          <button className="btn-scan" onClick={() => navigate('/scanner')}>
+          <button className="btn-scan" onClick={handleScanClick}>
             <span className="scan-icon">📷</span>
             Scan new Item
           </button>
@@ -161,6 +173,7 @@ export default function Dashboard({ user }) {
             />
           ))}
         </section>
+
       </div>
 
       <footer className="site-footer">

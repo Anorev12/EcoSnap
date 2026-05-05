@@ -160,7 +160,7 @@ function AppContent() {
             <Route path="/tipsandfacts" element={user ? <TipsandFacts /> : <Navigate to="/login" replace />} />
             <Route path="/settings" element={user ? <Settings user={user} setUser={setUser} /> : <Navigate to="/login" replace />} />
             <Route path="/profile" element={user ? <Profile user={user} setUser={setUser} /> : <Navigate to="/login" replace />} />
-            <Route path="/scanner" element={user ? <Scanner /> : <Navigate to="/login" replace />} />
+            <Route path="/scanner" element={user ? <Scanner user={user} notify={{ success, error, warning, info }} /> : <Navigate to="/login" replace />} />
 
             {/* Public routes */}
             <Route path="/contact" element={<ContactUs />} />

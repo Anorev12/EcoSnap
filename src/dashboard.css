@@ -32,7 +32,6 @@ body {
   color: var(--clr-dark);
 }
 
-/* ── Layout ── */
 .dashboard-container {
   min-height: 100vh;
   display: flex;
@@ -48,7 +47,6 @@ body {
   padding: 24px;
 }
 
-/* ── Nav ── */
 .nav-wrapper {
   background: var(--clr-green-deep);
   padding: 0 40px;
@@ -121,7 +119,6 @@ body {
   justify-content: center;
 }
 
-/* ── Page header ── */
 .page-header {
   display: flex;
   justify-content: space-between;
@@ -158,7 +155,6 @@ body {
   background: var(--clr-green-mid);
 }
 
-/* ── Banner ── */
 .onboarding-banner {
   background: #e8f5e9;
   border-radius: 18px;
@@ -169,18 +165,13 @@ body {
   align-items: flex-start;
 }
 
-/* ══════════════════════════════════════════
-   STATS GRID
-══════════════════════════════════════════ */
 .stats-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
-  /* Reserve enough height so layout doesn't jump */
   align-items: start;
 }
 
-/* ── Base card ── */
 .stat-card {
   background: white;
   padding: 25px;
@@ -190,8 +181,6 @@ body {
   outline: none;
   position: relative;
   overflow: hidden;
-
-  /* Smooth all size/opacity/transform changes */
   transition:
     transform        .35s cubic-bezier(.4,0,.2,1),
     box-shadow       .35s cubic-bezier(.4,0,.2,1),
@@ -210,7 +199,6 @@ body {
   outline-offset: 3px;
 }
 
-/* ── Primary (dark green) card ── */
 .stat-card--primary {
   background: linear-gradient(135deg, #1b4d1e, #2e7d32);
   color: white;
@@ -220,15 +208,13 @@ body {
   color: rgba(255,255,255,.75);
 }
 
-/* ── Expanded card ── */
 .stat-card--expanded {
-  grid-column: span 2;          /* Take full width */
+  grid-column: span 2;
   transform: translateY(-4px);
   box-shadow: 0 12px 40px rgba(30,77,30,.18);
   cursor: pointer;
 }
 
-/* ── Shrunk cards ── */
 .stat-card--shrunk {
   opacity: .65;
   transform: scale(.97);
@@ -239,9 +225,6 @@ body {
   transform: scale(.99) translateY(-1px);
 }
 
-/* ══════════════════════════════════════════
-   DEFAULT (collapsed) card content
-══════════════════════════════════════════ */
 .stat-card-default {
   animation: fadeIn .25s ease;
 }
@@ -276,9 +259,10 @@ body {
   font-size: .8rem;
 }
 
+/* ✅ Light badge — was #e8f5e9 bg + dark green text, invisible in dark mode */
 .stat-badge--light {
-  background: #e8f5e9;
-  color: var(--clr-green-deep);
+  background: rgba(76, 175, 80, 0.15);
+  color: #2e7d32;
 }
 
 .stat-badge--on-dark {
@@ -286,19 +270,14 @@ body {
   color: white;
 }
 
-/* ══════════════════════════════════════════
-   EXPANDED card content
-══════════════════════════════════════════ */
 .stat-card-expanded-content {
   animation: slideDown .3s cubic-bezier(.4,0,.2,1);
 }
 
-/* Hide default view when expanded */
 .stat-card--expanded .stat-card-default {
   display: none;
 }
 
-/* ── Expanded header row ── */
 .expanded-header {
   display: flex;
   align-items: center;
@@ -334,7 +313,6 @@ body {
   white-space: nowrap;
 }
 
-/* ── Detail pills row ── */
 .expanded-details {
   display: flex;
   flex-wrap: wrap;
@@ -354,10 +332,10 @@ body {
   flex: 1;
 }
 
-/* Light cards get a different pill style */
+/* ✅ Light card pills — was hardcoded #f0f7f0, invisible in dark mode */
 .stat-card:not(.stat-card--primary) .detail-pill {
-  background: #f0f7f0;
-  border-color: var(--clr-card-border);
+  background: rgba(76, 175, 80, 0.08);
+  border-color: rgba(76, 175, 80, 0.2);
 }
 
 .detail-label {
@@ -373,7 +351,6 @@ body {
   font-weight: 800;
 }
 
-/* ── Tip box ── */
 .expanded-tip {
   display: flex;
   align-items: flex-start;
@@ -383,8 +360,9 @@ body {
   padding: 12px 16px;
 }
 
+/* ✅ Light card tip box — was hardcoded #e8f5e9, invisible in dark mode */
 .stat-card:not(.stat-card--primary) .expanded-tip {
-  background: #e8f5e9;
+  background: rgba(76, 175, 80, 0.1);
 }
 
 .tip-icon {
@@ -399,9 +377,31 @@ body {
   opacity: .85;
 }
 
-/* ══════════════════════════════════════════
-   ANIMATIONS
-══════════════════════════════════════════ */
+/* ✅ Onboarding banner — was hardcoded #e8f5e9 */
+.onboarding-banner {
+  background: rgba(76, 175, 80, 0.1);
+  border-radius: 18px;
+  padding: 16px;
+  display: flex;
+  gap: 12px;
+  margin-bottom: 25px;
+  align-items: flex-start;
+}
+
+/* ✅ General text colors for dark mode */
+.welcome-block h1,
+.stat-value,
+.detail-value {
+  color: var(--color-text-primary, var(--clr-dark));
+}
+
+.welcome-block p,
+.stat-label,
+.expanded-label,
+.expanded-tip p {
+  color: var(--color-text-secondary, var(--clr-text-muted));
+}
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }
@@ -418,9 +418,6 @@ body {
   }
 }
 
-/* ══════════════════════════════════════════
-   FOOTER
-══════════════════════════════════════════ */
 .site-footer {
   width: 100%;
   margin-top: 50px;
@@ -487,9 +484,6 @@ body {
   opacity: .6;
 }
 
-/* ══════════════════════════════════════════
-   RESPONSIVE
-══════════════════════════════════════════ */
 @media (max-width: 768px) {
   .stats-grid {
     grid-template-columns: 1fr;

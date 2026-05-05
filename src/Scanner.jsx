@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import { useRef, useState, useCallback } from "react";
 import "./scanner.css";
 
-// ─── Trash categories config ──────────────────────────────────────
 const CATEGORY_CONFIG = {
   Recyclable: {
     emoji: "♻️",
@@ -48,7 +47,6 @@ const CATEGORY_CONFIG = {
   },
 };
 
-// ─── API call to your Spring Boot backend ─────────────────────────
 async function classifyImage(base64Image, userId) {
   const response = await fetch("http://localhost:8080/api/scanner/analyze", {
     method: "POST",
@@ -58,12 +56,10 @@ async function classifyImage(base64Image, userId) {
       userId: userId ?? null,
     }),
   });
-
   if (!response.ok) throw new Error("Analysis failed. Please try again.");
-  return response.json(); // returns ScanHistory object from DB
+  return response.json();
 }
 
-// ─── Result Card ──────────────────────────────────────────────────
 function ResultCard({ result, image, onRescan }) {
   const cfg = CATEGORY_CONFIG[result.category] ?? CATEGORY_CONFIG["Unknown"];
 
@@ -78,15 +74,11 @@ function ResultCard({ result, image, onRescan }) {
           <span className="result-emoji">{cfg.emoji}</span>
           <span>{result.category}</span>
         </div>
-
         <div className="result-item-name">{result.item}</div>
-
         <div className="result-confidence" style={{ color: cfg.color }}>
           {result.confidence} Confidence
         </div>
-
         <p className="result-reason">{result.reason}</p>
-
         <div className="result-tip" style={{ borderLeft: `3px solid ${cfg.color}` }}>
           <span className="result-tip-label">How to dispose:</span>
           <span>{result.disposal || cfg.tip}</span>
@@ -102,8 +94,8 @@ function ResultCard({ result, image, onRescan }) {
   );
 }
 
-// ─── Main Scanner ─────────────────────────────────────────────────
-export default function Scanner({ user }) {
+// ✅ notify added to props
+export default function Scanner({ user, notify }) {
   const videoRef = useRef(null);
   const streamRef = useRef(null);
   const [cameraOpen, setCameraOpen] = useState(false);
@@ -128,7 +120,10 @@ export default function Scanner({ user }) {
       setError(null);
       setCameraOpen(true);
     } catch (err) {
-      alert(`Camera error: ${err.name} - ${err.message}`);
+      // ✅ notify on camera permission denied
+      notify?.error("Camera access denied. Please allow camera permissions.", {
+        title: "Camera Error",
+      });
     }
   };
 
@@ -150,6 +145,10 @@ export default function Scanner({ user }) {
     const imageDataUrl = canvas.toDataURL("image/png");
     setCapturedImage(imageDataUrl);
     handleCloseCamera();
+    // ✅ notify photo captured
+    notify?.info("Photo captured! Click Analyze to identify the item.", {
+      title: "Photo Ready",
+    });
   };
 
   const handleChooseImage = () => {
@@ -164,6 +163,10 @@ export default function Scanner({ user }) {
         setCapturedImage(ev.target.result);
         setResult(null);
         setError(null);
+        // ✅ notify image loaded
+        notify?.info("Image loaded! Click Analyze to identify the item.", {
+          title: "Image Ready",
+        });
       };
       reader.readAsDataURL(file);
     };
@@ -178,8 +181,26 @@ export default function Scanner({ user }) {
       const base64 = capturedImage.split(",")[1];
       const classification = await classifyImage(base64, user?.id);
       setResult(classification);
+      // ✅ notify based on category
+      const isHazardous =
+        classification.category === "Hazardous" ||
+        classification.category === "E-Waste";
+      if (isHazardous) {
+        notify?.warning(
+          `${classification.item} requires special disposal. Check the instructions below.`,
+          { title: `${classification.category} Detected` }
+        );
+      } else {
+        notify?.success(
+          `${classification.item} identified as ${classification.category}!`,
+          { title: "Scan Complete ✅" }
+        );
+      }
     } catch (err) {
-      setError(err.message || "Could not analyze the image. Please try again.");
+      const msg = err.message || "Could not analyze the image. Please try again.";
+      setError(msg);
+      // ✅ notify on analysis failure
+      notify?.error(msg, { title: "Analysis Failed" });
     } finally {
       setAnalyzing(false);
     }
@@ -197,7 +218,6 @@ export default function Scanner({ user }) {
     <div className="scanner-page">
       <div className="scanner-card">
 
-        {/* Back button */}
         {showDefault && (
           <Link to="/dashboard" className="scanner-back-btn">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -207,7 +227,6 @@ export default function Scanner({ user }) {
           </Link>
         )}
 
-        {/* ── Live Camera ── */}
         {cameraOpen && (
           <div className="camera-container">
             <video ref={videoCallbackRef} autoPlay playsInline className="camera-video" />
@@ -220,11 +239,9 @@ export default function Scanner({ user }) {
           </div>
         )}
 
-        {/* ── Preview + Analyze ── */}
         {capturedImage && !cameraOpen && !result && (
           <div className="camera-container">
             <img src={capturedImage} alt="Captured" className="camera-video" />
-
             {analyzing ? (
               <div className="analyzing-state">
                 <div className="analyzing-spinner" />
@@ -247,12 +264,10 @@ export default function Scanner({ user }) {
           </div>
         )}
 
-        {/* ── AI Result ── */}
         {result && capturedImage && (
           <ResultCard result={result} image={capturedImage} onRescan={handleRescan} />
         )}
 
-        {/* ── Default Upload UI ── */}
         {showDefault && (
           <>
             <div className="scanner-upload-area">
@@ -265,9 +280,10 @@ export default function Scanner({ user }) {
                   strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
               <p className="upload-label">Scan an item to classify it</p>
-              <p className="upload-sub">Take a photo or upload an image — AI will identify the trash category</p>
+              <p className="upload-sub">
+                Take a photo or upload an image — AI will identify the trash category
+              </p>
             </div>
-
             <button className="scanner-btn btn-camera" onClick={handleOpenCamera}>
               📷 Open Camera
             </button>
