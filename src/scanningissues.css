@@ -1,2 +1,109 @@
-.steps-grid { display: grid; gap: 15px; margin-top: 20px; }
-.step-item { background: #fff; border: 1px solid #ddd; padding: 15px; border-radius: 8px; }
+.support-content {
+  padding: 2rem 1.5rem;
+  max-width: 100%;
+  width: 100%;
+}
+
+.page-header {
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: 1.5rem;
+}
+
+.page-header h2 {
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0 0 6px;
+  color: #1a1a1a;
+}
+
+.page-header p {
+  font-size: 15px;
+  color: #666;
+  margin: 0;
+}
+
+.steps-grid {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+}
+
+.step-card {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  flex: 1;   
+}
+
+.step-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 22px;
+}
+
+.step-icon span {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.icon-light  { background: #E1F5EE; color: #0F6E56; }
+.icon-focus  { background: #E6F1FB; color: #185FA5; }
+.icon-angle  { background: #EEEDFE; color: #534AB7; }
+
+.step-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-bottom: 6px;
+}
+
+.badge-light { background: #E1F5EE; color: #0F6E56; }
+.badge-focus { background: #E6F1FB; color: #185FA5; }
+.badge-angle { background: #EEEDFE; color: #534AB7; }
+
+.step-body h3 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 4px;
+  color: #1a1a1a;
+}
+
+.step-body p {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.help-note {
+  margin-top: 1.5rem;
+  background: #f5f5f5;
+  border-radius: 8px;
+  padding: 0.85rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: #666;
+}
+
+.help-note i {
+  font-size: 16px;
+  color: #999;
+  flex-shrink: 0;
+  justify-content: center;
+}

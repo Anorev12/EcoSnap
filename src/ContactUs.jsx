@@ -21,7 +21,6 @@ export default function ContactUs() {
               <li className="active">General Support</li>
               <li><Link to= {"/scanningissues"}>Scanning Issues</Link></li>
               <li><Link to ={"/accountsecurity"}>Account Security</Link></li>
-              <li><Link to ={"/privacypolicy"}>Privacy Policy</Link></li>
               <li><Link to ={"/resources"}>Resources</Link></li>
             </ul>
           </nav>
@@ -50,13 +49,6 @@ export default function ContactUs() {
             </div>
           </section>
 
-          <section className="instruction">
-            <h3>Chat with EcoSnap</h3>
-            <p>Go to the <strong>Settings tab</strong> &gt; <strong>Help Center</strong> &gt; <strong>Start Chatting</strong>.</p>
-            <div className="image-placeholder">
-              [Mobile App UI Preview]
-            </div>
-          </section>
         </main>
       </div>
     </div>
