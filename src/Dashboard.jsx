@@ -122,12 +122,13 @@ export default function Dashboard({ user, notify }) {
 
   useEffect(() => {
     if (welcomeShown.current) return;
+    
     welcomeShown.current = true;
     notify?.info(
       "Start scanning items to track your recycling journey.",
       { title: `Welcome back, ${user?.firstName || 'Eco-Warrior'}! 👋` }
     );
-  }, []);
+  }, [notify, user?.firstName]);
 
   const toggle = (id) => setExpanded((prev) => (prev === id ? null : id));
 
