@@ -29,18 +29,18 @@
 }
 
 [data-theme="dark"] {
-  --bg: #0f172a;
-  --surface: #1e293b;
+  --bg: #0a0a0a;
+  --surface: #111111;
   --text: #f1f5f9;
-  --subtext: #94a3b8;
-  --muted: #64748b;
-  --border: #334155;
-  --input-bg: #0f172a;
-  --card-bg: #1e293b;
-  --metric-bg: #0f172a;
-  --toggle-row-border: #334155;
-  --storage-bar-bg: #334155;
-  --session-icon-bg: #334155;
+  --subtext: #a1a1aa;
+  --muted: #71717a;
+  --border: #27272a;
+  --input-bg: #0a0a0a;
+  --card-bg: #111111;
+  --metric-bg: #0a0a0a;
+  --toggle-row-border: #27272a;
+  --storage-bar-bg: #27272a;
+  --session-icon-bg: #27272a;
   --chip-hover-color: #4caf50;
   --chip-selected-bg: #14532d;
   --chip-selected-color: #86efac;

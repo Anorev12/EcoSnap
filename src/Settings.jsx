@@ -28,6 +28,19 @@ const deleteUserAccount = async (id) => {
   return response.json();
 };
 
+const submitFeedback = async (feedbackData) => {
+  const response = await fetch("http://localhost:8080/api/feedback", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(feedbackData),
+  });
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err.message || "Failed to submit feedback");
+  }
+  return response.json();
+};
+
 // ─── Profile Panel ────────────────────────────────────────────────
 
 function ProfilePanel({ user, setUser }) {
@@ -150,10 +163,9 @@ function ProfilePanel({ user, setUser }) {
 function SecurityPanel({ user, setUser }) {
   const navigate = useNavigate();
 
-  // ── Email section ──
-  const [email, setEmail]           = useState(user.email ?? "");
+  const [email, setEmail]             = useState(user.email ?? "");
   const [emailSaving, setEmailSaving] = useState(false);
-  const [emailMsg, setEmailMsg]     = useState(null); // { type: "success"|"error", text }
+  const [emailMsg, setEmailMsg]       = useState(null);
 
   const handleUpdateEmail = async () => {
     if (!email.trim()) { setEmailMsg({ type: "error", text: "Email cannot be empty." }); return; }
@@ -173,10 +185,9 @@ function SecurityPanel({ user, setUser }) {
     }
   };
 
-  // ── Password section ──
-  const [pw, setPw]               = useState({ next: "", confirm: "" });
-  const [pwSaving, setPwSaving]   = useState(false);
-  const [pwMsg, setPwMsg]         = useState(null);
+  const [pw, setPw]             = useState({ next: "", confirm: "" });
+  const [pwSaving, setPwSaving] = useState(false);
+  const [pwMsg, setPwMsg]       = useState(null);
   const updatePw = (k) => (e) => setPw({ ...pw, [k]: e.target.value });
 
   const handleUpdatePassword = async () => {
@@ -196,7 +207,6 @@ function SecurityPanel({ user, setUser }) {
     }
   };
 
-  // ── Delete account ──
   const [deleting, setDeleting] = useState(false);
 
   const handleDeleteAccount = async () => {
@@ -219,7 +229,6 @@ function SecurityPanel({ user, setUser }) {
     <div className="panel">
       <h2 className="panel-title">Account &amp; Security</h2>
 
-      {/* ── Email ── */}
       <div className="section-card">
         <h4 className="card-section-title">Email</h4>
         <div className="field">
@@ -240,26 +249,15 @@ function SecurityPanel({ user, setUser }) {
         </button>
       </div>
 
-      {/* ── Password ── */}
       <div className="section-card">
         <h4 className="card-section-title">Password</h4>
         <div className="field">
           <label>New password</label>
-          <input
-            type="password"
-            placeholder="••••••••"
-            value={pw.next}
-            onChange={updatePw("next")}
-          />
+          <input type="password" placeholder="••••••••" value={pw.next} onChange={updatePw("next")} />
         </div>
         <div className="field">
           <label>Confirm new password</label>
-          <input
-            type="password"
-            placeholder="••••••••"
-            value={pw.confirm}
-            onChange={updatePw("confirm")}
-          />
+          <input type="password" placeholder="••••••••" value={pw.confirm} onChange={updatePw("confirm")} />
         </div>
         {pwMsg && (
           <p style={{ fontSize: 13, marginBottom: 8, color: pwMsg.type === "success" ? "#16a34a" : "#dc2626" }}>
@@ -271,7 +269,6 @@ function SecurityPanel({ user, setUser }) {
         </button>
       </div>
 
-      {/* ── Danger zone ── */}
       <div className="section-card">
         <h4 className="card-section-title">Danger zone</h4>
         <div className="toggle-row">
@@ -558,22 +555,51 @@ const FEEDBACK_CATEGORIES = [
 ];
 const RATING_LABELS = ["", "Poor", "Fair", "Good", "Very Good", "Excellent"];
 
-function FeedbackPanel() {
+function FeedbackPanel({ user }) {
   const [hoverRating, setHoverRating]       = useState(0);
   const [selectedRating, setSelectedRating] = useState(0);
   const [selectedCats, setSelectedCats]     = useState([]);
   const [feedbackText, setFeedbackText]     = useState("");
-  const [submitted, setSubmitted]           = useState(false);
+  const [submitting, setSubmitting]         = useState(false);
+  const [status, setStatus]                 = useState(null);
 
   const toggleCat = (cat) =>
     setSelectedCats((prev) =>
       prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
     );
 
-  const handleSubmit = () => {
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 4000);
+  const handleSubmit = async () => {
+    if (!selectedRating) {
+      setStatus({ type: "error", text: "Please select a star rating." });
+      return;
+    }
+    try {
+      setSubmitting(true);
+      setStatus(null);
+      await submitFeedback({
+        userId: user?.id ?? null,
+        rating: selectedRating,
+        categories: selectedCats,
+        message: feedbackText.trim(),
+        submittedAt: new Date().toISOString(),
+      });
+      setSelectedRating(0);
+      setSelectedCats([]);
+      setFeedbackText("");
+      setStatus({ type: "success", text: "Thank you! Your feedback has been submitted." });
+    } catch (err) {
+      setStatus({ type: "error", text: err.message || "Something went wrong. Please try again." });
+    } finally {
+      setSubmitting(false);
+    }
   };
+
+  useEffect(() => {
+    if (status?.type === "success") {
+      const t = setTimeout(() => setStatus(null), 5000);
+      return () => clearTimeout(t);
+    }
+  }, [status]);
 
   const displayRating = hoverRating || selectedRating;
 
@@ -589,17 +615,23 @@ function FeedbackPanel() {
               className={`feedback-star${displayRating >= val ? " active" : ""}`}
               onMouseEnter={() => setHoverRating(val)}
               onMouseLeave={() => setHoverRating(0)}
-              onClick={() => setSelectedRating(val)}
+              onClick={() => { setSelectedRating(val); setStatus(null); }}
             >★</span>
           ))}
         </div>
-        <p className="feedback-rating-label">{displayRating ? RATING_LABELS[displayRating] : "Tap a star to rate"}</p>
+        <p className="feedback-rating-label">
+          {displayRating ? RATING_LABELS[displayRating] : "Tap a star to rate"}
+        </p>
       </div>
       <div className="section-card">
         <h4 className="card-section-title">What is your feedback about?</h4>
         <div className="feedback-chips">
           {FEEDBACK_CATEGORIES.map((cat) => (
-            <button key={cat} className={`feedback-chip${selectedCats.includes(cat) ? " selected" : ""}`} onClick={() => toggleCat(cat)}>
+            <button
+              key={cat}
+              className={`feedback-chip${selectedCats.includes(cat) ? " selected" : ""}`}
+              onClick={() => toggleCat(cat)}
+            >
               {cat}
             </button>
           ))}
@@ -617,8 +649,18 @@ function FeedbackPanel() {
         </div>
       </div>
       <div className="feedback-submit-row">
-        <button className="save-btn" onClick={handleSubmit}>Submit feedback</button>
-        {submitted && <span className="feedback-toast">✅ Thank you! Your feedback has been submitted.</span>}
+        <button className="save-btn" onClick={handleSubmit} disabled={submitting}>
+          {submitting ? "Submitting…" : "Submit feedback"}
+        </button>
+        {status && (
+          <span style={{
+            fontSize: 13,
+            fontWeight: 500,
+            color: status.type === "success" ? "#16a34a" : "#dc2626",
+          }}>
+            {status.type === "success" ? "✅ " : "⚠️ "}{status.text}
+          </span>
+        )}
       </div>
     </div>
   );
@@ -686,7 +728,7 @@ export default function Settings({ user, setUser }) {
           {active === "privacy"       && <PrivacyPanel />}
           {active === "storage"       && <StoragePanel />}
           {active === "sessions"      && <SessionsPanel />}
-          {active === "feedback"      && <FeedbackPanel />}
+          {active === "feedback"      && <FeedbackPanel user={user} />}
         </div>
       </div>
     </div>

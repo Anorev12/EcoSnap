@@ -277,34 +277,50 @@
   .about-stat-item:last-child { border-bottom: none; }
 }
 
-/* ════════════════════════════════════════
+
+/* ═══════════════════════════════════════════════════
    DARK MODE
-════════════════════════════════════════ */
-html.dark-theme .about-wrapper {
-  background-color: #1a1a1a;
-  color: #f0f0f0;
+═══════════════════════════════════════════════════ */
+
+body[data-theme="dark"] .about-wrapper {
+  background-color: #121212;
+  color: #e0e0e0;
 }
 
-/* Mission section — white bg goes dark */
-html.dark-theme .about-mission {
-  background: #2c2c2c;
+body[data-theme="dark"] .about-mission {
+  background-color: #1e1e1e;
 }
 
-html.dark-theme .about-mission-text h2 { color: #76c442; }
-html.dark-theme .about-mission-text p  { color: #ccc; }
-
-/* How it works section */
-html.dark-theme .about-how            { background: #1a1a1a; }
-html.dark-theme .about-how-inner h2   { color: #76c442; }
-
-html.dark-theme .about-how-card {
-  background: #2c2c2c;
-  border-color: #3a3a3a;
+body[data-theme="dark"] .about-mission-text h2 {
+  color: #76c442;
 }
-html.dark-theme .about-how-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
-html.dark-theme .about-how-card h3    { color: #f0f0f0; }
-html.dark-theme .about-how-card p     { color: #aaa; }
 
-/* Stats bar — already dark green, stays the same */
-/* Hero — already dark green, stays the same */
-/* CTA — already dark green, stays the same */
+body[data-theme="dark"] .about-mission-text p {
+  color: #aaa;
+}
+
+body[data-theme="dark"] .about-how {
+  background-color: #121212;
+}
+
+body[data-theme="dark"] .about-how-inner h2 {
+  color: #76c442;
+}
+
+body[data-theme="dark"] .about-how-card {
+  background-color: #1e1e1e;
+  border-color: #2e2e2e;
+  box-shadow: none;
+}
+
+body[data-theme="dark"] .about-how-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+body[data-theme="dark"] .about-how-card h3 {
+  color: #e0e0e0;
+}
+
+body[data-theme="dark"] .about-how-card p {
+  color: #888;
+}
