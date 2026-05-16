@@ -35,6 +35,13 @@ export default function Login({ setUser }) {
     }
   };
 
+  // Handle Enter key press
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      handleLogin();
+    }
+  };
+
   return (
     <div className="container">
       <div className="left">
@@ -60,6 +67,7 @@ export default function Login({ setUser }) {
             placeholder="Enter your email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            onKeyPress={handleKeyPress}
           />
 
           <label>Password</label>
@@ -68,6 +76,7 @@ export default function Login({ setUser }) {
             placeholder="Enter your password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            onKeyPress={handleKeyPress}
           />
 
           {error && <p style={{ color: "red", fontSize: "13px" }}>{error}</p>}
