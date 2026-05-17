@@ -7,9 +7,9 @@ const CARD_DETAILS = {
     icon: '📷',
     label: 'Total Scans',
     value: '0',
-    badge: '📷 No scans yet',
-    badgeType: 'on-dark',
-    primary: true,
+    badge: 'No scans yet',
+    badgeType: 'light',
+    primary: false,
     details: [
       { label: 'This Week', value: '0' },
       { label: 'This Month', value: '0' },
@@ -21,7 +21,7 @@ const CARD_DETAILS = {
     icon: '♻️',
     label: 'Items Recycled',
     value: '0',
-    badge: '🌿 Get started!',
+    badge: 'Get started!',
     badgeType: 'light',
     primary: false,
     details: [

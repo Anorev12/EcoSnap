@@ -49,46 +49,154 @@ const CATEGORY_CONFIG = {
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8080";
 
+// Request cache to avoid duplicate API calls
+const requestCache = new Map();
+
 /**
- * Classifies an image using the backend API with retry logic
+ * Compresses image to reduce API load while maintaining quality
  */
-async function classifyImage(base64Image, userId, retries = 3) {
-  for (let attempt = 1; attempt <= retries; attempt++) {
+function compressImage(base64Image, quality = 0.7, maxWidth = 800) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      let width = img.width;
+      let height = img.height;
+
+      // Scale down if too large
+      if (width > maxWidth) {
+        height = (height * maxWidth) / width;
+        width = maxWidth;
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        resolve(base64Image); // Return original if compression fails
+        return;
+      }
+
+      ctx.drawImage(img, 0, 0, width, height);
+      const compressed = canvas.toDataURL("image/jpeg", quality);
+      
+      console.log(`Image compressed: ${Math.round(base64Image.length / 1024)}KB -> ${Math.round(compressed.length / 1024)}KB`);
+      resolve(compressed.split(",")[1]); // Return base64 only
+    };
+    img.onerror = () => {
+      resolve(base64Image); // Return original on error
+    };
+    img.src = `data:image/jpeg;base64,${base64Image}`;
+  });
+}
+
+/**
+ * Classifies an image using the backend API with intelligent retry logic
+ */
+async function classifyImage(base64Image, userId) {
+  // Check cache first
+  const cacheKey = base64Image.substring(0, 50); // Use first 50 chars as key
+  if (requestCache.has(cacheKey)) {
+    console.log("✅ Using cached result");
+    return requestCache.get(cacheKey);
+  }
+
+  // Compress image to reduce API calls
+  const compressedBase64 = await compressImage(base64Image);
+
+  let lastError = null;
+  let retryCount = 0;
+  const maxRetries = 5;
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
+      console.log(`🔄 API attempt ${attempt}/${maxRetries}`);
+
       const response = await fetch(`${API_BASE_URL}/api/scanner/analyze`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
-          image: base64Image,
+          image: compressedBase64,
           userId: userId ?? null,
         }),
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        
-        // Handle rate limiting with retry
-        if (response.status === 429 && attempt < retries) {
-          const waitTime = Math.pow(2, attempt) * 1000; // Exponential backoff
-          console.log(`Rate limited. Retrying in ${waitTime}ms...`);
-          await new Promise(resolve => setTimeout(resolve, waitTime));
+
+        // Handle rate limiting (429) with exponential backoff
+        if (response.status === 429) {
+          retryCount++;
+          // Increase wait time: 5s, 10s, 20s, 40s, 80s
+          const waitTime = 5000 * Math.pow(2, attempt - 1);
+          const waitSeconds = waitTime / 1000;
+
+          console.log(
+            `⏳ Rate limited (429). Waiting ${waitSeconds}s before retry ${attempt}/${maxRetries}...`
+          );
+
+          // Show user a more informative message
+          lastError = `Rate limited. Waiting ${waitSeconds}s... (Attempt ${attempt}/${maxRetries})`;
+
+          await new Promise((resolve) => setTimeout(resolve, waitTime));
           continue;
         }
 
-        const errorMessage = errorData.message || `Analysis failed (HTTP ${response.status}). Please try again.`;
+        // Handle server errors (5xx) with retries
+        if (response.status >= 500) {
+          const waitTime = 3000 * Math.pow(1.5, attempt - 1);
+          console.log(`⚠️ Server error (${response.status}). Retrying in ${waitTime}ms...`);
+
+          if (attempt < maxRetries) {
+            await new Promise((resolve) => setTimeout(resolve, waitTime));
+            continue;
+          }
+        }
+
+        const errorMessage =
+          errorData.message || `Analysis failed (HTTP ${response.status})`;
         throw new Error(errorMessage);
       }
 
       const data = await response.json();
-      return data;
-    } catch (err) {
-      if (attempt === retries) {
-        throw err;
+
+      // Validate response
+      if (!data || !data.category) {
+        throw new Error("Invalid response structure from server");
       }
-      // Wait before retrying
-      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Cache successful result
+      requestCache.set(cacheKey, data);
+
+      // Keep cache size manageable (max 50 entries)
+      if (requestCache.size > 50) {
+        const firstKey = requestCache.keys().next().value;
+        requestCache.delete(firstKey);
+      }
+
+      console.log("✅ Analysis successful!");
+      return data;
+
+    } catch (err) {
+      lastError = err.message || "Unknown error";
+
+      if (attempt === maxRetries) {
+        throw new Error(
+          `Failed after ${maxRetries} attempts: ${lastError}`
+        );
+      }
+
+      // Wait before next attempt
+      const waitMs = 2000 * attempt;
+      console.log(`⏱️ Waiting ${waitMs}ms before next attempt...`);
+      await new Promise((resolve) => setTimeout(resolve, waitMs));
     }
   }
+
+  throw new Error(lastError || "Analysis failed");
 }
 
 function ResultCard({ result, image, onRescan }) {
@@ -127,7 +235,6 @@ function ResultCard({ result, image, onRescan }) {
 
 /**
  * Main Scanner Component
- * Handles camera capture, image upload, and waste classification
  */
 export default function Scanner({ user, notify }) {
   const videoRef = useRef(null);
@@ -138,6 +245,7 @@ export default function Scanner({ user, notify }) {
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [analysisTime, setAnalysisTime] = useState(null);
+  const [statusMessage, setStatusMessage] = useState(null);
 
   const videoCallbackRef = useCallback((node) => {
     if (node && streamRef.current) {
@@ -150,7 +258,7 @@ export default function Scanner({ user, notify }) {
     try {
       const constraints = {
         video: {
-          facingMode: "environment", // Back camera on mobile
+          facingMode: "environment",
           width: { ideal: 1280 },
           height: { ideal: 720 },
         },
@@ -162,14 +270,15 @@ export default function Scanner({ user, notify }) {
       setCapturedImage(null);
       setResult(null);
       setError(null);
+      setStatusMessage(null);
       setCameraOpen(true);
     } catch (err) {
       const errorMsg =
         err.name === "NotAllowedError"
-          ? "Camera permission denied. Please allow camera access in your device settings."
+          ? "Camera permission denied. Please allow camera access."
           : err.name === "NotFoundError"
             ? "No camera found on this device."
-            : "Failed to access camera. Please try again.";
+            : "Failed to access camera.";
 
       notify?.error?.(errorMsg, { title: "Camera Error" });
       console.error("Camera error:", err);
@@ -189,7 +298,7 @@ export default function Scanner({ user, notify }) {
   const handleCapturePhoto = () => {
     const video = videoRef.current;
     if (!video) {
-      notify?.error?.("Camera is not ready. Please try again.", { title: "Camera Error" });
+      notify?.error?.("Camera is not ready.", { title: "Camera Error" });
       return;
     }
 
@@ -199,7 +308,7 @@ export default function Scanner({ user, notify }) {
       canvas.height = video.videoHeight;
 
       if (canvas.width === 0 || canvas.height === 0) {
-        notify?.error?.("Camera stream is not ready. Please wait a moment and try again.", {
+        notify?.error?.("Camera stream is not ready. Please wait and try again.", {
           title: "Camera Error",
         });
         return;
@@ -207,7 +316,7 @@ export default function Scanner({ user, notify }) {
 
       const ctx = canvas.getContext("2d");
       if (!ctx) {
-        notify?.error?.("Cannot access canvas context. Please try again.", {
+        notify?.error?.("Cannot access canvas. Please try again.", {
           title: "Canvas Error",
         });
         return;
@@ -218,11 +327,11 @@ export default function Scanner({ user, notify }) {
       setCapturedImage(imageDataUrl);
       handleCloseCamera();
 
-      notify?.info?.("📸 Photo captured! Click Analyze to identify the item.", {
+      notify?.info?.("📸 Photo captured!", {
         title: "Photo Ready",
       });
     } catch (err) {
-      notify?.error?.("Failed to capture photo. Please try again.", { title: "Capture Error" });
+      notify?.error?.("Failed to capture photo.", { title: "Capture Error" });
       console.error("Capture error:", err);
     }
   };
@@ -235,13 +344,11 @@ export default function Scanner({ user, notify }) {
       const file = e.target.files?.[0];
       if (!file) return;
 
-      // Validate file size (max 4MB)
       if (file.size > 4 * 1024 * 1024) {
-        notify?.error?.("Image is too large. Maximum size is 4MB.", { title: "File Too Large" });
+        notify?.error?.("Image is too large (max 4MB).", { title: "File Too Large" });
         return;
       }
 
-      // Validate file type
       if (!file.type.startsWith("image/")) {
         notify?.error?.("Please select a valid image file.", { title: "Invalid File" });
         return;
@@ -254,13 +361,14 @@ export default function Scanner({ user, notify }) {
           setCapturedImage(result);
           setResult(null);
           setError(null);
-          notify?.info?.("🖼️ Image loaded! Click Analyze to identify the item.", {
+          setStatusMessage(null);
+          notify?.info?.("🖼️ Image loaded!", {
             title: "Image Ready",
           });
         }
       };
       reader.onerror = () => {
-        notify?.error?.("Failed to read image file. Please try again.", { title: "Read Error" });
+        notify?.error?.("Failed to read image file.", { title: "Read Error" });
       };
       reader.readAsDataURL(file);
     };
@@ -272,39 +380,43 @@ export default function Scanner({ user, notify }) {
 
     setAnalyzing(true);
     setError(null);
+    setStatusMessage(null);
     const startTime = Date.now();
 
     try {
-      // Extract base64 from data URL
+      // Extract base64
       const base64 = capturedImage.includes(",")
         ? capturedImage.split(",")[1]
         : capturedImage;
 
       if (!base64 || base64.length === 0) {
-        throw new Error("Invalid image data. Please try again.");
+        throw new Error("Invalid image data.");
       }
 
+      // Show status during analysis
+      setStatusMessage("🤖 Analyzing... This may take a moment due to API rate limits.");
+
       const classification = await classifyImage(base64, user?.id);
-      
-      // Validate response data
+
       if (!classification || !classification.category) {
-        throw new Error("Invalid response from server. Please try again.");
+        throw new Error("Invalid response from server.");
       }
 
       setResult(classification);
 
       const endTime = Date.now();
       setAnalysisTime(endTime - startTime);
+      setStatusMessage(null);
 
-      // Determine notification type based on category
+      // Show appropriate notification
       const isHazardous =
         classification.category === "Hazardous" ||
         classification.category === "E-Waste";
 
       if (isHazardous) {
         notify?.warning?.(
-          `${classification.item} requires special disposal. Follow the instructions below.`,
-          { title: `⚠️ ${classification.category} Detected` }
+          `${classification.item} requires special disposal.`,
+          { title: `⚠️ ${classification.category}` }
         );
       } else {
         notify?.success?.(
@@ -313,8 +425,9 @@ export default function Scanner({ user, notify }) {
         );
       }
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Could not analyze the image. Please try again.";
+      const msg = err instanceof Error ? err.message : "Could not analyze. Please try again.";
       setError(msg);
+      setStatusMessage(null);
       notify?.error?.(msg, { title: "Analysis Failed" });
       console.error("Analysis error:", err);
     } finally {
@@ -327,6 +440,7 @@ export default function Scanner({ user, notify }) {
     setResult(null);
     setError(null);
     setAnalysisTime(null);
+    setStatusMessage(null);
   };
 
   const showDefault = !cameraOpen && !capturedImage && !result;
@@ -334,7 +448,6 @@ export default function Scanner({ user, notify }) {
   return (
     <div className="scanner-page">
       <div className="scanner-card">
-        {/* Back button on default view */}
         {showDefault && (
           <Link to="/dashboard" className="scanner-back-btn" title="Back to Dashboard">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -362,7 +475,7 @@ export default function Scanner({ user, notify }) {
               📸 Capture Photo
             </button>
             <button className="scanner-btn btn-close" onClick={handleCloseCamera}>
-              ✕ Close Camera
+              ✕ Close
             </button>
           </div>
         )}
@@ -374,7 +487,7 @@ export default function Scanner({ user, notify }) {
             {analyzing ? (
               <div className="analyzing-state">
                 <div className="analyzing-spinner" />
-                <p className="analyzing-text">🤖 Analyzing item with AI…</p>
+                <p className="analyzing-text">{statusMessage || "🤖 Analyzing..."}</p>
               </div>
             ) : (
               <>

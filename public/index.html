@@ -1,22 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <!-- CRITICAL: This script MUST be first in <head> to prevent flash -->
+    <!-- CRITICAL: Must be first to prevent theme flash on refresh -->
     <script>
       (function() {
-        // Get saved theme IMMEDIATELY
         const savedTheme = localStorage.getItem("theme") || "light";
-        
-        // Determine actual theme
+
         let themeToUse = savedTheme;
         if (savedTheme === "system") {
           const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
           themeToUse = prefersDark ? "dark" : "light";
         }
-        
-        // Apply theme BEFORE any CSS loads (no flash!)
+
+        // Apply to <html> immediately (before body exists)
         document.documentElement.setAttribute("data-theme", themeToUse);
         document.documentElement.style.colorScheme = themeToUse;
+
+        // Apply to <body> as soon as it's available
+        if (document.body) {
+          document.body.setAttribute("data-theme", themeToUse);
+        } else {
+          document.addEventListener("DOMContentLoaded", function () {
+            document.body.setAttribute("data-theme", themeToUse);
+          });
+        }
       })();
     </script>
 
@@ -24,10 +31,7 @@
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="EcoSnap - Waste Classification App using AI"
-    />
+    <meta name="description" content="EcoSnap - Waste Classification App using AI" />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     <title>EcoSnap</title>

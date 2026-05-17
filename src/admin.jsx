@@ -192,6 +192,12 @@ function UserManagementPanel() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [toast, setToast] = useState(null);
+
+  const showToast = (msg, type = "success") => {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 3000);
+  };
 
   useEffect(() => {
     fetch("http://localhost:8080/api/users/all")
@@ -204,21 +210,21 @@ function UserManagementPanel() {
     fetch(`http://localhost:8080/api/users/delete/${id}`, { method: "DELETE" })
       .then((res) => { if (!res.ok) throw new Error("Failed to delete user"); })
       .then(() => setUsers((prev) => prev.filter((u) => u.id !== id)))
-      .catch((err) => alert(err.message));
+      .catch((err) => setError(err.message));
   };
 
   const handleApprove = (id) => {
     fetch(`http://localhost:8080/api/users/${id}/approve-email-change`, { method: "POST" })
       .then((res) => { if (!res.ok) throw new Error("Approval failed"); return res.json(); })
-      .then((updated) => { setUsers((prev) => prev.map((u) => u.id === updated.id ? updated : u)); alert(`✅ Email change approved for ${updated.firstName} ${updated.lastName}`); })
-      .catch((err) => alert(err.message));
+      .then((updated) => { setUsers((prev) => prev.map((u) => u.id === updated.id ? updated : u)); showToast(`✅ Email change approved for ${updated.firstName} ${updated.lastName}`); })
+      .catch((err) => setError(err.message));
   };
 
   const handleReject = (id) => {
     fetch(`http://localhost:8080/api/users/${id}/reject-email-change`, { method: "POST" })
       .then((res) => { if (!res.ok) throw new Error("Rejection failed"); return res.json(); })
-      .then((updated) => { setUsers((prev) => prev.map((u) => u.id === updated.id ? updated : u)); alert(`❌ Email change request rejected for ${updated.firstName} ${updated.lastName}`); })
-      .catch((err) => alert(err.message));
+      .then((updated) => { setUsers((prev) => prev.map((u) => u.id === updated.id ? updated : u)); showToast(`❌ Email change request rejected for ${updated.firstName} ${updated.lastName}`, "error"); })
+      .catch((err) => setError(err.message));
   };
 
   const formatDate = (dateStr) => { if (!dateStr) return "—"; return new Date(dateStr).toLocaleString("default", { month: "short", year: "numeric" }); };
@@ -226,6 +232,11 @@ function UserManagementPanel() {
 
   return (
     <div className="adm-panel">
+      {toast && (
+        <div style={{ position: "fixed", top: 20, right: 24, zIndex: 9999, background: toast.type === "error" ? "#fef2f2" : "#f0fdf4", color: toast.type === "error" ? "#b91c1c" : "#15803d", border: `1px solid ${toast.type === "error" ? "#fca5a5" : "#86efac"}`, borderRadius: 8, padding: "10px 18px", fontSize: 13, fontWeight: 600, boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>
+          {toast.msg}
+        </div>
+      )}
       {showModal && <AddUserModal onClose={() => setShowModal(false)} onAdded={(u) => setUsers((p) => [...p, u])} />}
       <div className="adm-panel-header">
         <h2 className="adm-panel-title">User Management</h2>
@@ -392,14 +403,14 @@ function TipsPanel() {
     fetch(`http://localhost:8080/api/tips/toggle/${id}`, { method: "PUT" })
       .then((res) => { if (!res.ok) throw new Error("Toggle failed"); return res.json(); })
       .then((updated) => setTips((prev) => prev.map((t) => t.id === updated.id ? updated : t)))
-      .catch((e) => alert(e.message));
+      .catch((e) => setError(e.message));
   };
   const handleDelete = (id) => {
     if (!window.confirm("Delete this tip? This cannot be undone.")) return;
     fetch(`http://localhost:8080/api/tips/delete/${id}`, { method: "DELETE" })
       .then((res) => { if (!res.ok) throw new Error("Delete failed"); })
       .then(() => setTips((prev) => prev.filter((t) => t.id !== id)))
-      .catch((e) => alert(e.message));
+      .catch((e) => setError(e.message));
   };
   return (
     <div className="adm-panel">
@@ -449,7 +460,7 @@ function FeedbacksPanel() {
     fetch(`http://localhost:8080/api/feedback/${id}/resolve`, { method: "PUT" })
       .then((res) => { if (!res.ok) throw new Error("Failed to resolve"); return res.json(); })
       .then((updated) => setFeedbacks((prev) => prev.map((f) => f.id === updated.id ? updated : f)))
-      .catch((e) => alert(e.message));
+      .catch((e) => setError(e.message));
   };
 
   const handleDelete = (id) => {
@@ -457,7 +468,7 @@ function FeedbacksPanel() {
     fetch(`http://localhost:8080/api/feedback/${id}`, { method: "DELETE" })
       .then((res) => { if (!res.ok) throw new Error("Delete failed"); })
       .then(() => setFeedbacks((prev) => prev.filter((f) => f.id !== id)))
-      .catch((e) => alert(e.message));
+      .catch((e) => setError(e.message));
   };
 
   const formatDate = (dateStr) => {

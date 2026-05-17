@@ -171,7 +171,7 @@
 .adm-panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
 .adm-panel-title {
   font-family: 'Nunito', sans-serif;
-  font-size: 18px; font-weight: 900; color: #1a1a1a;
+  font-size: 18px; font-weight: 900; color: #000000;
   margin-bottom: 16px;
 }
 .adm-panel-header .adm-panel-title { margin-bottom: 0; }
@@ -186,7 +186,7 @@
 }
 .adm-card-title {
   font-family: 'Nunito', sans-serif;
-  font-size: 13px; font-weight: 800; color: #1a1a1a;
+  font-size: 13px; font-weight: 800; color: #000000;
   margin-bottom: 12px;
   display: flex; align-items: center; gap: 7px;
 }
@@ -207,8 +207,8 @@
   transition: transform 0.15s, box-shadow 0.15s;
 }
 .adm-stat-card:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.09); }
-.adm-stat-value { font-family: 'Nunito', sans-serif; font-size: 32px; font-weight: 900; color: #1a1a1a; line-height: 1; margin-bottom: 4px; }
-.adm-stat-label { font-size: 13px; color: #6b7280; font-weight: 500; margin-bottom: 6px; }
+.adm-stat-value { font-family: 'Nunito', sans-serif; font-size: 32px; font-weight: 900; color: #000000; line-height: 1; margin-bottom: 4px; }
+.adm-stat-label { font-size: 13px; color: #4b5563; font-weight: 500; margin-bottom: 6px; }
 .adm-stat-change { font-size: 12px; font-weight: 700; font-family: 'Nunito', sans-serif; display: flex; align-items: center; gap: 4px; }
 .adm-stat-change--up { color: #3cb35a; }
 .adm-stat-change--neutral { color: #f59e0b; }
@@ -218,27 +218,27 @@
 .adm-bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 90px; }
 .adm-bar-col { display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1; }
 .adm-bar { width: 100%; border-radius: 5px 5px 0 0; min-width: 20px; transition: height 0.4s ease; cursor: pointer; }
-.adm-bar-label { font-size: 10px; color: #6b7280; font-weight: 600; }
+.adm-bar-label { font-size: 10px; color: #4b5563; font-weight: 600; }
 .adm-donut-legend { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
-.adm-legend-row { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #6b7280; font-weight: 600; }
+.adm-legend-row { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #4b5563; font-weight: 600; }
 .adm-legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
 .adm-legend-label { flex: 1; }
-.adm-legend-pct { color: #1a1a1a; font-weight: 700; }
+.adm-legend-pct { color: #000000; font-weight: 700; }
 
 /* ── Table ── */
 .adm-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .adm-table th {
   text-align: left; padding: 8px 12px;
   font-family: 'Nunito', sans-serif; font-size: 11px; font-weight: 800;
-  color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;
+  color: #4b5563; text-transform: uppercase; letter-spacing: 0.5px;
   border-bottom: 1.5px solid #e5e7eb;
 }
-.adm-table td { padding: 11px 12px; border-bottom: 1px solid #f3f4f6; vertical-align: middle; }
+.adm-table td { padding: 11px 12px; border-bottom: 1px solid #f3f4f6; vertical-align: middle; color: #000000; }
 .adm-table tr:last-child td { border-bottom: none; }
 .adm-table tr:hover td { background: #f9fafb; }
-.adm-muted { color: #9ca3af; font-size: 12.5px; }
-.adm-count { font-family: 'Nunito', sans-serif; font-weight: 700; color: #1a1a1a; }
-.adm-empty { text-align: center; color: #9ca3af; padding: 24px 0; font-size: 13px; }
+.adm-muted { color: #6b7280; font-size: 12.5px; }
+.adm-count { font-family: 'Nunito', sans-serif; font-weight: 700; color: #000000; }
+.adm-empty { text-align: center; color: #6b7280; padding: 24px 0; font-size: 13px; }
 
 /* ── Badges ── */
 .adm-badge-active {
@@ -253,7 +253,7 @@
 .adm-role-badge--user   { background: #dbeafe; color: #1d4ed8; border: 1px solid #93c5fd44; }
 .adm-role-badge--admin  { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d44; }
 .adm-model-badge {
-  background: #f3f4f6; color: #374151;
+  background: #f3f4f6; color: #000000;
   font-size: 11px; font-weight: 700; font-family: monospace;
   padding: 2px 7px; border-radius: 6px;
 }
@@ -266,7 +266,7 @@
 .adm-conf-row { display: flex; align-items: center; gap: 8px; }
 .adm-conf-bar { flex: 1; height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden; }
 .adm-conf-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
-.adm-conf-num { font-size: 11px; font-weight: 700; color: #6b7280; min-width: 32px; }
+.adm-conf-num { font-size: 11px; font-weight: 700; color: #4b5563; min-width: 32px; }
 
 /* ── Buttons ── */
 .adm-btn-primary {
@@ -278,7 +278,7 @@
 }
 .adm-btn-primary:hover { background: #2d9147; }
 .adm-btn-sm {
-  background: #f3f4f6; color: #374151; border: 1px solid #e5e7eb;
+  background: #f3f4f6; color: #000000; border: 1px solid #e5e7eb;
   border-radius: 7px; padding: 5px 11px; font-size: 12px; font-weight: 600;
   cursor: pointer; transition: background 0.15s;
 }
@@ -289,9 +289,23 @@
 
 /* ── Inline input ── */
 .adm-inline-input {
-  border: 1.5px solid #3cb35a; border-radius: 6px;
-  padding: 3px 8px; font-size: 13px; outline: none;
+  border: 1.5px solid #3cb35a;
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 13px;
+  outline: none;
   font-family: 'DM Sans', sans-serif;
+  color: #000000;
+  background-color: #ffffff;
+}
+.adm-inline-input:focus {
+  background-color: #ffffff;
+  color: #000000;
+  border-color: #2d9147;
+  box-shadow: 0 0 0 3px rgba(60, 179, 90, 0.1);
+}
+.adm-inline-input::placeholder {
+  color: #9ca3af;
 }
 
 /* ── Search ── */
@@ -299,14 +313,20 @@
 .adm-search {
   width: 100%; padding: 8px 12px;
   border: 1.5px solid #e5e7eb; border-radius: 8px;
-  font-size: 13px; outline: none;
+  font-size: 13px; outline: none; color: #000000;
   font-family: 'DM Sans', sans-serif;
+  background-color: #ffffff;
   transition: border-color 0.15s;
 }
-.adm-search:focus { border-color: #3cb35a; }
+.adm-search:focus { 
+  border-color: #3cb35a;
+  background-color: #ffffff;
+  color: #000000;
+}
+.adm-search::placeholder { color: #9ca3af; }
 
 /* ── Cat name ── */
-.adm-cat-name { display: flex; align-items: center; gap: 8px; }
+.adm-cat-name { display: flex; align-items: center; gap: 8px; color: #000000; }
 .adm-cat-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 .adm-action-row { display: flex; gap: 6px; }
 
@@ -321,7 +341,7 @@
   background: #dcfce7; color: #1a5c2a; border: 1px solid #4ade8044;
   padding: 1px 7px; border-radius: 20px; margin-bottom: 4px;
 }
-.adm-tip-text { font-size: 13px; color: #374151; line-height: 1.5; }
+.adm-tip-text { font-size: 13px; color: #000000; line-height: 1.5; }
 .adm-tip-info { flex: 1; }
 
 /* ── Toggle ── */
@@ -363,12 +383,12 @@
 }
 .adm-modal-title {
   font-family: 'Nunito', sans-serif;
-  font-size: 16px; font-weight: 900; color: #1a1a1a;
+  font-size: 16px; font-weight: 900; color: #000000;
 }
 .adm-modal-close {
   background: #f3f4f6; border: none; border-radius: 6px;
   width: 28px; height: 28px; cursor: pointer;
-  font-size: 13px; color: #6b7280;
+  font-size: 13px; color: #4b5563;
   display: flex; align-items: center; justify-content: center;
 }
 .adm-modal-close:hover { background: #e5e7eb; }
@@ -383,20 +403,25 @@
   display: flex; flex-direction: column; gap: 5px;
 }
 .adm-modal-label {
-  font-size: 12px; font-weight: 700; color: #374151;
+  font-size: 12px; font-weight: 700; color: #000000;
   font-family: 'Nunito', sans-serif;
 }
 .adm-modal-hint {
-  font-weight: 500; color: #9ca3af; font-size: 11px;
+  font-weight: 500; color: #6b7280; font-size: 11px;
 }
 .adm-modal-input {
   padding: 8px 12px;
   border: 1.5px solid #e5e7eb; border-radius: 8px;
-  font-size: 13px; outline: none;
+  font-size: 13px; outline: none; color: #000000;
+  background-color: #ffffff;
   font-family: 'DM Sans', sans-serif;
   transition: border-color 0.15s;
 }
-.adm-modal-input:focus { border-color: #3cb35a; }
+.adm-modal-input:focus { 
+  border-color: #3cb35a;
+  background-color: #ffffff;
+  color: #000000;
+}
 .adm-modal-error {
   font-size: 12px; color: #dc2626; font-weight: 600;
   background: #fef2f2; border: 1px solid #fca5a5;
