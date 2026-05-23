@@ -51,15 +51,34 @@ async function classifyImage(base64Image, userId) {
   const response = await fetch("http://localhost:8080/api/scanner/analyze", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      image: base64Image,
-      userId: userId ?? null,
-    }),
+    body: JSON.stringify({ image: base64Image, userId: userId ?? null }),
   });
   if (!response.ok) throw new Error("Analysis failed. Please try again.");
   return response.json();
 }
 
+// ── Waste Diversion Bar ───────────────────────────────────────────
+function WasteDiversionBar({ percentage }) {
+  const color =
+    percentage >= 75 ? "#22c55e" :
+    percentage >= 40 ? "#f59e0b" : "#ef4444";
+
+  return (
+    <div style={{ width: "100%" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+        <span style={{ fontSize: 11, fontWeight: 600, color: "#888", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+          Waste Diverted from Landfill
+        </span>
+        <span style={{ fontSize: 13, fontWeight: 700, color }}>{percentage}%</span>
+      </div>
+      <div style={{ height: 8, background: "#e5e7eb", borderRadius: 99, overflow: "hidden" }}>
+        <div style={{ height: "100%", width: `${percentage}%`, background: color, borderRadius: 99, transition: "width 0.8s ease" }} />
+      </div>
+    </div>
+  );
+}
+
+// ── Result Card ───────────────────────────────────────────────────
 function ResultCard({ result, image, onRescan }) {
   const cfg = CATEGORY_CONFIG[result.category] ?? CATEGORY_CONFIG["Unknown"];
 
@@ -74,11 +93,26 @@ function ResultCard({ result, image, onRescan }) {
           <span className="result-emoji">{cfg.emoji}</span>
           <span>{result.category}</span>
         </div>
+
         <div className="result-item-name">{result.item}</div>
+
         <div className="result-confidence" style={{ color: cfg.color }}>
           {result.confidence} Confidence
         </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 500 }}>
+          <span>{result.recyclable ? "✅" : "❌"}</span>
+          <span style={{ color: result.recyclable ? "#16a34a" : "#dc2626" }}>
+            {result.recyclable ? "Recyclable" : "Not Recyclable"}
+          </span>
+        </div>
+
+        {result.wasteDiverted !== undefined && (
+          <WasteDiversionBar percentage={result.wasteDiverted ?? 0} />
+        )}
+
         <p className="result-reason">{result.reason}</p>
+
         <div className="result-tip" style={{ borderLeft: `3px solid ${cfg.color}` }}>
           <span className="result-tip-label">How to dispose:</span>
           <span>{result.disposal || cfg.tip}</span>
@@ -94,7 +128,50 @@ function ResultCard({ result, image, onRescan }) {
   );
 }
 
-// ✅ notify added to props
+// ── Invalid Scan Card (only when NO trash found at all) ───────────
+function InvalidScanCard({ result, image, onRescan }) {
+  return (
+    <div className="result-wrapper">
+      <div className="result-image-thumb">
+        <img src={image} alt="Invalid scan" style={{ filter: "brightness(0.7)" }} />
+      </div>
+
+      <div className="result-card" style={{ borderColor: "#fca5a5", background: "#fef2f2" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
+          <span style={{ fontSize: 28 }}>🔍</span>
+          <div>
+            <p style={{ margin: 0, fontWeight: 700, fontSize: 16, color: "#dc2626" }}>No Waste Item Found</p>
+            <p style={{ margin: 0, fontSize: 12, color: "#f87171" }}>Could not identify any trash in this image</p>
+          </div>
+        </div>
+
+        <div style={{ background: "#fff", border: "1px solid #fecaca", borderRadius: 10, padding: "12px 14px" }}>
+          <p style={{ margin: 0, fontSize: 13, color: "#7f1d1d", lineHeight: 1.55 }}>
+            {result.invalidReason || "No waste or trash item was detected. Please point the camera at a waste item."}
+          </p>
+        </div>
+
+        <div style={{ background: "#fff7ed", border: "1px solid #fdba74", borderRadius: 10, padding: "12px 14px" }}>
+          <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "#9a3412", marginBottom: 4 }}>💡 Tips for a better scan:</p>
+          <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, color: "#7c2d12", lineHeight: 1.7 }}>
+            <li>Point the camera directly at the waste item</li>
+            <li>Make sure the item fills most of the frame</li>
+            <li>Ensure good lighting — avoid dark or blurry shots</li>
+            <li>You can hold the item while scanning — that's fine!</li>
+          </ul>
+        </div>
+      </div>
+
+      <div className="result-actions">
+        <button className="scanner-btn btn-camera" onClick={onRescan}>
+          🔄 Try Again
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ── Main Scanner Component ────────────────────────────────────────
 export default function Scanner({ user, notify }) {
   const videoRef = useRef(null);
   const streamRef = useRef(null);
@@ -120,10 +197,7 @@ export default function Scanner({ user, notify }) {
       setError(null);
       setCameraOpen(true);
     } catch (err) {
-      // ✅ notify on camera permission denied
-      notify?.error("Camera access denied. Please allow camera permissions.", {
-        title: "Camera Error",
-      });
+      notify?.error("Camera access denied. Please allow camera permissions.", { title: "Camera Error" });
     }
   };
 
@@ -145,10 +219,7 @@ export default function Scanner({ user, notify }) {
     const imageDataUrl = canvas.toDataURL("image/png");
     setCapturedImage(imageDataUrl);
     handleCloseCamera();
-    // ✅ notify photo captured
-    notify?.info("Photo captured! Click Analyze to identify the item.", {
-      title: "Photo Ready",
-    });
+    notify?.info("Photo captured! Click Analyze to identify the item.", { title: "Photo Ready" });
   };
 
   const handleChooseImage = () => {
@@ -163,10 +234,7 @@ export default function Scanner({ user, notify }) {
         setCapturedImage(ev.target.result);
         setResult(null);
         setError(null);
-        // ✅ notify image loaded
-        notify?.info("Image loaded! Click Analyze to identify the item.", {
-          title: "Image Ready",
-        });
+        notify?.info("Image loaded! Click Analyze to identify the item.", { title: "Image Ready" });
       };
       reader.readAsDataURL(file);
     };
@@ -181,10 +249,16 @@ export default function Scanner({ user, notify }) {
       const base64 = capturedImage.split(",")[1];
       const classification = await classifyImage(base64, user?.id);
       setResult(classification);
-      // ✅ notify based on category
-      const isHazardous =
-        classification.category === "Hazardous" ||
-        classification.category === "E-Waste";
+
+      if (classification.invalidScan) {
+        notify?.warning(
+          "No waste item found. Please point the camera at a trash or waste object.",
+          { title: "No Waste Detected ⚠️" }
+        );
+        return;
+      }
+
+      const isHazardous = classification.category === "Hazardous" || classification.category === "E-Waste";
       if (isHazardous) {
         notify?.warning(
           `${classification.item} requires special disposal. Check the instructions below.`,
@@ -199,7 +273,6 @@ export default function Scanner({ user, notify }) {
     } catch (err) {
       const msg = err.message || "Could not analyze the image. Please try again.";
       setError(msg);
-      // ✅ notify on analysis failure
       notify?.error(msg, { title: "Analysis Failed" });
     } finally {
       setAnalyzing(false);
@@ -230,12 +303,8 @@ export default function Scanner({ user, notify }) {
         {cameraOpen && (
           <div className="camera-container">
             <video ref={videoCallbackRef} autoPlay playsInline className="camera-video" />
-            <button className="scanner-btn btn-capture" onClick={handleCapturePhoto}>
-              📸 Capture Photo
-            </button>
-            <button className="scanner-btn btn-close" onClick={handleCloseCamera}>
-              Close Camera
-            </button>
+            <button className="scanner-btn btn-capture" onClick={handleCapturePhoto}>📸 Capture Photo</button>
+            <button className="scanner-btn btn-close" onClick={handleCloseCamera}>Close Camera</button>
           </div>
         )}
 
@@ -245,52 +314,50 @@ export default function Scanner({ user, notify }) {
             {analyzing ? (
               <div className="analyzing-state">
                 <div className="analyzing-spinner" />
-                <p className="analyzing-text">Analyzing item with AI…</p>
+                <p className="analyzing-text">Analyzing waste item with AI…</p>
+                <p style={{ fontSize: 12, color: "#aaa" }}>Identifying trash type and disposal method…</p>
               </div>
             ) : (
               <>
                 {error && <p className="scan-error">{error}</p>}
-                <button className="scanner-btn btn-analyze" onClick={handleAnalyze}>
-                  🔍 Analyze Item
-                </button>
-                <button className="scanner-btn btn-camera" onClick={handleOpenCamera}>
-                  🔄 Retake
-                </button>
-                <button className="scanner-btn btn-choose" onClick={handleChooseImage}>
-                  📁 Choose Different
-                </button>
+                <button className="scanner-btn btn-analyze" onClick={handleAnalyze}>🔍 Analyze Item</button>
+                <button className="scanner-btn btn-camera" onClick={handleOpenCamera}>🔄 Retake</button>
+                <button className="scanner-btn btn-choose" onClick={handleChooseImage}>📁 Choose Different</button>
               </>
             )}
           </div>
         )}
 
         {result && capturedImage && (
-          <ResultCard result={result} image={capturedImage} onRescan={handleRescan} />
+          result.invalidScan
+            ? <InvalidScanCard result={result} image={capturedImage} onRescan={handleRescan} />
+            : <ResultCard result={result} image={capturedImage} onRescan={handleRescan} />
         )}
 
         {showDefault && (
           <>
             <div className="scanner-upload-area">
               <svg className="upload-icon" width="56" height="56" viewBox="0 0 24 24" fill="none">
-                <path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="#888"
-                  strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                <polyline points="16 8 12 4 8 8" stroke="#888" strokeWidth="1.8"
-                  strokeLinecap="round" strokeLinejoin="round" />
-                <line x1="12" y1="4" x2="12" y2="16" stroke="#888"
-                  strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="#888" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                <polyline points="16 8 12 4 8 8" stroke="#888" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                <line x1="12" y1="4" x2="12" y2="16" stroke="#888" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-              <p className="upload-label">Scan an item to classify it</p>
+              <p className="upload-label">Scan any waste item</p>
               <p className="upload-sub">
-                Take a photo or upload an image — AI will identify the trash category
+                Take a photo or upload an image — AI will identify and classify the waste. You can hold the item while scanning!
               </p>
             </div>
-            <button className="scanner-btn btn-camera" onClick={handleOpenCamera}>
-              📷 Open Camera
-            </button>
+            <div className="scanner-hints">
+              <span>✅ Plastic</span>
+              <span>✅ Paper</span>
+              <span>✅ Glass</span>
+              <span>✅ Metal</span>
+              <span>✅ Organic</span>
+              <span>✅ E-Waste</span>
+            </div>
+            <button className="scanner-btn btn-camera" onClick={handleOpenCamera}>📷 Open Camera</button>
             <span className="scanner-or">or</span>
-            <button className="scanner-btn btn-choose" onClick={handleChooseImage}>
-              📁 Upload Image
-            </button>
+            <button className="scanner-btn btn-choose" onClick={handleChooseImage}>📁 Upload Image</button>
           </>
         )}
 
