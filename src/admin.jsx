@@ -11,6 +11,7 @@ const Icons = {
   tips: (<svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" /></svg>),
   api: (<svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" /></svg>),
   feedback: (<svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clipRule="evenodd" /></svg>),
+  settings: (<svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" /></svg>),
 };
 
 const SIDEBAR = [
@@ -52,6 +53,237 @@ const DonutChart = () => {
     </div>
   );
 };
+
+// ─── Profile Edit Modal ───────────────────────────────────────────
+function ProfileEditModal({ user, onClose, onSaved }) {
+  const [tab, setTab] = useState("profile"); // "profile" or "password"
+  const [profileForm, setProfileForm] = useState({
+    firstName: user?.firstName || "",
+    lastName: user?.lastName || "",
+    email: user?.email || "",
+  });
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState(null);
+  const [success, setSuccess] = useState(null);
+
+  const handleProfileChange = (e) => {
+    setProfileForm({ ...profileForm, [e.target.name]: e.target.value });
+  };
+
+  const handlePasswordChange = (e) => {
+    setPasswordForm({ ...passwordForm, [e.target.name]: e.target.value });
+  };
+
+  const submitProfileUpdate = () => {
+    if (!profileForm.firstName || !profileForm.lastName || !profileForm.email) {
+      setErr("All fields are required.");
+      return;
+    }
+    setSaving(true);
+    setErr(null);
+    setSuccess(null);
+
+    fetch(`http://localhost:8080/api/users/${user.id}/profile`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(profileForm),
+    })
+      .then((res) => res.json().then((data) => ({ ok: res.ok, data })))
+      .then(({ ok, data }) => {
+        if (!ok) throw new Error(data.message || "Update failed");
+        setSuccess("Profile updated successfully!");
+        onSaved(data);
+        setTimeout(() => onClose(), 1500);
+      })
+      .catch((e) => {
+        setErr(e.message);
+        setSaving(false);
+      });
+  };
+
+  const submitPasswordChange = () => {
+    if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
+      setErr("All password fields are required.");
+      return;
+    }
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setErr("New passwords do not match.");
+      return;
+    }
+    if (passwordForm.newPassword.length < 6) {
+      setErr("New password must be at least 6 characters.");
+      return;
+    }
+
+    setSaving(true);
+    setErr(null);
+    setSuccess(null);
+
+    fetch(`http://localhost:8080/api/users/${user.id}/change-password`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        currentPassword: passwordForm.currentPassword,
+        newPassword: passwordForm.newPassword,
+      }),
+    })
+      .then((res) => res.json().then((data) => ({ ok: res.ok, data })))
+      .then(({ ok, data }) => {
+        if (!ok) throw new Error(data.message || "Password change failed");
+        setSuccess("Password changed successfully!");
+        setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
+        setTimeout(() => onClose(), 1500);
+      })
+      .catch((e) => {
+        setErr(e.message);
+        setSaving(false);
+      });
+  };
+
+  return (
+    <div className="adm-modal-overlay" onClick={onClose}>
+      <div className="adm-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 500 }}>
+        <div className="adm-modal-header">
+          <h3 className="adm-modal-title">Account Settings</h3>
+          <button className="adm-modal-close" onClick={onClose}>✕</button>
+        </div>
+
+        {/* Tab Buttons */}
+        <div style={{ display: "flex", borderBottom: "1px solid #e5e7eb", background: "#fafafa" }}>
+          <button
+            onClick={() => { setTab("profile"); setErr(null); setSuccess(null); }}
+            style={{
+              flex: 1,
+              padding: "12px 16px",
+              border: "none",
+              background: "transparent",
+              cursor: "pointer",
+              fontWeight: tab === "profile" ? 600 : 500,
+              color: tab === "profile" ? "#2563eb" : "#6b7280",
+              borderBottom: tab === "profile" ? "2px solid #2563eb" : "none",
+              transition: "all 0.2s",
+            }}
+          >
+            Profile
+          </button>
+          <button
+            onClick={() => { setTab("password"); setErr(null); setSuccess(null); }}
+            style={{
+              flex: 1,
+              padding: "12px 16px",
+              border: "none",
+              background: "transparent",
+              cursor: "pointer",
+              fontWeight: tab === "password" ? 600 : 500,
+              color: tab === "password" ? "#2563eb" : "#6b7280",
+              borderBottom: tab === "password" ? "2px solid #2563eb" : "none",
+              transition: "all 0.2s",
+            }}
+          >
+            Change Password
+          </button>
+        </div>
+
+        <div className="adm-modal-body">
+          {tab === "profile" && (
+            <>
+              <div className="adm-modal-field">
+                <label className="adm-modal-label">First Name *</label>
+                <input
+                  className="adm-modal-input"
+                  name="firstName"
+                  value={profileForm.firstName}
+                  onChange={handleProfileChange}
+                  placeholder="Juan"
+                />
+              </div>
+              <div className="adm-modal-field">
+                <label className="adm-modal-label">Last Name *</label>
+                <input
+                  className="adm-modal-input"
+                  name="lastName"
+                  value={profileForm.lastName}
+                  onChange={handleProfileChange}
+                  placeholder="dela Cruz"
+                />
+              </div>
+              <div className="adm-modal-field">
+                <label className="adm-modal-label">Email *</label>
+                <input
+                  className="adm-modal-input"
+                  name="email"
+                  type="email"
+                  value={profileForm.email}
+                  onChange={handleProfileChange}
+                  placeholder="admin@ecosnapadmin.com"
+                />
+              </div>
+            </>
+          )}
+
+          {tab === "password" && (
+            <>
+              <div className="adm-modal-field">
+                <label className="adm-modal-label">Current Password *</label>
+                <input
+                  className="adm-modal-input"
+                  name="currentPassword"
+                  type="password"
+                  value={passwordForm.currentPassword}
+                  onChange={handlePasswordChange}
+                  placeholder="••••••••"
+                />
+              </div>
+              <div className="adm-modal-field">
+                <label className="adm-modal-label">New Password *</label>
+                <input
+                  className="adm-modal-input"
+                  name="newPassword"
+                  type="password"
+                  value={passwordForm.newPassword}
+                  onChange={handlePasswordChange}
+                  placeholder="••••••••"
+                />
+              </div>
+              <div className="adm-modal-field">
+                <label className="adm-modal-label">Confirm Password *</label>
+                <input
+                  className="adm-modal-input"
+                  name="confirmPassword"
+                  type="password"
+                  value={passwordForm.confirmPassword}
+                  onChange={handlePasswordChange}
+                  placeholder="••••••••"
+                />
+              </div>
+            </>
+          )}
+
+          {err && <p className="adm-modal-error">{err}</p>}
+          {success && <p style={{ color: "#16a34a", fontSize: 13, fontWeight: 500, marginTop: 10 }}>✅ {success}</p>}
+        </div>
+
+        <div className="adm-modal-footer">
+          <button className="adm-btn-sm" onClick={onClose} disabled={saving}>
+            Close
+          </button>
+          <button
+            className="adm-btn-primary"
+            onClick={tab === "profile" ? submitProfileUpdate : submitPasswordChange}
+            disabled={saving}
+          >
+            {saving ? "Saving…" : "Save Changes"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // ─── Dashboard Panel ──────────────────────────────────────────────
 function DashboardPanel() {
@@ -557,8 +789,14 @@ function FeedbacksPanel() {
 export default function EcoSnapDashboard({ user }) {
   const navigate = useNavigate();
   const [active, setActive] = useState("dashboard");
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [currentUser, setCurrentUser] = useState(user);
 
   const handleLogout = () => { localStorage.removeItem("user"); navigate("/login"); };
+  const handleProfileSaved = (updatedUser) => {
+    setCurrentUser(updatedUser);
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+  };
 
   const PANEL_TITLES = {
     dashboard: "Admin Analytics Dashboard", categories: "Waste Categories",
@@ -568,6 +806,13 @@ export default function EcoSnapDashboard({ user }) {
 
   return (
     <div className="adm-root">
+      {showProfileModal && (
+        <ProfileEditModal
+          user={currentUser}
+          onClose={() => setShowProfileModal(false)}
+          onSaved={handleProfileSaved}
+        />
+      )}
       <div className="adm-topbar" />
       <div className="adm-layout">
         <aside className="adm-sidebar">
@@ -585,7 +830,14 @@ export default function EcoSnapDashboard({ user }) {
             ))}
           </nav>
           <div className="adm-sidebar-footer">
-            <div className="adm-admin-info"><svg viewBox="0 0 20 20" fill="rgba(255,255,255,0.7)" width="20" height="20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clipRule="evenodd" /></svg>{user?.firstName || "Administrator"}</div>
+            <button
+              className="adm-admin-info"
+              onClick={() => setShowProfileModal(true)}
+              style={{ background: "none", border: "none", cursor: "pointer", padding: 0, width: "100%" }}
+              title="Click to edit profile"
+            >
+              <svg viewBox="0 0 20 20" fill="rgba(255,255,255,0.7)" width="20" height="20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clipRule="evenodd" /></svg>{currentUser?.firstName || "Administrator"}
+            </button>
             <button className="adm-logout-btn" onClick={handleLogout}>Log Out</button>
           </div>
         </aside>

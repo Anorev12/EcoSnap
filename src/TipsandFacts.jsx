@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from './hooks/useTranslation';
 import './tipsfacts.css';
-
-// ─── EcoCard ──────────────────────────────────────────────────────
 
 const EcoCard = ({ tip, isBookmarked, onToggleBookmark }) => {
   const [flipped, setFlipped] = useState(false);
@@ -46,9 +45,8 @@ const EcoCard = ({ tip, isBookmarked, onToggleBookmark }) => {
   );
 };
 
-// ─── Main Component ───────────────────────────────────────────────
-
 export default function TipsAndFacts() {
+  const { t } = useTranslation();
   const [tips, setTips]                     = useState([]);
   const [loading, setLoading]               = useState(true);
   const [error, setError]                   = useState(null);
@@ -57,18 +55,16 @@ export default function TipsAndFacts() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery]       = useState("");
 
-  // ── Fetch only active tips from backend ──────────────────────
   useEffect(() => {
     fetch("http://localhost:8080/api/tips/active")
       .then((res) => {
-        if (!res.ok) throw new Error("Could not load tips");
+        if (!res.ok) throw new Error(t('couldNotLoadTips'));
         return res.json();
       })
       .then((data) => { setTips(data); setLoading(false); })
       .catch((e) => { setError(e.message); setLoading(false); });
-  }, []);
+  }, [t]);
 
-  // ── Build category list dynamically from fetched tips ────────
   const categories = ["All", ...new Set(tips.map((t) => t.category).filter(Boolean))];
 
   const toggleBookmark = (id) =>
@@ -90,19 +86,19 @@ export default function TipsAndFacts() {
 
       {/* ── Header ── */}
       <div className="tips-header">
-        <h3>{activeTab === "bookmarks" ? "📖 Saved Tips" : "Today's Eco Tip"}</h3>
+        <h3>{activeTab === "bookmarks" ? "📖 " + t('savedTips') : t('todaysEcoTip')}</h3>
         <div className="header-right">
           <button
             className={`tab-btn${activeTab === "tips" ? " active" : ""}`}
             onClick={() => { setActiveTab("tips"); setActiveCategory("All"); }}
           >
-            All Tips
+            {t('allTips')}
           </button>
           <button
             className={`tab-btn${activeTab === "bookmarks" ? " active" : ""}`}
             onClick={() => setActiveTab("bookmarks")}
           >
-            🔖 Saved
+            🔖 {t('savedTips')}
             {bookmarks.length > 0 && (
               <span className="tab-badge">{bookmarks.length}</span>
             )}
@@ -115,7 +111,7 @@ export default function TipsAndFacts() {
         <input
           className="search-input"
           type="text"
-          placeholder="🔍  Search tips and facts…"
+          placeholder={`🔍 ${t('searchTipsAndFacts')}…`}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
@@ -138,7 +134,7 @@ export default function TipsAndFacts() {
 
       {/* ── Loading / Error states ── */}
       {loading && (
-        <div className="empty-state">Loading tips…</div>
+        <div className="empty-state">{t('loadingTips')}…</div>
       )}
       {error && (
         <div className="empty-state" style={{ color: "#e53e3e" }}>
@@ -162,8 +158,8 @@ export default function TipsAndFacts() {
         ) : (
           <div className="empty-state">
             {activeTab === "bookmarks"
-              ? "You haven't saved any tips yet. Tap 🏷️ on a card to bookmark it!"
-              : "No tips match your search."}
+              ? t('youHaventSaved')
+              : t('noTipsMatch')}
           </div>
         )
       )}

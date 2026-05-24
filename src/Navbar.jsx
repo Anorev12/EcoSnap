@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { useEffect, useState, useRef, useCallback } from 'react';
+import { useTranslation } from './hooks/useTranslation';
 import logo from './Logo/EcoSnap_LOGO_4.png';
 import './dashboard.css';
 import './navbar.css';
@@ -16,6 +17,8 @@ function timeAgo(dateStr) {
 }
 
 export default function Navbar({ user: propUser }) {
+  // eslint-disable-next-line no-unused-vars
+  const { t, lang } = useTranslation();
   const [user, setUser] = useState(propUser || null);
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
@@ -106,25 +109,25 @@ export default function Navbar({ user: propUser }) {
           to="/dashboard"
           className={({ isActive }) => isActive ? 'nav-item nav-item--active' : 'nav-item'}
         >
-          <span>Dashboard</span>
+          <span>{t('dashboard')}</span>
         </NavLink>
         <NavLink
           to="/history"
           className={({ isActive }) => isActive ? 'nav-item nav-item--active' : 'nav-item'}
         >
-          <span>History</span>
+          <span>{t('history')}</span>
         </NavLink>
         <NavLink
           to="/tipsandfacts"
           className={({ isActive }) => isActive ? 'nav-item nav-item--active' : 'nav-item'}
         >
-          <span>Tips & Facts</span>
+          <span>{t('tipsAndFacts')}</span>
         </NavLink>
         <NavLink
           to="/settings"
           className={({ isActive }) => isActive ? 'nav-item nav-item--active' : 'nav-item'}
         >
-          <span>Settings</span>
+          <span>{t('settings')}</span>
         </NavLink>
       </div>
 
@@ -144,11 +147,11 @@ export default function Navbar({ user: propUser }) {
         {notifOpen && (
           <div className="notif-panel">
             <div className="notif-panel__header">
-              <span className="notif-panel__title">Notifications</span>
+              <span className="notif-panel__title">{t('notifications')}</span>
               <div className="notif-panel__actions">
                 {unreadCount > 0 && (
                   <button className="notif-action-btn" onClick={markAllRead}>
-                    Mark all read
+                    {t('markAllRead')}
                   </button>
                 )}
                 {notifications.length > 0 && (
@@ -156,7 +159,7 @@ export default function Navbar({ user: propUser }) {
                     className="notif-action-btn notif-action-btn--clear"
                     onClick={clearAll}
                   >
-                    Clear all
+                    {t('clearAll')}
                   </button>
                 )}
               </div>
@@ -166,7 +169,7 @@ export default function Navbar({ user: propUser }) {
               {notifications.length === 0 ? (
                 <div className="notif-empty">
                   <span>🌿</span>
-                  <p>You're all caught up!</p>
+                  <p>{t('youreAllCaughtUp')}</p>
                 </div>
               ) : (
                 notifications.map(n => (

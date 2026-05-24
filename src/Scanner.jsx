@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useRef, useState, useCallback } from "react";
+import { useTranslation } from "./hooks/useTranslation";
 import "./scanner.css";
 
 const CATEGORY_CONFIG = {
@@ -48,13 +49,8 @@ const CATEGORY_CONFIG = {
 };
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8080";
-
-// Request cache to avoid duplicate API calls
 const requestCache = new Map();
 
-/**
- * Compresses image to reduce API load while maintaining quality
- */
 function compressImage(base64Image, quality = 0.7, maxWidth = 800) {
   return new Promise((resolve) => {
     const img = new Image();
@@ -63,7 +59,6 @@ function compressImage(base64Image, quality = 0.7, maxWidth = 800) {
       let width = img.width;
       let height = img.height;
 
-      // Scale down if too large
       if (width > maxWidth) {
         height = (height * maxWidth) / width;
         width = maxWidth;
@@ -74,7 +69,7 @@ function compressImage(base64Image, quality = 0.7, maxWidth = 800) {
 
       const ctx = canvas.getContext("2d");
       if (!ctx) {
-        resolve(base64Image); // Return original if compression fails
+        resolve(base64Image);
         return;
       }
 
@@ -82,31 +77,25 @@ function compressImage(base64Image, quality = 0.7, maxWidth = 800) {
       const compressed = canvas.toDataURL("image/jpeg", quality);
       
       console.log(`Image compressed: ${Math.round(base64Image.length / 1024)}KB -> ${Math.round(compressed.length / 1024)}KB`);
-      resolve(compressed.split(",")[1]); // Return base64 only
+      resolve(compressed.split(",")[1]);
     };
     img.onerror = () => {
-      resolve(base64Image); // Return original on error
+      resolve(base64Image);
     };
     img.src = `data:image/jpeg;base64,${base64Image}`;
   });
 }
 
-/**
- * Classifies an image using the backend API with intelligent retry logic
- */
 async function classifyImage(base64Image, userId) {
-  // Check cache first
-  const cacheKey = base64Image.substring(0, 50); // Use first 50 chars as key
+  const cacheKey = base64Image.substring(0, 50);
   if (requestCache.has(cacheKey)) {
     console.log("✅ Using cached result");
     return requestCache.get(cacheKey);
   }
 
-  // Compress image to reduce API calls
   const compressedBase64 = await compressImage(base64Image);
 
   let lastError = null;
-  let retryCount = 0;
   const maxRetries = 5;
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
@@ -127,10 +116,7 @@ async function classifyImage(base64Image, userId) {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
 
-        // Handle rate limiting (429) with exponential backoff
         if (response.status === 429) {
-          retryCount++;
-          // Increase wait time: 5s, 10s, 20s, 40s, 80s
           const waitTime = 5000 * Math.pow(2, attempt - 1);
           const waitSeconds = waitTime / 1000;
 
@@ -138,14 +124,12 @@ async function classifyImage(base64Image, userId) {
             `⏳ Rate limited (429). Waiting ${waitSeconds}s before retry ${attempt}/${maxRetries}...`
           );
 
-          // Show user a more informative message
           lastError = `Rate limited. Waiting ${waitSeconds}s... (Attempt ${attempt}/${maxRetries})`;
 
           await new Promise((resolve) => setTimeout(resolve, waitTime));
           continue;
         }
 
-        // Handle server errors (5xx) with retries
         if (response.status >= 500) {
           const waitTime = 3000 * Math.pow(1.5, attempt - 1);
           console.log(`⚠️ Server error (${response.status}). Retrying in ${waitTime}ms...`);
@@ -163,15 +147,12 @@ async function classifyImage(base64Image, userId) {
 
       const data = await response.json();
 
-      // Validate response
       if (!data || !data.category) {
         throw new Error("Invalid response structure from server");
       }
 
-      // Cache successful result
       requestCache.set(cacheKey, data);
 
-      // Keep cache size manageable (max 50 entries)
       if (requestCache.size > 50) {
         const firstKey = requestCache.keys().next().value;
         requestCache.delete(firstKey);
@@ -189,7 +170,6 @@ async function classifyImage(base64Image, userId) {
         );
       }
 
-      // Wait before next attempt
       const waitMs = 2000 * attempt;
       console.log(`⏱️ Waiting ${waitMs}ms before next attempt...`);
       await new Promise((resolve) => setTimeout(resolve, waitMs));
@@ -199,7 +179,7 @@ async function classifyImage(base64Image, userId) {
   throw new Error(lastError || "Analysis failed");
 }
 
-function ResultCard({ result, image, onRescan }) {
+function ResultCard({ result, image, onRescan, t }) {
   const cfg = CATEGORY_CONFIG[result.category] ?? CATEGORY_CONFIG["Unknown"];
 
   return (
@@ -215,28 +195,26 @@ function ResultCard({ result, image, onRescan }) {
         </div>
         <div className="result-item-name">{result.item}</div>
         <div className="result-confidence" style={{ color: cfg.color }}>
-          {result.confidence} Confidence
+          {result.confidence} {t('confidence')}
         </div>
         <p className="result-reason">{result.reason}</p>
         <div className="result-tip" style={{ borderLeft: `3px solid ${cfg.color}` }}>
-          <span className="result-tip-label">How to dispose:</span>
+          <span className="result-tip-label">{t('howToDispose')}:</span>
           <span>{result.disposal || cfg.tip}</span>
         </div>
       </div>
 
       <div className="result-actions">
         <button className="scanner-btn btn-camera" onClick={onRescan}>
-          🔄 Scan Another
+          🔄 {t('scanAnother')}
         </button>
       </div>
     </div>
   );
 }
 
-/**
- * Main Scanner Component
- */
 export default function Scanner({ user, notify }) {
+  const { t } = useTranslation();
   const videoRef = useRef(null);
   const streamRef = useRef(null);
   const [cameraOpen, setCameraOpen] = useState(false);
@@ -275,12 +253,12 @@ export default function Scanner({ user, notify }) {
     } catch (err) {
       const errorMsg =
         err.name === "NotAllowedError"
-          ? "Camera permission denied. Please allow camera access."
+          ? t('cameraPermissionDenied')
           : err.name === "NotFoundError"
-            ? "No camera found on this device."
-            : "Failed to access camera.";
+            ? t('noCameraFound')
+            : t('failedAccessCamera');
 
-      notify?.error?.(errorMsg, { title: "Camera Error" });
+      notify?.error?.(errorMsg, { title: t('cameraError') });
       console.error("Camera error:", err);
     }
   };
@@ -298,7 +276,7 @@ export default function Scanner({ user, notify }) {
   const handleCapturePhoto = () => {
     const video = videoRef.current;
     if (!video) {
-      notify?.error?.("Camera is not ready.", { title: "Camera Error" });
+      notify?.error?.(t('cameraNotReady'), { title: t('cameraError') });
       return;
     }
 
@@ -308,16 +286,16 @@ export default function Scanner({ user, notify }) {
       canvas.height = video.videoHeight;
 
       if (canvas.width === 0 || canvas.height === 0) {
-        notify?.error?.("Camera stream is not ready. Please wait and try again.", {
-          title: "Camera Error",
+        notify?.error?.(t('cameraStreamNotReady'), {
+          title: t('cameraError'),
         });
         return;
       }
 
       const ctx = canvas.getContext("2d");
       if (!ctx) {
-        notify?.error?.("Cannot access canvas. Please try again.", {
-          title: "Canvas Error",
+        notify?.error?.(t('cannotAccessCanvas'), {
+          title: t('canvasError'),
         });
         return;
       }
@@ -327,11 +305,11 @@ export default function Scanner({ user, notify }) {
       setCapturedImage(imageDataUrl);
       handleCloseCamera();
 
-      notify?.info?.("📸 Photo captured!", {
-        title: "Photo Ready",
+      notify?.info?.(`📸 ${t('photoCapture')}!`, {
+        title: t('photoReady'),
       });
     } catch (err) {
-      notify?.error?.("Failed to capture photo.", { title: "Capture Error" });
+      notify?.error?.(t('failedCapturePhoto'), { title: t('captureError') });
       console.error("Capture error:", err);
     }
   };
@@ -345,12 +323,12 @@ export default function Scanner({ user, notify }) {
       if (!file) return;
 
       if (file.size > 4 * 1024 * 1024) {
-        notify?.error?.("Image is too large (max 4MB).", { title: "File Too Large" });
+        notify?.error?.(t('imageTooLarge'), { title: t('fileTooLarge') });
         return;
       }
 
       if (!file.type.startsWith("image/")) {
-        notify?.error?.("Please select a valid image file.", { title: "Invalid File" });
+        notify?.error?.(t('invalidImageFile'), { title: t('invalidFile') });
         return;
       }
 
@@ -362,13 +340,13 @@ export default function Scanner({ user, notify }) {
           setResult(null);
           setError(null);
           setStatusMessage(null);
-          notify?.info?.("🖼️ Image loaded!", {
-            title: "Image Ready",
+          notify?.info?.(`🖼️ ${t('imageLoaded')}!`, {
+            title: t('imageLoadedMsg'),
           });
         }
       };
       reader.onerror = () => {
-        notify?.error?.("Failed to read image file.", { title: "Read Error" });
+        notify?.error?.(t('failedReadImage'), { title: t('readError') });
       };
       reader.readAsDataURL(file);
     };
@@ -384,7 +362,6 @@ export default function Scanner({ user, notify }) {
     const startTime = Date.now();
 
     try {
-      // Extract base64
       const base64 = capturedImage.includes(",")
         ? capturedImage.split(",")[1]
         : capturedImage;
@@ -393,8 +370,7 @@ export default function Scanner({ user, notify }) {
         throw new Error("Invalid image data.");
       }
 
-      // Show status during analysis
-      setStatusMessage("🤖 Analyzing... This may take a moment due to API rate limits.");
+      setStatusMessage(t('analyzeThisMayTake'));
 
       const classification = await classifyImage(base64, user?.id);
 
@@ -408,27 +384,26 @@ export default function Scanner({ user, notify }) {
       setAnalysisTime(endTime - startTime);
       setStatusMessage(null);
 
-      // Show appropriate notification
       const isHazardous =
         classification.category === "Hazardous" ||
         classification.category === "E-Waste";
 
       if (isHazardous) {
         notify?.warning?.(
-          `${classification.item} requires special disposal.`,
+          `${classification.item} ${t('requiresSpecialDisposal')}`,
           { title: `⚠️ ${classification.category}` }
         );
       } else {
         notify?.success?.(
-          `${classification.item} identified as ${classification.category}!`,
-          { title: "✅ Scan Complete" }
+          `${classification.item} ${t('identified')} ${classification.category}!`,
+          { title: t('scanComplete') }
         );
       }
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Could not analyze. Please try again.";
+      const msg = err instanceof Error ? err.message : t('couldNotAnalyze');
       setError(msg);
       setStatusMessage(null);
-      notify?.error?.(msg, { title: "Analysis Failed" });
+      notify?.error?.(msg, { title: t('analysisFailedAfter') });
       console.error("Analysis error:", err);
     } finally {
       setAnalyzing(false);
@@ -462,7 +437,6 @@ export default function Scanner({ user, notify }) {
           </Link>
         )}
 
-        {/* Camera View */}
         {cameraOpen && (
           <div className="camera-container">
             <video
@@ -472,15 +446,14 @@ export default function Scanner({ user, notify }) {
               className="camera-video"
             />
             <button className="scanner-btn btn-capture" onClick={handleCapturePhoto}>
-              📸 Capture Photo
+              📸 {t('capturePhoto')}
             </button>
             <button className="scanner-btn btn-close" onClick={handleCloseCamera}>
-              ✕ Close
+              ✕ {t('close')}
             </button>
           </div>
         )}
 
-        {/* Image Preview & Analysis */}
         {capturedImage && !cameraOpen && !result && (
           <div className="camera-container">
             <img src={capturedImage} alt="Captured" className="camera-video" />
@@ -497,40 +470,38 @@ export default function Scanner({ user, notify }) {
                   onClick={handleAnalyze}
                   disabled={analyzing}
                 >
-                  🔍 Analyze Item
+                  🔍 {t('analyzeItem')}
                 </button>
                 <button
                   className="scanner-btn btn-camera"
                   onClick={handleOpenCamera}
                   disabled={analyzing}
                 >
-                  🔄 Retake
+                  🔄 {t('retake')}
                 </button>
                 <button
                   className="scanner-btn btn-choose"
                   onClick={handleChooseImage}
                   disabled={analyzing}
                 >
-                  📁 Choose Different
+                  📁 {t('chooseDifferent')}
                 </button>
               </>
             )}
           </div>
         )}
 
-        {/* Result Display */}
         {result && capturedImage && (
           <>
-            <ResultCard result={result} image={capturedImage} onRescan={handleRescan} />
+            <ResultCard result={result} image={capturedImage} onRescan={handleRescan} t={t} />
             {analysisTime && (
               <div className="analysis-time">
-                ⏱️ Analysis completed in {analysisTime}ms
+                ⏱️ {t('analysisComplete')} {analysisTime} {t('ms')}
               </div>
             )}
           </>
         )}
 
-        {/* Default Landing State */}
         {showDefault && (
           <>
             <div className="scanner-upload-area">
@@ -566,17 +537,17 @@ export default function Scanner({ user, notify }) {
                   strokeLinejoin="round"
                 />
               </svg>
-              <p className="upload-label">Scan an item to classify it</p>
+              <p className="upload-label">{t('scanAnItem')}</p>
               <p className="upload-sub">
-                Take a photo or upload an image — AI will identify the trash category
+                {t('takePhotoUpload')}
               </p>
             </div>
             <button className="scanner-btn btn-camera" onClick={handleOpenCamera}>
-              📷 Open Camera
+              📷 {t('openCamera')}
             </button>
             <span className="scanner-or">or</span>
             <button className="scanner-btn btn-choose" onClick={handleChooseImage}>
-              📁 Upload Image
+              📁 {t('uploadImage')}
             </button>
           </>
         )}

@@ -1,66 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from './hooks/useTranslation';
 import './dashboard.css';
-
-const CARD_DETAILS = {
-  scans: {
-    icon: '📷',
-    label: 'Total Scans',
-    value: '0',
-    badge: 'No scans yet',
-    badgeType: 'light',
-    primary: false,
-    details: [
-      { label: 'This Week', value: '0' },
-      { label: 'This Month', value: '0' },
-      { label: 'All Time', value: '0' },
-    ],
-    tip: 'Start scanning items to track your recycling journey. Every scan counts!',
-  },
-  recycled: {
-    icon: '♻️',
-    label: 'Items Recycled',
-    value: '0',
-    badge: 'Get started!',
-    badgeType: 'light',
-    primary: false,
-    details: [
-      { label: 'Plastic', value: '0' },
-      { label: 'Paper', value: '0' },
-      { label: 'Glass', value: '0' },
-      { label: 'Metal', value: '0' },
-    ],
-    tip: 'Recycle more items to see a breakdown by material type.',
-  },
-  rate: {
-    icon: '📊',
-    label: 'Recycling Rate',
-    value: '0%',
-    badge: 'Scan to build your rate',
-    badgeType: 'light',
-    primary: false,
-    details: [
-      { label: 'Recyclable', value: '0%' },
-      { label: 'Non-Recyclable', value: '0%' },
-      { label: 'Hazardous', value: '0%' },
-    ],
-    tip: 'Your recycling rate improves as you scan and recycle more items.',
-  },
-  waste: {
-    icon: '🌍',
-    label: 'Waste Diverted',
-    value: '0 kg',
-    badge: 'Your impact starts here',
-    badgeType: 'light',
-    primary: false,
-    details: [
-      { label: 'From Landfill', value: '0 kg' },
-      { label: 'CO₂ Saved', value: '0 kg' },
-      { label: 'Water Saved', value: '0 L' },
-    ],
-    tip: 'Every kilogram diverted from landfill reduces CO₂ emissions.',
-  },
-};
 
 function StatCard({ data, isExpanded, isShrunk, onClick }) {
   return (
@@ -116,6 +57,8 @@ function StatCard({ data, isExpanded, isShrunk, onClick }) {
 }
 
 export default function Dashboard({ user, notify }) {
+  // eslint-disable-next-line no-unused-vars
+  const { t, lang } = useTranslation();
   const navigate = useNavigate();
   const [expanded, setExpanded] = useState(null);
   const welcomeShown = useRef(false);
@@ -125,16 +68,77 @@ export default function Dashboard({ user, notify }) {
     
     welcomeShown.current = true;
     notify?.info(
-      "Start scanning items to track your recycling journey.",
-      { title: `Welcome back, ${user?.firstName || 'Eco-Warrior'}! 👋` }
+      t('startScanning'),
+      { title: `${t('welcomeBack')}, ${user?.firstName || t('ecoWarrior')}! 👋` }
     );
-  }, [notify, user?.firstName]);
+  }, [notify, user?.firstName, lang, t]);
 
   const toggle = (id) => setExpanded((prev) => (prev === id ? null : id));
 
   const handleScanClick = () => {
     notify?.success("Opening scanner…", { title: "Let's go! 📷" });
     navigate('/scanner');
+  };
+
+  // Build CARD_DETAILS dynamically with translations
+  const CARD_DETAILS = {
+    scans: {
+      icon: '📷',
+      label: t('totalScans'),
+      value: '0',
+      badge: t('noScansYet'),
+      badgeType: 'light',
+      primary: false,
+      details: [
+        { label: t('thisWeek'), value: '0' },
+        { label: t('thisMonth'), value: '0' },
+        { label: t('allTime'), value: '0' },
+      ],
+      tip: t('startScanning'),
+    },
+    recycled: {
+      icon: '♻️',
+      label: t('itemsRecycled'),
+      value: '0',
+      badge: t('getStarted'),
+      badgeType: 'light',
+      primary: false,
+      details: [
+        { label: t('plastic'), value: '0' },
+        { label: t('paper'), value: '0' },
+        { label: t('glass'), value: '0' },
+        { label: t('metal'), value: '0' },
+      ],
+      tip: 'Recycle more items to see a breakdown by material type.',
+    },
+    rate: {
+      icon: '📊',
+      label: t('recyclingRate'),
+      value: '0%',
+      badge: t('buildYourRate'),
+      badgeType: 'light',
+      primary: false,
+      details: [
+        { label: t('recyclable'), value: '0%' },
+        { label: 'Non-Recyclable', value: '0%' },
+        { label: t('hazardous'), value: '0%' },
+      ],
+      tip: t('recyclingRateImproves'),
+    },
+    waste: {
+      icon: '🌍',
+      label: t('wasteDiverted'),
+      value: '0 kg',
+      badge: t('yourImpactStartsHere'),
+      badgeType: 'light',
+      primary: false,
+      details: [
+        { label: 'From Landfill', value: '0 kg' },
+        { label: 'CO₂ Saved', value: '0 kg' },
+        { label: 'Water Saved', value: '0 L' },
+      ],
+      tip: t('everyKilogramDiverted'),
+    },
   };
 
   return (
@@ -144,21 +148,21 @@ export default function Dashboard({ user, notify }) {
         <header className="page-header">
           <div className="welcome-block">
             <h1>
-              Welcome, {user?.firstName || 'Eco-Warrior'}! 👋
+              {t('welcomeBack')}, {user?.firstName || t('ecoWarrior')}! 👋
               <span className="welcome-icon">🌱</span>
             </h1>
-            <p>You're all set! Start scanning items to track your recycling journey.</p>
+            <p>{t('startScanning')}</p>
           </div>
           <button className="btn-scan" onClick={handleScanClick}>
             <span className="scan-icon">📷</span>
-            Scan new Item
+            {t('scanNewItem')}
           </button>
         </header>
 
         <div className="onboarding-banner">
           <span className="banner-icon">💡</span>
           <p>
-            <strong>Welcome to EcoSnap!</strong> Hit <em>Scan new Item</em> to scan
+            <strong>Welcome to EcoSnap!</strong> Hit <em>{t('scanNewItem')}</em> to scan
             your first recyclable waste and start building your eco-impact.
           </p>
         </div>
@@ -181,16 +185,16 @@ export default function Dashboard({ user, notify }) {
         <div className="footer-inner">
           <div className="footer-links">
             <div className="footer-col">
-              <ul><li><Link to="/about">About Us</Link></li></ul>
+              <ul><li><Link to="/about">{t('aboutUs')}</Link></li></ul>
             </div>
             <div className="footer-col">
-              <ul><li><Link to="/contact">Contact Us</Link></li></ul>
+              <ul><li><Link to="/contact">{t('contactUs')}</Link></li></ul>
             </div>
             <div className="footer-col">
-              <ul><li><Link to="/privacy">Privacy Policy</Link></li></ul>
+              <ul><li><Link to="/privacy">{t('privacyPolicy')}</Link></li></ul>
             </div>
             <div className="footer-col">
-              <ul><li><Link to="/terms">Terms of Use</Link></li></ul>
+              <ul><li><Link to="/terms">{t('termsOfUse')}</Link></li></ul>
             </div>
           </div>
         </div>

@@ -1,9 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useTranslation } from "./hooks/useTranslation";
 import './profile.css';
 
 export default function Profile({ user }) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [stats, setStats] = useState({
     totalScans: 0,
     recyclableCount: 0,
@@ -36,7 +38,6 @@ export default function Profile({ user }) {
             residualCount: residual,
           });
 
-          // Get last 5 scans
           setRecentScans(data.slice(0, 5));
           setLoading(false);
         })
@@ -49,23 +50,20 @@ export default function Profile({ user }) {
 
   const initials = `${user?.firstName?.[0] ?? ""}${user?.lastName?.[0] ?? ""}`.toUpperCase();
 
-
-
-  // Environmental impact calculation (rough estimates)
   const co2Saved = (stats.recyclableCount * 0.5 + stats.biodegradableCount * 0.3).toFixed(1);
   const itemsSorted = stats.totalScans;
   const treesHelped = (stats.recyclableCount / 8).toFixed(1);
 
   const getAchievements = () => {
     const achievements = [];
-    if (stats.totalScans >= 1) achievements.push({ icon: "🌱", label: "First Step", description: "Completed your first scan", id: 1 });
-    if (stats.totalScans >= 10) achievements.push({ icon: "♻️", label: "Eco Scout", description: "10 scans completed", id: 2 });
-    if (stats.totalScans >= 25) achievements.push({ icon: "🌍", label: "Planet Guardian", description: "25 scans completed", id: 3 });
-    if (stats.totalScans >= 50) achievements.push({ icon: "🏆", label: "Waste Warrior", description: "50 scans completed", id: 4 });
-    if (stats.totalScans >= 100) achievements.push({ icon: "👑", label: "Eco Champion", description: "100 scans completed", id: 5 });
-    if (stats.recyclableCount >= 10) achievements.push({ icon: "📦", label: "Recycler", description: "10+ recyclables", id: 6 });
-    if (stats.biodegradableCount >= 10) achievements.push({ icon: "🌿", label: "Composter", description: "10+ compostables", id: 7 });
-    if (stats.hazardousCount + stats.eWasteCount >= 5) achievements.push({ icon: "⚠️", label: "Safety First", description: "5+ hazardous items", id: 8 });
+    if (stats.totalScans >= 1) achievements.push({ icon: "🌱", label: t('firstStep'), description: t('completedFirstScan'), id: 1 });
+    if (stats.totalScans >= 10) achievements.push({ icon: "♻️", label: t('ecoScout'), description: `10 ${t('scansCompleted')}`, id: 2 });
+    if (stats.totalScans >= 25) achievements.push({ icon: "🌍", label: t('planetGuardian'), description: t('scansCompleted25'), id: 3 });
+    if (stats.totalScans >= 50) achievements.push({ icon: "🏆", label: t('wasteWarrior'), description: t('scansCompleted50'), id: 4 });
+    if (stats.totalScans >= 100) achievements.push({ icon: "👑", label: t('ecoChampion'), description: t('scansCompleted100'), id: 5 });
+    if (stats.recyclableCount >= 10) achievements.push({ icon: "📦", label: t('recycler'), description: t('recyclablesLabel'), id: 6 });
+    if (stats.biodegradableCount >= 10) achievements.push({ icon: "🌿", label: t('composter'), description: t('compostablesLabel'), id: 7 });
+    if (stats.hazardousCount + stats.eWasteCount >= 5) achievements.push({ icon: "⚠️", label: t('safetyFirst'), description: t('hazardousItemsLabel'), id: 8 });
     return achievements;
   };
 
@@ -92,7 +90,7 @@ export default function Profile({ user }) {
   };
 
   const formatDate = (date) => {
-    if (!date) return "Recently";
+    if (!date) return t('recently');
     const options = { year: "numeric", month: "long" };
     return new Date(date).toLocaleDateString("en-US", options);
   };
@@ -124,14 +122,14 @@ export default function Profile({ user }) {
               <div className="profile-text">
                 <h2 className="profile-name">{user?.firstName} {user?.lastName}</h2>
                 <p className="profile-username">@{user?.username}</p>
-                <p className="profile-rank">🌿 Waste Classification Specialist</p>
+                <p className="profile-rank">🌿 {t('wasteClassificationSpecialist')}</p>
               </div>
               <button
                 className="edit-btn"
                 onClick={() => navigate("/settings")}
                 title="Edit your profile"
               >
-                ✏️ Edit
+                ✏️ {t('edit')}
               </button>
             </div>
 
@@ -148,7 +146,7 @@ export default function Profile({ user }) {
               )}
               <div className="detail-row">
                 <span className="detail-label">📅</span>
-                <span className="detail-value">Joined {formatDate(stats.joinDate)}</span>
+                <span className="detail-value">{t('joined')} {formatDate(stats.joinDate)}</span>
               </div>
             </div>
           </div>
@@ -157,13 +155,13 @@ export default function Profile({ user }) {
 
       {/* Environmental Impact Section */}
       <div className="impact-section">
-        <h3 className="section-title">🌍 Your Environmental Impact</h3>
+        <h3 className="section-title">🌍 {t('yourEnvironmental')}</h3>
         <div className="impact-grid">
           <div className="impact-card">
             <div className="impact-icon">🌱</div>
             <div className="impact-content">
               <div className="impact-number">{treesHelped}</div>
-              <div className="impact-label">Trees Helped</div>
+              <div className="impact-label">{t('treesHelped')}</div>
             </div>
           </div>
 
@@ -171,7 +169,7 @@ export default function Profile({ user }) {
             <div className="impact-icon">☁️</div>
             <div className="impact-content">
               <div className="impact-number">{co2Saved} kg</div>
-              <div className="impact-label">CO₂ Saved</div>
+              <div className="impact-label">{t('co2Saved')}</div>
             </div>
           </div>
 
@@ -179,7 +177,7 @@ export default function Profile({ user }) {
             <div className="impact-icon">📊</div>
             <div className="impact-content">
               <div className="impact-number">{itemsSorted}</div>
-              <div className="impact-label">Items Sorted</div>
+              <div className="impact-label">{t('itemsSorted')}</div>
             </div>
           </div>
 
@@ -187,7 +185,7 @@ export default function Profile({ user }) {
             <div className="impact-icon">⭐</div>
             <div className="impact-content">
               <div className="impact-number">{(stats.totalScans * 5).toLocaleString()}</div>
-              <div className="impact-label">Impact Points</div>
+              <div className="impact-label">{t('impactPoints')}</div>
             </div>
           </div>
         </div>
@@ -195,13 +193,13 @@ export default function Profile({ user }) {
 
       {/* Stats Section */}
       <div className="stats-section">
-        <h3 className="section-title">📊 Your Scanning Stats</h3>
+        <h3 className="section-title">📊 {t('yourScanningStats')}</h3>
         <div className="stats-grid">
           <div className="stat-card stat-total">
             <div className="stat-icon">📋</div>
             <div className="stat-content">
               <div className="stat-number">{stats.totalScans}</div>
-              <div className="stat-label">Total Scans</div>
+              <div className="stat-label">{t('totalScansProfile')}</div>
             </div>
           </div>
 
@@ -209,7 +207,7 @@ export default function Profile({ user }) {
             <div className="stat-icon">♻️</div>
             <div className="stat-content">
               <div className="stat-number">{stats.recyclableCount}</div>
-              <div className="stat-label">Recyclable</div>
+              <div className="stat-label">{t('recyclableProfile')}</div>
               <div className="stat-percent">{stats.totalScans > 0 ? Math.round(stats.recyclableCount / stats.totalScans * 100) : 0}%</div>
             </div>
           </div>
@@ -218,7 +216,7 @@ export default function Profile({ user }) {
             <div className="stat-icon">🌿</div>
             <div className="stat-content">
               <div className="stat-number">{stats.biodegradableCount}</div>
-              <div className="stat-label">Biodegradable</div>
+              <div className="stat-label">{t('biodegradableProfile')}</div>
               <div className="stat-percent">{stats.totalScans > 0 ? Math.round(stats.biodegradableCount / stats.totalScans * 100) : 0}%</div>
             </div>
           </div>
@@ -227,7 +225,7 @@ export default function Profile({ user }) {
             <div className="stat-icon">⚠️</div>
             <div className="stat-content">
               <div className="stat-number">{stats.hazardousCount + stats.eWasteCount}</div>
-              <div className="stat-label">Hazardous/E-Waste</div>
+              <div className="stat-label">{t('hazardousEWaste')}</div>
               <div className="stat-percent">{stats.totalScans > 0 ? Math.round((stats.hazardousCount + stats.eWasteCount) / stats.totalScans * 100) : 0}%</div>
             </div>
           </div>
@@ -237,7 +235,7 @@ export default function Profile({ user }) {
       {/* Recent Scans */}
       {recentScans.length > 0 && (
         <div className="recent-section">
-          <h3 className="section-title">📸 Recent Scans</h3>
+          <h3 className="section-title">📸 {t('recentScans')}</h3>
           <div className="recent-list">
             {recentScans.map((scan, idx) => (
               <div key={idx} className="recent-item">
@@ -262,7 +260,7 @@ export default function Profile({ user }) {
       {/* Achievements */}
       {achievements.length > 0 && (
         <div className="achievements-section">
-          <h3 className="section-title">🏅 Achievements ({achievements.length})</h3>
+          <h3 className="section-title">🏅 {t('achievements')} ({achievements.length})</h3>
           <div className="achievements-grid">
             {achievements.map((achievement) => (
               <div key={achievement.id} className="achievement-card">
@@ -283,19 +281,19 @@ export default function Profile({ user }) {
           className="action-btn action-scan"
           onClick={() => navigate("/scanner")}
         >
-          📸 Start Scanning
+          📸 {t('startScanning')}
         </button>
         <button
           className="action-btn action-history"
           onClick={() => navigate("/history")}
         >
-          📋 Scan History
+          📋 {t('scanHistoryBtn')}
         </button>
         <button
           className="action-btn action-settings"
           onClick={() => navigate("/settings")}
         >
-          ⚙️ Settings
+          ⚙️ {t('settingsBtn')}
         </button>
       </div>
     </div>

@@ -1,5 +1,6 @@
   import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
   import { useState, useEffect } from 'react';
+  import './index.css';
 
   import Login from './Login';
   import Register from './Register';
