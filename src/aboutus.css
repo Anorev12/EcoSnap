@@ -252,6 +252,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  box-shadow: 0 5px 5px rgba(0, 0, 0, 0.40);
 }
 
 .about-cta-btn:hover {

@@ -149,6 +149,7 @@ body {
   align-items: center;
   gap: 8px;
   transition: background .2s;
+  box-shadow: 0 5px 5px rgba(0, 0, 0, 0.40);
 }
 
 .btn-scan:hover {
@@ -315,7 +316,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  min-width: 110px;
+  min-width: 180px;
   flex: 1;
 }
 
@@ -326,6 +327,8 @@ body {
   letter-spacing: .4px;
   opacity: .65;
   color: var(--clr-text-muted);
+  white-space: normal;
+  word-break: break-word;
 }
 
 .detail-value {

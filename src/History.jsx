@@ -189,11 +189,11 @@ export default function History() {
 
       <div className="history-header">
         <div>
-          <h1 className="history-header__title">Scan History 🕐</h1>
+          <h1 className="history-header__title">Scan History</h1>
           <p className="history-header__sub">All your scanned items in one place.</p>
         </div>
         <button className="history-header__scan-btn" onClick={() => navigate('/scanner')}>
-          📷 Scan new Item
+        Scan new Item
         </button>
       </div>
 
@@ -222,11 +222,11 @@ export default function History() {
 
       {/* Dynamic filter tabs from admin categories */}
       <div className="history-filters">
-        {FILTERS.map(({ key, label, icon }) => (
+        {FILTERS.map(({ key, label}) => (
           <button key={key}
             className={`filter-chip ${activeFilter === key ? 'active' : ''}`}
             onClick={() => setActiveFilter(key)}>
-            {icon} {label}
+             {label}
             <span className="chip-count">{countFor(key)}</span>
           </button>
         ))}
@@ -246,7 +246,7 @@ export default function History() {
       )}
 
       {filtered.length > 0 && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16, marginTop: 8 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16, marginTop: 8, padding: '0 2.5rem 2rem' }}>
           {filtered.map((scan) => {
             const meta = categoryMeta[scan.category] ?? DEFAULT_META;
             return (

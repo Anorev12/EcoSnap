@@ -155,7 +155,7 @@ export default function Profile({ user }) {
 
       {/* Environmental Impact Section */}
       <div className="impact-section">
-        <h3 className="section-title">🌍 {t('yourEnvironmental')}</h3>
+        <h3 className="section-title">{t('yourEnvironmental')}</h3>
         <div className="impact-grid">
           <div className="impact-card">
             <div className="impact-icon">🌱</div>
@@ -193,7 +193,7 @@ export default function Profile({ user }) {
 
       {/* Stats Section */}
       <div className="stats-section">
-        <h3 className="section-title">📊 {t('yourScanningStats')}</h3>
+        <h3 className="section-title">{t('yourScanningStats')}</h3>
         <div className="stats-grid">
           <div className="stat-card stat-total">
             <div className="stat-icon">📋</div>
@@ -235,7 +235,7 @@ export default function Profile({ user }) {
       {/* Recent Scans */}
       {recentScans.length > 0 && (
         <div className="recent-section">
-          <h3 className="section-title">📸 {t('recentScans')}</h3>
+          <h3 className="section-title">{t('recentScans')}</h3>
           <div className="recent-list">
             {recentScans.map((scan, idx) => (
               <div key={idx} className="recent-item">
@@ -260,7 +260,7 @@ export default function Profile({ user }) {
       {/* Achievements */}
       {achievements.length > 0 && (
         <div className="achievements-section">
-          <h3 className="section-title">🏅 {t('achievements')} ({achievements.length})</h3>
+          <h3 className="section-title">{t('achievements')} ({achievements.length})</h3>
           <div className="achievements-grid">
             {achievements.map((achievement) => (
               <div key={achievement.id} className="achievement-card">
@@ -281,19 +281,19 @@ export default function Profile({ user }) {
           className="action-btn action-scan"
           onClick={() => navigate("/scanner")}
         >
-          📸 {t('startScanning')}
+          {t('startScanning')}
         </button>
         <button
           className="action-btn action-history"
           onClick={() => navigate("/history")}
         >
-          📋 {t('scanHistoryBtn')}
+          {t('scanHistoryBtn')}
         </button>
         <button
           className="action-btn action-settings"
           onClick={() => navigate("/settings")}
         >
-          ⚙️ {t('settingsBtn')}
+          {t('settingsBtn')}
         </button>
       </div>
     </div>

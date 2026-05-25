@@ -510,6 +510,7 @@ body[data-theme="dark"] .detail-value {
 .action-scan {
   background: var(--color-accent);
   color: #fff;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.30);
 }
 
 .action-scan:hover {

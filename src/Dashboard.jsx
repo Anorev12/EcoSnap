@@ -255,7 +255,7 @@ export default function Dashboard({ user, notify }) {
             <p>{t('startScanning')}</p>
           </div>
           <button className="btn-scan" onClick={handleScanClick}>
-            <span className="scan-icon">📷</span>
+            
             {t('scanNewItem')}
           </button>
         </header>

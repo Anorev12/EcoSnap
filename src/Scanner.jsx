@@ -364,7 +364,7 @@ export default function Scanner({ user, notify }) {
         {cameraOpen && (
           <div className="camera-container">
             <video ref={videoCallbackRef} autoPlay playsInline className="camera-video" />
-            <button className="scanner-btn btn-capture" onClick={handleCapturePhoto}>📸 {t("capturePhoto")}</button>
+            <button className="scanner-btn btn-capture" onClick={handleCapturePhoto}>{t("capturePhoto")}</button>
             <button className="scanner-btn btn-close" onClick={handleCloseCamera}>✕ {t("close")}</button>
           </div>
         )}
@@ -391,6 +391,12 @@ export default function Scanner({ user, notify }) {
 
         {result && capturedImage && (
           <>
+            <Link to="/dashboard" className="scanner-back-btn" title="Back to Dashboard">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </Link>
+
             {result.invalidScan
               ? <InvalidScanCard result={result} image={capturedImage} onRescan={handleRescan} />
               : <ResultCard result={result} image={capturedImage} onRescan={handleRescan} t={t} />
@@ -416,9 +422,9 @@ export default function Scanner({ user, notify }) {
               <span>✅ Plastic</span><span>✅ Paper</span><span>✅ Glass</span>
               <span>✅ Metal</span><span>✅ Organic</span><span>✅ E-Waste</span>
             </div>
-            <button className="scanner-btn btn-camera" onClick={handleOpenCamera}>📷 {t("openCamera")}</button>
+            <button className="scanner-btn btn-camera" onClick={handleOpenCamera}>{t("openCamera")}</button>
             <span className="scanner-or">or</span>
-            <button className="scanner-btn btn-choose" onClick={handleChooseImage}>📁 {t("uploadImage")}</button>
+            <button className="scanner-btn btn-choose" onClick={handleChooseImage}>{t("uploadImage")}</button>
           </>
         )}
       </div>

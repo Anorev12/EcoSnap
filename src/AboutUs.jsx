@@ -87,7 +87,7 @@ export default function AboutUs() {
         <div className="about-cta-icon">🌍</div>
         <h2>Ready to make an impact?</h2>
         <p>Join thousands of eco-conscious users already reducing waste with EcoSnap.</p>
-        <button className="about-cta-btn" onClick={handleScanner} >📸 Scan your first item</button>
+        <button className="about-cta-btn" onClick={handleScanner} >Scan your first item</button>
       </section>
     </div>
   );

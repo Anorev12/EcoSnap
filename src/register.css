@@ -111,7 +111,7 @@ body {
 .field label {
   font-size: 0.95rem;
   font-weight: 600;
-  color: var(--clr-white);
+  color: #ffffff !important; 
   letter-spacing: 0.3px;
 }
 
