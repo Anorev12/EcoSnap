@@ -16,7 +16,7 @@
 }
 
 .terms-header h1 {
-  color: #1a4314; /* Your dark green */
+  color: #1a4314;
   font-size: 2rem;
   margin: 0;
 }
@@ -61,19 +61,36 @@
   text-align: center;
   border-top: 1px solid #eee;
   padding-top: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.terms-footer-note {
+  font-size: 0.9rem;
+  color: #888;
+  max-width: 460px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.terms-footer-note strong {
+  color: #1a4314;
 }
 
 .accept-btn {
   background-color: #1a4314;
   color: white;
   border: none;
-  padding: 12px 40px;
+  padding: 13px 48px;
   border-radius: 8px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: background 0.2s ease;
 }
 
 .accept-btn:hover {
-  background-color: #71b340; /* Accent green from your logo */
+  background-color: #71b340;
 }

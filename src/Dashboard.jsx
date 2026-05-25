@@ -1,97 +1,117 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from './hooks/useTranslation';
 import './dashboard.css';
 
+// ── Stat helpers ──────────────────────────────────────────────────
+function isThisWeek(dateStr) {
+  const d = new Date(dateStr);
+  const now = new Date();
+  const startOfWeek = new Date(now);
+  startOfWeek.setDate(now.getDate() - now.getDay());
+  startOfWeek.setHours(0, 0, 0, 0);
+  return d >= startOfWeek;
+}
 
-export default function Dashboard({ user }) {
+function isThisMonth(dateStr) {
+  const d = new Date(dateStr);
+  const now = new Date();
+  return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+}
 
-// ─── Card detail content ──────────────────────────────────────────
-const CARD_DETAILS = {
-  scans: {
-    icon: '📷',
-    label: 'Total Scans',
-    value: '0',
-    badge: '📷 No scans yet',
-    badgeType: 'on-dark',
-    primary: true,
-    details: [
-      { label: 'This Week',  value: '0' },
-      { label: 'This Month', value: '0' },
-      { label: 'All Time',   value: '0' },
-    ],
-    tip: 'Start scanning items to track your recycling journey. Every scan counts!',
-  },
-  recycled: {
-    icon: '♻️',
-    label: 'Items Recycled',
-    value: '0',
-    badge: '🌿 Get started!',
-    badgeType: 'light',
-    primary: false,
-    details: [
-      { label: 'Plastic',  value: '0' },
-      { label: 'Paper',    value: '0' },
-      { label: 'Glass',    value: '0' },
-      { label: 'Metal',    value: '0' },
-    ],
-    tip: 'Recycle more items to see a breakdown by material type.',
-  },
-  rate: {
-    icon: '📊',
-    label: 'Recycling Rate',
-    value: '0%',
-    badge: 'Scan to build your rate',
-    badgeType: 'light',
-    primary: false,
-    details: [
-      { label: 'Recyclable',     value: '0%' },
-      { label: 'Non-Recyclable', value: '0%' },
-      { label: 'Hazardous',      value: '0%' },
-    ],
-    tip: 'Your recycling rate improves as you scan and recycle more items.',
-  },
-  waste: {
-    icon: '🌍',
-    label: 'Waste Diverted',
-    value: '0 kg',
-    badge: 'Your impact starts here',
-    badgeType: 'light',
-    primary: false,
-    details: [
-      { label: 'From Landfill',  value: '0 kg' },
-      { label: 'CO₂ Saved',      value: '0 kg' },
-      { label: 'Water Saved',    value: '0 L'  },
-    ],
-    tip: 'Every kilogram diverted from landfill reduces CO₂ emissions.',
-  },
-};
+function computeStats(scans) {
+  const valid = scans.filter((s) => !s.invalidScan);
 
-// ─── Single stat card ─────────────────────────────────────────────
-function StatCard({ id, data, isExpanded, isShrunk, onClick }) {
+  const total      = valid.length;
+  const thisWeek   = valid.filter((s) => isThisWeek(s.scannedAt)).length;
+  const thisMonth  = valid.filter((s) => isThisMonth(s.scannedAt)).length;
+
+  const recycled   = valid.filter((s) => s.recyclable).length;
+  const rate       = total > 0 ? Math.round((recycled / total) * 100) : 0;
+
+  // Category breakdown for recycled items
+  const catCount = (keyword) =>
+    valid.filter((s) => s.recyclable && s.category?.toLowerCase().includes(keyword)).length;
+
+  // Average waste-diverted % across all valid scans
+  const avgDiverted =
+    total > 0
+      ? Math.round(valid.reduce((sum, s) => sum + (s.wasteDiverted ?? 0), 0) / total)
+      : 0;
+
+  // Rough CO₂ estimate: ~2.5 kg CO₂ per item recycled
+  const co2Saved = (recycled * 2.5).toFixed(1);
+
+  // Category rate helpers
+  const catRate = (keyword) =>
+    total > 0
+      ? Math.round(
+          (valid.filter((s) => s.category?.toLowerCase().includes(keyword)).length / total) * 100
+        )
+      : 0;
+
+  return {
+    total, thisWeek, thisMonth,
+    recycled,
+    rate,
+    catCount,
+    avgDiverted,
+    co2Saved,
+    catRate,
+  };
+}
+
+// ── Fetch hook ────────────────────────────────────────────────────
+function useDashboardData(userId) {
+  const [scans,   setScans]   = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error,   setError]   = useState(null);
+
+  useEffect(() => {
+    if (!userId) { setLoading(false); return; }
+
+    const controller = new AbortController();
+
+    fetch(`http://localhost:8080/api/scanner/history/${userId}`, {
+      signal: controller.signal,
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error(`Failed to load data (${res.status})`);
+        return res.json();
+      })
+      .then((data) => { setScans(Array.isArray(data) ? data : []); setLoading(false); })
+      .catch((err) => {
+        if (err.name !== 'AbortError') { setError(err.message); setLoading(false); }
+      });
+
+    return () => controller.abort();
+  }, [userId]);
+
+  return { scans, loading, error };
+}
+
+// ── Stat Card ─────────────────────────────────────────────────────
+function StatCard({ data, isExpanded, isShrunk, onClick }) {
   return (
     <article
       className={[
         'stat-card',
-        data.primary ? 'stat-card--primary' : '',
-        isExpanded  ? 'stat-card--expanded' : '',
-        isShrunk    ? 'stat-card--shrunk'   : '',
+        data.primary   ? 'stat-card--primary'  : '',
+        isExpanded     ? 'stat-card--expanded' : '',
+        isShrunk       ? 'stat-card--shrunk'   : '',
       ].filter(Boolean).join(' ')}
       onClick={onClick}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => e.key === 'Enter' && onClick()}
     >
-      {/* ── Default view ── */}
       <div className="stat-card-default">
         <span className="stat-card-icon">{data.icon}</span>
         <div className="stat-value">{data.value}</div>
         <div className="stat-label">{data.label}</div>
-        <span className={`stat-badge stat-badge--${data.badgeType}`}>
-          {data.badge}
-        </span>
+        <span className={`stat-badge stat-badge--${data.badgeType}`}>{data.badge}</span>
       </div>
 
-      {/* ── Expanded view ── */}
       {isExpanded && (
         <div className="stat-card-expanded-content">
           <div className="expanded-header">
@@ -122,48 +142,154 @@ function StatCard({ id, data, isExpanded, isShrunk, onClick }) {
   );
 }
 
-// ─── Dashboard ────────────────────────────────────────────────────//
-export default function Dashboard() {
-
-  const navigate = useNavigate();
+// ── Dashboard ─────────────────────────────────────────────────────
+export default function Dashboard({ user, notify }) {
+  const { t, lang } = useTranslation();
+  const navigate     = useNavigate();
   const [expanded, setExpanded] = useState(null);
+  const welcomeShown = useRef(false);
+
+  const { scans, loading, error } = useDashboardData(user?.id);
+
+  useEffect(() => {
+    if (welcomeShown.current) return;
+    welcomeShown.current = true;
+    notify?.info(
+      t('startScanning'),
+      { title: `${t('welcomeBack')}, ${user?.firstName || t('ecoWarrior')}! 👋` }
+    );
+  }, [notify, user?.firstName, lang, t]);
 
   const toggle = (id) => setExpanded((prev) => (prev === id ? null : id));
+
+  const handleScanClick = () => {
+    notify?.success('Opening scanner…', { title: "Let's go! 📷" });
+    navigate('/scanner');
+  };
+
+  // ── Compute live stats ────────────────────────────────────────
+  const {
+    total, thisWeek, thisMonth,
+    recycled,
+    rate,
+    catCount,
+    avgDiverted,
+    co2Saved,
+    catRate,
+  } = computeStats(scans);
+
+  const hasData = total > 0;
+
+  const CARD_DETAILS = {
+    scans: {
+      icon: '📷',
+      label: t('totalScans'),
+      value: String(total),
+      badge: hasData ? `${thisWeek} this week` : t('noScansYet'),
+      badgeType: hasData ? 'green' : 'light',
+      primary: false,
+      details: [
+        { label: t('thisWeek'),  value: String(thisWeek) },
+        { label: t('thisMonth'), value: String(thisMonth) },
+        { label: t('allTime'),   value: String(total) },
+      ],
+      tip: t('startScanning'),
+    },
+    recycled: {
+      icon: '♻️',
+      label: t('itemsRecycled'),
+      value: String(recycled),
+      badge: hasData ? `${rate}% recyclable` : t('getStarted'),
+      badgeType: hasData ? 'green' : 'light',
+      primary: false,
+      details: [
+        { label: 'Recyclable',    value: String(catCount('recyclable')) },
+        { label: 'Biodegradable', value: String(catCount('biodegradable')) },
+        { label: 'Hazardous',     value: String(catCount('hazardous')) },
+        { label: 'E-Waste',       value: String(catCount('e-waste') + catCount('ewaste')) },
+      ],
+      tip: 'Recycle more items to see a full breakdown by category.',
+    },
+    rate: {
+      icon: '📊',
+      label: t('recyclingRate'),
+      value: `${rate}%`,
+      badge: hasData
+        ? rate >= 70 ? '🌟 Excellent!' : rate >= 40 ? '👍 Good progress' : '📈 Keep going'
+        : t('buildYourRate'),
+      badgeType: hasData ? (rate >= 70 ? 'green' : 'yellow') : 'light',
+      primary: false,
+      details: [
+        { label: 'Recyclable',    value: `${catRate('recyclable')}%` },
+        { label: 'Non-Recyclable',value: `${catRate('residual') + catRate('non')}%` },
+        { label: 'Hazardous',     value: `${catRate('hazardous')}%` },
+      ],
+      tip: t('recyclingRateImproves'),
+    },
+    waste: {
+      icon: '🌍',
+      label: t('wasteDiverted'),
+      value: hasData ? `${avgDiverted}%` : '0%',
+      badge: hasData ? `${recycled} items diverted` : t('yourImpactStartsHere'),
+      badgeType: hasData ? 'green' : 'light',
+      primary: false,
+      details: [
+        { label: 'Avg. Diversion Rate', value: `${avgDiverted}%` },
+        { label: 'Items Diverted',       value: String(recycled) },
+        { label: 'Est. CO₂ Saved',       value: `${co2Saved} kg` },
+      ],
+      tip: t('everyKilogramDiverted'),
+    },
+  };
 
   return (
     <div className="dashboard-container">
       <div className="page-shell">
 
-        {/* Header */}
         <header className="page-header">
           <div className="welcome-block">
             <h1>
-              Welcome, {user.firstName}! 👋  {/* ✅ dynamic first name */}
+              {t('welcomeBack')}, {user?.firstName || t('ecoWarrior')}! 👋
               <span className="welcome-icon">🌱</span>
             </h1>
-            <p>You're all set! Start scanning items to track your recycling journey.</p>
+            <p>{t('startScanning')}</p>
           </div>
-          <button className="btn-scan" onClick={() => navigate('/scanner')}>
-            <span className="scan-icon">📷</span>
-            Scan new Item
+          <button className="btn-scan" onClick={handleScanClick}>
+            
+            {t('scanNewItem')}
           </button>
         </header>
 
-        {/* Banner */}
-        <div className="onboarding-banner">
-          <span className="banner-icon">💡</span>
-          <p>
-            <strong>Welcome to EcoSnap!</strong> Hit <em>Scan new Item</em> to scan
-            your first recyclable waste and start building your eco-impact.
-          </p>
-        </div>
+        {/* ── Loading / Error banners ── */}
+        {loading && (
+          <div className="onboarding-banner">
+            <span className="banner-icon">⏳</span>
+            <p>Loading your eco stats…</p>
+          </div>
+        )}
 
-        {/* Stats Grid */}
-        <section className={`stats-grid${expanded ? ' has-expanded' : ''}`}>
+        {error && !loading && (
+          <div className="onboarding-banner" style={{ borderColor: '#fca5a5', background: '#fef2f2' }}>
+            <span className="banner-icon">⚠️</span>
+            <p>Could not load your stats: {error}</p>
+          </div>
+        )}
+
+        {!loading && !error && !hasData && (
+          <div className="onboarding-banner">
+            <span className="banner-icon">💡</span>
+            <p>
+              <strong>Welcome to EcoSnap!</strong> Hit <em>{t('scanNewItem')}</em> to scan
+              your first recyclable waste and start building your eco-impact.
+            </p>
+          </div>
+        )}
+
+        {/* ── Stats grid ── */}
+        <section className={`stats-grid ${expanded ? 'has-expanded' : ''}`}>
           {Object.entries(CARD_DETAILS).map(([id, data]) => (
             <StatCard
               key={id}
-              id={id}
               data={data}
               isExpanded={expanded === id}
               isShrunk={expanded !== null && expanded !== id}
@@ -174,28 +300,13 @@ export default function Dashboard() {
 
       </div>
 
-      {/* Footer */}
       <footer className="site-footer">
         <div className="footer-inner">
           <div className="footer-links">
-
-            <div className="footer-col">
-              <ul><li><Link to="/about">About Us</Link></li></ul>
-            </div>
-            <div className="footer-col">
-              <ul><li><Link to="/contact">Contact Us</Link></li></ul>
-            </div>
-            <div className="footer-col">
-              <ul><li><Link to="/privacy">Privacy Policy</Link></li></ul>
-            </div>
-            <div className="footer-col">
-              <ul><li><Link to="/terms">Terms of Use</Link></li></ul>
-            </div>
-
-            <div className="footer-col"><ul><li><Link to="/about">About Us</Link></li></ul></div>
-            <div className="footer-col"><ul><li><Link to="/contact">Contact Us</Link></li></ul></div>
-            <div className="footer-col"><ul><li><Link to="/privacy">Privacy Policy</Link></li></ul></div>
-            <div className="footer-col"><ul><li><Link to="/terms">Terms of Use</Link></li></ul></div>
+            <div className="footer-col"><ul><li><Link to="/about">{t('aboutUs')}</Link></li></ul></div>
+            <div className="footer-col"><ul><li><Link to="/contact">{t('contactUs')}</Link></li></ul></div>
+            <div className="footer-col"><ul><li><Link to="/privacy">{t('privacyPolicy')}</Link></li></ul></div>
+            <div className="footer-col"><ul><li><Link to="/terms">{t('termsOfUse')}</Link></li></ul></div>
           </div>
         </div>
         <div className="footer-bottom">
@@ -204,6 +315,4 @@ export default function Dashboard() {
       </footer>
     </div>
   );
-
-}
 }

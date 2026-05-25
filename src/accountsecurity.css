@@ -1,2 +1,214 @@
-.security-btn { display: block; width: 200px; padding: 12px; margin: 10px 0; border-radius: 5px; border: none; background: #1a4314; color: white; cursor: pointer; }
-.security-btn.outline { background: transparent; border: 1px solid #1a4314; color: #1a4314; }
+.support-content {
+  padding: 2rem 1.5rem;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Header */
+.page-header {
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: 1.5rem;
+}
+
+.page-header h2 {
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0 0 6px;
+  color: #1a1a1a;
+}
+
+.page-header p {
+  font-size: 15px;
+  color: #666;
+  margin: 0;
+}
+
+/* Cards */
+.security-grid {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  margin-bottom: 2rem;
+}
+
+.security-card {
+  flex: 1;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.card-icon-wrap {
+  width: 46px;
+  height: 46px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+
+.icon-green { background: #E1F5EE; }
+.icon-blue  { background: #E6F1FB; }
+.icon-amber { background: #FAEEDA; }
+
+.card-body h3 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 4px;
+  color: #1a1a1a;
+}
+
+.card-body p {
+  font-size: 13px;
+  color: #666;
+  margin: 0 0 12px;
+  line-height: 1.6;
+}
+
+/* Buttons */
+.sec-btn {
+  display: inline-block;
+  padding: 9px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.15s;
+}
+
+.sec-btn:hover { opacity: 0.85; }
+
+.sec-btn.primary {
+  background: #1a4314;
+  color: #fff;
+}
+
+.sec-btn.outline {
+  background: transparent;
+  border: 1px solid #1a4314;
+  color: #1a4314;
+}
+
+.sec-btn.danger {
+  background: transparent;
+  border: 1px solid #c0392b;
+  color: #c0392b;
+}
+
+.sec-btn.danger:hover { background: #fff5f5; }
+
+/* Tips */
+.tips-section {
+  background: #f9f9f9;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.tips-section h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tips-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tip-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.tip-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+.tip-row p {
+  font-size: 13px;
+  color: #555;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Danger Zone */
+.danger-zone {
+  border: 1px solid #f5c6c6;
+  border-radius: 12px;
+  padding: 1.25rem;
+  background: #fff8f8;
+}
+
+.danger-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.danger-header h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #c0392b;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.danger-zone p {
+  font-size: 13px;
+  color: #888;
+  margin: 0 0 12px;
+  line-height: 1.6;
+}
+
+/* Checkbox Confirmation Styles */
+.confirmation-wrapper {
+  margin-bottom: 1.25rem;
+  padding: 12px;
+  background: rgba(192, 57, 43, 0.05);
+  border-radius: 8px;
+  border-left: 3px solid #c0392b;
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.checkbox-container input {
+  margin-top: 3px;
+  accent-color: #c0392b; /* Colors the checkbox red when checked */
+  cursor: pointer;
+}
+
+.checkbox-text {
+  font-size: 13px;
+  color: #c0392b;
+  font-weight: 500;
+  line-height: 1.4;
+  user-select: none;
+}
+
+/* Disabled State for Button */
+.sec-btn.danger:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: #f5f5f5;
+  border-color: #ddd;
+  color: #999;
+}

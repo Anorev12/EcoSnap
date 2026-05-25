@@ -83,12 +83,13 @@
   transition: color 0.2s;
 }
 
-.contact-sidebar li a{
-color: #666;
-text-decoration: none;
+.contact-sidebar li a {
+  color: #666;
+  text-decoration: none;
 }
 
-.contact-sidebar li:hover, .contact-sidebar li.active {
+.contact-sidebar li:hover,
+.contact-sidebar li.active {
   color: var(--eco-mid-green);
   font-weight: bold;
 }
@@ -118,7 +119,7 @@ text-decoration: none;
 }
 
 .note-box {
-  background-color: #fff9e6; /* Keeping the Shopee note color for visibility */
+  background-color: #fff9e6;
   border: 1px solid #ffe58f;
   padding: 15px;
   display: flex;
@@ -137,4 +138,80 @@ text-decoration: none;
   align-items: center;
   justify-content: center;
   border-radius: 10px;
+}
+
+
+/* ═══════════════════════════════════════════════════
+   DARK MODE
+═══════════════════════════════════════════════════ */
+
+body[data-theme="dark"] .contact-container {
+  background-color: #121212;
+  color: #e0e0e0;
+}
+
+body[data-theme="dark"] .search-wrapper {
+  background-color: #1e1e1e;
+}
+
+body[data-theme="dark"] .search-wrapper input {
+  background-color: #1e1e1e;
+  color: #e0e0e0;
+}
+
+body[data-theme="dark"] .search-wrapper input::placeholder {
+  color: #555;
+}
+
+body[data-theme="dark"] .contact-sidebar li {
+  border-bottom-color: #2a2a2a;
+  color: #aaa;
+}
+
+body[data-theme="dark"] .contact-sidebar li a {
+  color: #aaa;
+}
+
+body[data-theme="dark"] .contact-sidebar li:hover,
+body[data-theme="dark"] .contact-sidebar li.active {
+  color: #76c442;
+}
+
+body[data-theme="dark"] .article-header h2 {
+  color: #f0f0f0;
+}
+
+body[data-theme="dark"] .subtitle {
+  color: #888;
+}
+
+body[data-theme="dark"] .subtitle strong {
+  color: #76c442;
+}
+
+body[data-theme="dark"] .highlight {
+  color: #76c442;
+}
+
+body[data-theme="dark"] .note-box {
+  background-color: #2a2a1a;
+  border-color: #4a4a20;
+  color: #ccc;
+}
+
+body[data-theme="dark"] .image-placeholder {
+  background-color: #1a2a1a;
+  border-color: #2e4a2e;
+  color: #4a7a4a;
+}
+
+body[data-theme="dark"] .contact-main p,
+body[data-theme="dark"] .contact-main li,
+body[data-theme="dark"] .contact-main span {
+  color: #ccc;
+}
+
+body[data-theme="dark"] .contact-main h3,
+body[data-theme="dark"] .contact-main h4 {
+  color: #e0e0e0;
 }
